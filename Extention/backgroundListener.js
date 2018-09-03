@@ -1,3 +1,6 @@
+
+
+
 chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 	// get where that image is hosted
 	var a = document.createElement('a');
@@ -37,12 +40,15 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 	//The illustration name is always in <h1>NAME</h1>
 	if (hostname.indexOf('pximg') > -1) {
 		//since pixiv does not give info about name and author, try to extract it from the title of the page
-		chrome.tabs.getSelected(null, function(tab) { alert(tab.title);
+		chrome.tabs.query({ active: true, currentWindow: true },  function sasuga(tabs) {
+			title=tabs[0].title;
+			alert(title);
 		});
-		var doctitle = tab.title;
-		var author = doctitle.substring(doctitle.lastIndexOf('「'),doctitle.lastIndexOf('」'));
-		var name = doctitle.substring(doctitle.indexOf('「'),doctitle.indexOf('」'));
-		alert(tab.title + ' ' +  doctitle + ' ' + author + ' ' + name);
+		
+		alert(title);
+		var author = title.substring(title.lastIndexOf('\u300C')+1,title.lastIndexOf('\u300D'));
+		var name = title.substring(title.indexOf('\u300C')+1,title.indexOf('\u300D'));
+		alert(author + ' - ' + name);
 		
 		// if user wants to save a rescaled thumbnail, add a tag
 		if (filename.indexOf('master') > -1) {
