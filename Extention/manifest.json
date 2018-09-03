@@ -8,5 +8,8 @@
 	},
 	"version": "0.0.1",
 	"manifest_version": 2,
-	"permissions": [ "contextMenus", "downloads", "storage" ]
+	"permissions": [ "contextMenus", "downloads", "storage" ],
+	"background": {
+		"scripts": [ "contextMenu.js" ]
+	}
 }
