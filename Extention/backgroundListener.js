@@ -3,7 +3,7 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 	var a = document.createElement('a');
 	a.href = item.url;
 	var hostname = a.hostname;
-
+		
 	// get filename determined by Chrome
 	var ChromeFilename = item.filename;
 	
@@ -12,21 +12,29 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 	var filename = ChromeFilename.substring(0, ChromeFilename.lastIndexOf('.'));
 	
 	// extract the domain from hostname - indexOf is freakingly fast, see https://jsperf.com/substring-test
+	// DEVIANTART
 	if (hostname.indexOf('deviantart') > -1) {
 		// author is a string starting after _by_ and ending with the last '-'
 		var author = filename.substring(filename.lastIndexOf('_by_')+4,filename.lastIndexOf('-'));
 		// reformat filename to this template, moving the author info
 		filename = '[' + author + '@DA] ' + filename.substring(0, filename.lastIndexOf('_by_'));
 	};
-
+	
+	//TUMBLR
+	//Add parser for <figcaption>AUTHOR</figcaption>
 	if (hostname.indexOf('tumblr') > -1) {
 		filename = '[' + author + '@TU@] ' + filename;
 	};
 	
+	//TWITTER
 	if (hostname.indexOf('twimg') > -1) {
 		filename = '[' + author + '@TW] ' + filename;
+		//cleaning ext - twitter links are nasty
+		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('-large')); };
 	};
 	
+	//PIXIV
+	//The illustration name is always in <h1>NAME</h1>
 	if (hostname.indexOf('pximg') > -1) {
 		//since pixiv does not give info about name and author, try to extract it from the title of the page
 		chrome.tabs.getSelected(null, function(tab) { alert(tab.title);
@@ -43,7 +51,8 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 		
 		var number = filename.substring(0,filename.lastIndexOf('_'));
 		filename = '[' + author + '@PX] pixiv_' + number + ' ' + name;
-	};
+
+		};
 
 
 	// make sure the name is not left blank
