@@ -1,7 +1,4 @@
 chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
-
-	var downloadInfo = {};
-		
 	// get where that image is hosted
 	var a = document.createElement('a');
 	a.href = item.url;
