@@ -29,13 +29,12 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 	
 	if (hostname.indexOf('pximg') > -1) {
 		//since pixiv does not give info about name and author, try to extract it from the title of the page
-		chrome.tabs.getSelected(null, function(tab) {
-		alert(tab.title);       
-		});
-		var doctitle = tab.title;
-		var author = doctitle.substring(doctitle.lastIndexOf('「'),doctitle.lastIndexOf('」'));
-		var name = doctitle.substring(doctitle.indexOf('「'),doctitle.indexOf('」'));
-		alert(tab.title + ' ' +  doctitle + ' ' + author + ' ' + name);
+		//TODO: IMPLEMENT IT LATER
+		//chrome.tabs.getSelected(null, function(tab){var tab;});
+		//var doctitle = tab.title;
+		//var author = doctitle.substring(doctitle.lastIndexOf('「'),doctitle.lastIndexOf('」'));
+		//var name = doctitle.substring(doctitle.indexOf('「'),doctitle.indexOf('」'));
+		//alert(document.title + ' ' +  doctitle + ' ' + author + ' ' + name);
 		
 		// if user wants to save a rescaled thumbnail, add a tag
 		if (filename.indexOf('master') > -1) {
@@ -43,7 +42,8 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 		};
 		
 		var number = filename.substring(0,filename.lastIndexOf('_'));
-		filename = '[' + author + '@PX] pixiv_' + number + ' ' + name;
+		//filename = '[' + author + '@PX] pixiv_' + number + ' ' + name;
+		filename = '[@PX] pixiv_' + number;
 	};
 
 

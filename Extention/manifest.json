@@ -8,7 +8,7 @@
 	},
 	"version": "0.0.1",
 	"manifest_version": 2,
-	"permissions": [ "contextMenus", "downloads", "storage", "tabs"],
+	"permissions": [ "downloads", "storage", "tabs", "activeTab"],
 	"background": {
 		"scripts": [ "backgroundListener.js" ]
 	}
