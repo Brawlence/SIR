@@ -6,7 +6,7 @@
 		"48": "SIaIR_48x48.png",
 		"16": "SIaIR_16x16.png"
 	},
-	"version": "0.0.1",
+	"version": "0.1",
 	"manifest_version": 2,
 	"permissions": [ "downloads", "storage", "tabs"],
 	"background": {
