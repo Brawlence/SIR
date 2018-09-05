@@ -1,29 +1,36 @@
 //global variable with the active tab title, updated every time user tries to change the active tab
-var tNfo = 'empty_name';
+//var tNfo = 'empty_name';
 
 chrome.tabs.onActivated.addListener( function(info) {
 	chrome.tabs.query({active: true, currentWindow: true },  function sasuga(tabs) {
-		localStorage["current_title"] = tabs[0].title;
-		tNfo=tabs[0].title;
+		localStorage["active_tab_title"] = tabs[0].title;
+		localStorage["active_tab_url"] = tabs[0].url;
+		//tNfo=tabs[0].title;
 	});
+});
+
+chrome.tabs.onUpdated.addListener(function (tabId , info) {
+      localStorage["active_tab_url"] = info.url;
 });
 
 chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 	
 	//if we still don't know the active tab title
-	if (tNfo == 'empty_name') {
+	if (localStorage["active_tab_title"] > -1) {
 		//break the download
 		chrome.downloads.cancel(item.id);
 		
 	} else {
 		
+		alert(localStorage["active_tab_title"] + ' ' + localStorage["active_tab_url"]);
 		//MEANINGFUL NAMING
 		
 			// get where that image is hosted
 			var a = document.createElement('a');
 			a.href = item.url;
+			alert (item.url);
 			var hostname = a.hostname;
-				
+			
 			// get filename determined by Chrome
 			var ChromeFilename = item.filename;
 			
@@ -34,10 +41,15 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 			// extract the domain from hostname - indexOf is freakingly fast, see https://jsperf.com/substring-test
 			// DEVIANTART
 			if (hostname.indexOf('deviantart') > -1) {
+
 				// author is a string starting after _by_ and ending with the last '-'
-				var author = filename.substring(filename.lastIndexOf('_by_')+4,filename.lastIndexOf('-'));
+				var author = filename.substring(filename.lastIndexOf('_by_')+4,filename.lastIndexOf('-')); // old operation based on the file link
+				//filename = localStorage["active_tab_title"];
+				//var author = filename.substring(filename.lastIndexOf(' by ')+4,filename.lastIndexOf(' on Deviant'));
+
 				// reformat filename to this template, moving the author info
-				filename = '[' + author + '@DA] ' + filename.substring(0, filename.lastIndexOf('_by_'));
+				filename = '[' + author + '@DA] ' + filename.substring(0, filename.lastIndexOf('_by_')); // old operation based on the file link
+				//filename = '[' + author + '@DA] ' + filename.substring(0, filename.lastIndexOf(' by '));
 			};
 			
 			//TUMBLR
@@ -57,7 +69,7 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 			//The illustration name is always in <h1>NAME</h1>
 			if (hostname.indexOf('pximg') > -1) {
 				//since pixiv does not give info about name and author, try to extract it from the title of the page
-
+				var tNfo = localStorage["active_tab_title"];
 				var author = tNfo.substring(tNfo.lastIndexOf('\u300C')+1,tNfo.lastIndexOf('\u300D'));
 				var name = tNfo.substring(tNfo.indexOf('\u300C')+1,tNfo.indexOf('\u300D'));
 				//alert('The resulting author-picture is ' + author + ' - ' + name);
@@ -90,5 +102,5 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 		suggest({ filename: filename, conflictAction: "uniquify" });
 
 	};
-	tNfo = 'empty_name';
+	//tNfo = 'empty_name';
 });
