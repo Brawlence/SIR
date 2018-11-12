@@ -6,8 +6,8 @@
 		"48": "SIaIR_48x48.png",
 		"16": "SIaIR_16x16.png"
 	},
-	"version": "0.2",
-	"manifest_version": 2,
+	"version": "0.3",
+	"manifest_version": 3,
 	"permissions": [ "downloads", "storage", "activeTab"],
 	"content_scripts": [
 		{
