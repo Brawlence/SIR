@@ -70,7 +70,7 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 			if (hostname.indexOf('pximg') > -1) {
 				//since pixiv does not give info about name and author, try to extract it from the title of the page
 				var tNfo = localStorage["active_tab_title"];
-				var author = tNfo.substring(tNfo.lastIndexOf('\u300C')+1,tNfo.lastIndexOf('\u300D'));
+				var author = tNfo.substring(tNfo.lastIndexOf('\u300C')+1,tNfo.lastIndexOf('\u300D')); // '「' and '」' as last indexes
 				var name = tNfo.substring(tNfo.indexOf('\u300C')+1,tNfo.indexOf('\u300D'));
 				//alert('The resulting author-picture is ' + author + ' - ' + name);
 				
