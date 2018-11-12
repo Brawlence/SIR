@@ -8,7 +8,29 @@
 	},
 	"version": "0.2",
 	"manifest_version": 2,
-	"permissions": [ "downloads", "storage", "tabs"],
+	"permissions": [ "downloads", "storage", "activeTab"],
+	"content_scripts": [
+		{
+		"matches": ["*://*.deviantart.com/*", "*://*.deviantart.net/*"],
+		"css": ["DAtagsStyle.css"],
+		"js": ["DAtagsParser_content_script.js"]
+		},
+		{
+		"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
+		"css": ["PXtagsStyle.css"],
+		"js": ["PXtagsParser_content_script.js"]		
+		},
+		{
+		"matches": ["*://*.tumblr.com/*"],
+		"css": ["TUtagsStyle.css"],
+		"js": ["TUtagsParser_content_script.js"]		
+		},
+		{
+		"matches": ["*://*.twitter.com/*", "*://*.twimg.com/*"],
+		"css": ["TWtagsStyle.css"],
+		"js": ["TWtagsParser_content_script.js"]		
+		}
+	],
 	"background": {
 		"scripts": [ "backgroundListener.js" ]
 	}
