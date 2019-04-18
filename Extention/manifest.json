@@ -1,5 +1,5 @@
 {
-	"name": "SIaIR",
+	"name": "SIR",
 	"description" : "SIR is an Image Renamer. Automatically provides meaningful author tags while saving images from pixiv, twitter, deviantart, tumblr, artstation, hentaifoundry.",
 	"icons": {
 		"128": "SIaIR_128x128.png",
