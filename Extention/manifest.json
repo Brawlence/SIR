@@ -36,7 +36,7 @@
 			"js": ["AS/tagsParser_content_script.js"]		
 		},
 		{
-			"matches": ["*://*.hentaifoundry.com/*"],
+			"matches": ["*://*.hentai-foundry.com/*","*://*.hentaifoundry.com/*"],
 			"css": ["HF/tagsStyle.css"],
 			"js": ["HF/tagsParser_content_script.js"]		
 		}

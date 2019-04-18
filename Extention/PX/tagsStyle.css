@@ -1,4 +1,4 @@
-a.gtm-new-work-translate-tag-event-click  { /* experimental pixiv tag translation - no hash-sign */
+a.gtm-new-work-translate-tag-event-click { /* experimental pixiv tag translation - no hash-sign */
 	color: #178426 !important;
 	font-size: 60px !important;
 }
@@ -8,7 +8,9 @@ a.qE_sxIX.gtm-new-work-tag-event-click { /* pixiv tag search - hash is included 
 	font-size: 60px !important;
 }
 
-a.qE_sxIX.gtm-new-work-tag-event-click:before { /* */
+/*
+a.qE_sxIX.gtm-new-work-tag-event-click:before { 
 	color: #00000038; /* !important;
-	font-size: 60px !important; */
+	font-size: 60px !important;	
 }
+*/

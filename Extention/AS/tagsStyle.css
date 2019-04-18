@@ -1,9 +1,4 @@
-.discoverytag a{
-	color: #178426 !important;
-	font-size: 60px !important;
-}
-
-.discoverytag-hash span {
-	color: #00000038 !important;
+div.tags a { /* FINALLY - an Artstation tag is a link (a) inside a div with tags class - it's complete with a hash sign */
+	color: #178426 !important; /* let's hightlight em */
 	font-size: 60px !important;
 }
