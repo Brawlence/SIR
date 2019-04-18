@@ -1,12 +1,12 @@
 {
 	"name": "SIR",
-	"description" : "SIR is an Image Renamer. Automatically provides meaningful author tags while saving images from pixiv, twitter, deviantart, tumblr, artstation, hentaifoundry.",
+	"description" : "SIR is an Image Renamer.\nAutomatically provides meaningful data while saving images from pixiv, twitter, deviantart, tumblr, artstation, hentaifoundry.\nThose include author name, site of origin, any tracked tags, unique IDs (if availible).",
 	"icons": {
 		"128": "SIR_128x128.png",
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"manifest_version": 3,
 	"permissions": [ "downloads", "storage", "activeTab"],
 	"content_scripts": [

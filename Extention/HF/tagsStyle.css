@@ -1,4 +1,8 @@
 div.boxbody td a[rel="tag"] { /* Those are called "Keywords" on HF */
-	color: #178426 !important;
-	font-size: 60px !important;
+	color: #172b84 !important;
+}
+
+div.boxbody td a[rel="tag"]::before {
+	content: "TAG: ";
+	color: crimson;
 }

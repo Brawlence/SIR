@@ -1,4 +1,8 @@
 a.post_tag   { /* Tumblr - with hash-sign */
-	color: #178426 !important;
-	font-size: 20px !important;
+	color: #172b84 !important;
+}
+
+a.post_tag::before   {
+	content: "TAG: ";
+	color: crimson;
 }

@@ -1,16 +1,17 @@
-a.gtm-new-work-translate-tag-event-click { /* experimental pixiv tag translation - no hash-sign */
-	color: #178426 !important;
-	font-size: 60px !important;
+figcaption div h1 { /* usually the name of the picture */
+	color: #172b84 !important;
 }
 
-a.qE_sxIX.gtm-new-work-tag-event-click { /* pixiv tag search - hash is included in ::before->content so effectively none hash-sign too */
-	color: #178426 !important;
-	font-size: 60px !important;
+figcaption div h1::before {
+	content: "NAME: ";
+	color: crimson;
 }
 
-/*
-a.qE_sxIX.gtm-new-work-tag-event-click:before { 
-	color: #00000038; /* !important;
-	font-size: 60px !important;	
+figcaption div footer ul li { /* usually the tag - translated or not, no hash-sign */ 
+	color: #172b84 !important;
 }
-*/
+
+figcaption div footer ul li::before {
+	content: "TAG: ";
+	color: crimson;
+}

@@ -1,9 +1,12 @@
-.discoverytag a{
-	color: #178426 !important;
-	font-size: 60px !important;
+div.dev-title-container a.discoverytag { /*Deviantart tag */
+	color: #172b84 !important;
 }
 
-.discoverytag-hash span {
-	color: #00000038 !important;
-	font-size: 60px !important;
+div.dev-title-container a.discoverytag::before {
+	content: "TAG: ";
+	color: crimson;
+}
+
+div.dev-title-container span.discoverytag-hash { /*Hash of said tag*/
+	color: #172b84 !important;
 }

@@ -1,4 +1,8 @@
 div.tags a { /* FINALLY - an Artstation tag is a link (a) inside a div with tags class - it's complete with a hash sign */
-	color: #178426 !important; /* let's hightlight em */
-	font-size: 60px !important;
+	color: #172b84 !important; /* let's hightlight em */
+}
+
+div.tags a::before {
+	content: "TAG: ";
+	color: crimson;
 }
