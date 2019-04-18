@@ -1,34 +1,44 @@
 {
 	"name": "SIaIR",
-	"description" : "SIaIR Is an Image Renamer. Automatically provides meaningful author tags while saving images from pixiv, twitter, deviantart, tumblr.",
+	"description" : "SIR is an Image Renamer. Automatically provides meaningful author tags while saving images from pixiv, twitter, deviantart, tumblr, artstation, hentaifoundry.",
 	"icons": {
 		"128": "SIaIR_128x128.png",
 		"48": "SIaIR_48x48.png",
 		"16": "SIaIR_16x16.png"
 	},
-	"version": "0.3",
+	"version": "0.3.1",
 	"manifest_version": 3,
 	"permissions": [ "downloads", "storage", "activeTab"],
 	"content_scripts": [
 		{
-		"matches": ["*://*.deviantart.com/*", "*://*.deviantart.net/*"],
-		"css": ["DAtagsStyle.css"],
-		"js": ["DAtagsParser_content_script.js"]
+			"matches": ["*://*.deviantart.com/*", "*://*.deviantart.net/*"],
+			"css": ["DA/tagsStyle.css"],
+			"js": ["DA/tagsParser_content_script.js"]
 		},
 		{
-		"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
-		"css": ["PXtagsStyle.css"],
-		"js": ["PXtagsParser_content_script.js"]		
+			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
+			"css": ["PX/tagsStyle.css"],
+			"js": ["PX/tagsParser_content_script.js"]		
 		},
 		{
-		"matches": ["*://*.tumblr.com/*"],
-		"css": ["TUtagsStyle.css"],
-		"js": ["TUtagsParser_content_script.js"]		
+			"matches": ["*://*.tumblr.com/*"],
+			"css": ["TU/tagsStyle.css"],
+			"js": ["TU/tagsParser_content_script.js"]		
 		},
 		{
-		"matches": ["*://*.twitter.com/*", "*://*.twimg.com/*"],
-		"css": ["TWtagsStyle.css"],
-		"js": ["TWtagsParser_content_script.js"]		
+			"matches": ["*://*.twitter.com/*", "*://*.twimg.com/*"],
+			"css": ["TW/tagsStyle.css"],
+			"js": ["TW/tagsParser_content_script.js"]		
+		},
+		{
+			"matches": ["*://*.artstation.com/*"],
+			"css": ["AS/tagsStyle.css"],
+			"js": ["AS/tagsParser_content_script.js"]		
+		},
+		{
+			"matches": ["*://*.hentaifoundry.com/*"],
+			"css": ["HF/tagsStyle.css"],
+			"js": ["HF/tagsParser_content_script.js"]		
 		}
 	],
 	"background": {

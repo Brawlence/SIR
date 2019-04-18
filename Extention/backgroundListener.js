@@ -10,7 +10,7 @@ chrome.tabs.onActivated.addListener( function(info) {
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId , info) {
-      localStorage["active_tab_url"] = info.url;
+	localStorage["active_tab_url"] = info.url;
 });
 
 chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
@@ -22,7 +22,7 @@ chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
 		
 	} else {
 		
-		alert(localStorage["active_tab_title"] + ' ' + localStorage["active_tab_url"]);
+		// alert(localStorage["active_tab_title"] + ' ' + localStorage["active_tab_url"]);
 		//MEANINGFUL NAMING
 		
 			// get where that image is hosted

@@ -1,0 +1,9 @@
+.discoverytag a{
+	color: #178426 !important;
+	font-size: 60px !important;
+}
+
+.discoverytag-hash span {
+	color: #00000038 !important;
+	font-size: 60px !important;
+}

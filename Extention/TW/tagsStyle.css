@@ -1,0 +1,9 @@
+.twitter-hashtag b { /* the whole kit is also .pretty-link and .js-nav */
+	color: #178426 !important;
+	font-size: 60px !important;
+}
+
+.twitter-hashtag s {
+	color: #00000038 !important;
+	font-size: 60px !important;
+}
