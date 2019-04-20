@@ -6,42 +6,57 @@
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
-	"version": "0.1.0",
+	"page_action": {
+		"default_icon": {                    
+		  "16": "SIR_16x16.png",
+		  "48": "SIR_48x48.png",
+		  "128": "SIR_128x128.png"
+		},
+		"default_title": "SIR!"
+	},
+	"version": "0.1.1",
 	"manifest_version": 3,
 	"permissions": [ "downloads", "storage", "activeTab"],
 	"content_scripts": [
 		{
 			"matches": ["*://*.deviantart.com/*", "*://*.deviantart.net/*"],
 			"css": ["DA/tagsStyle.css"],
+			"run_at": "document_end",
 			"js": ["DA/tagsParser_content_script.js"]
 		},
 		{
 			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
 			"css": ["PX/tagsStyle.css"],
+			"run_at": "document_end",
 			"js": ["PX/tagsParser_content_script.js"]		
 		},
 		{
 			"matches": ["*://*.tumblr.com/*"],
 			"css": ["TU/tagsStyle.css"],
+			"run_at": "document_end",
 			"js": ["TU/tagsParser_content_script.js"]		
 		},
 		{
 			"matches": ["*://*.twitter.com/*", "*://*.twimg.com/*"],
 			"css": ["TW/tagsStyle.css"],
+			"run_at": "document_end",
 			"js": ["TW/tagsParser_content_script.js"]		
 		},
 		{
 			"matches": ["*://*.artstation.com/*"],
 			"css": ["AS/tagsStyle.css"],
+			"run_at": "document_end",
 			"js": ["AS/tagsParser_content_script.js"]		
 		},
 		{
 			"matches": ["*://*.hentai-foundry.com/*","*://*.hentaifoundry.com/*"],
 			"css": ["HF/tagsStyle.css"],
+			"run_at": "document_end",
 			"js": ["HF/tagsParser_content_script.js"]		
 		}
 	],
 	"background": {
-		"scripts": [ "backgroundListener.js" ]
+		"scripts": [ "DownloadsInject.js" ],
+		"persistent": false
 	}
 }
