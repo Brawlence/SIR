@@ -1,0 +1,1 @@
+// TODO: The illustration name is always in <figcaption> <h1>NAME</h1> </figcaption> , tags are there too
