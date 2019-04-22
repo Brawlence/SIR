@@ -1,24 +1,23 @@
 {
 	"name": "SIR",
-	"description" : "SIR is an Image Renamer.\nAutomatically provides meaningful data while saving images from pixiv, twitter, deviantart, tumblr, artstation, hentaifoundry.\nThose include author name, site of origin, any tracked tags, unique IDs (if availible).",
+	"description": "SIR is an Image Renamer.\nAutomatically provides meaningful data while saving images from pixiv, twitter, deviantart, tumblr, artstation, hentaifoundry.\nThose include author name, site of origin, any tracked tags, unique IDs (if availible).",
 	"icons": {
 		"128": "SIR_128x128.png",
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
 	"page_action": {
-		"default_icon": {                    
-		  "16": "SIR_16x16.png",
-		  "48": "SIR_48x48.png",
-		  "128": "SIR_128x128.png"
+		"default_icon": {
+			"16": "SIR_16x16.png",
+			"48": "SIR_48x48.png",
+			"128": "SIR_128x128.png"
 		},
 		"default_title": "SIR!"
 	},
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"manifest_version": 3,
-	"permissions": [ "downloads", "storage", "tabs"],
-	"content_scripts": [
-		{
+	"permissions": ["downloads", "storage", "tabs"],
+	"content_scripts": [{
 			"matches": ["*://*.deviantart.com/*", "*://*.deviantart.net/*"],
 			"css": ["DA/tagsStyle.css"],
 			"run_at": "document_end",
@@ -28,35 +27,35 @@
 			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
 			"css": ["PX/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["PX/tagsParser_content_script.js"]		
+			"js": ["PX/tagsParser_content_script.js"]
 		},
 		{
 			"matches": ["*://*.tumblr.com/*"],
 			"css": ["TU/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["TU/tagsParser_content_script.js"]		
+			"js": ["TU/tagsParser_content_script.js"]
 		},
 		{
 			"matches": ["*://*.twitter.com/*", "*://*.twimg.com/*"],
 			"css": ["TW/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["TW/tagsParser_content_script.js"]		
+			"js": ["TW/tagsParser_content_script.js"]
 		},
 		{
 			"matches": ["*://*.artstation.com/*"],
 			"css": ["AS/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["AS/tagsParser_content_script.js"]		
+			"js": ["AS/tagsParser_content_script.js"]
 		},
 		{
-			"matches": ["*://*.hentai-foundry.com/*","*://*.hentaifoundry.com/*"],
+			"matches": ["*://*.hentai-foundry.com/*", "*://*.hentaifoundry.com/*"],
 			"css": ["HF/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["HF/tagsParser_content_script.js"]		
+			"js": ["HF/tagsParser_content_script.js"]
 		}
 	],
 	"background": {
-		"scripts": [ "DownloadsInject.js" ],
+		"scripts": ["DownloadsInject.js"],
 		"persistent": false
 	}
 }

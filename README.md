@@ -14,4 +14,6 @@ Highlights tags found on the page based on its html structure (by injecting cust
 Tag-like words would be prefixed with red "TAG: " and colored in bluish violet.
 The renaming code tracks the name of an active tab, waits for Chrome to attempt saving a file, then tries to establish if the image beeing saved from those one of those sites (the code checks the origin of the request and the host on which the image is located. If matched, it renames the image based on the title of the tab).
 
-Currently the extention is stable on PX, TW, DA.
+For ArtStation, DevianArt and twittter it also fetches the tags.
+
+TODO: HentaiFoundry, Tumblr.

@@ -1,8 +1,10 @@
-function nicelyTagIt(imageHost, requesterPage,chromeFilename) { // gets filename determined by Chrome, those together will be used as a fallback
+function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filename determined by Chrome, those together will be used as a fallback
 
-	if (localStorage["active_tab_title"] == -1) { // if no title is found, drop everything
+	if ( localStorage["active_tab_title"] == -1 ) { // if nothing is found, drop everything
 		return chromeFilename;
 	};
+
+	var activeTabTitle = localStorage["active_tab_title"];
 
 	var filename = chromeFilename.substring(0, chromeFilename.lastIndexOf('.'));
 	var ext = chromeFilename.substr(chromeFilename.lastIndexOf('.') + 1); // separate extension from the filename
@@ -16,18 +18,23 @@ function nicelyTagIt(imageHost, requesterPage,chromeFilename) { // gets filename
 			var author = filename.substring(filename.lastIndexOf('_by_')+4,filename.lastIndexOf('-')); // author is a string starting after _by_ and ending with the last '-'
 			var name = filename.substring(0, filename.lastIndexOf('_by_'));
 		}
-
-		filename = localStorage["active_tab_title"];
-		var author = filename.substring(filename.lastIndexOf(' by ')+4,filename.lastIndexOf(' on Deviant'));
-		var name = filename.substring(0, filename.lastIndexOf(' by '));
+		
+		var author = activeTabTitle.substring(activeTabTitle.lastIndexOf(' by ')+4,activeTabTitle.lastIndexOf(' on Deviant'));
+		var name = activeTabTitle.substring(0, activeTabTitle.lastIndexOf(' by '));
 
 		filename = '[' + author + '@DA] ' + name; //reformat filename to this template, moving the author info
+
+		if (localStorage["origin"] === "DA") {
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+			for (i = 0; i < arrayOfTags.length; i++) {
+				filename = filename + " " + arrayOfTags[i];
+			};
+		};
 	};
 
 	// ! TUMBLR
 	// TODO: Add tumblr caption recognition
 	if (imageHost.indexOf('tumblr') > -1) {
-		//filename = localStorage["active_tab_title"];
 		var author = "";
 		var name = "";
 
@@ -37,18 +44,24 @@ function nicelyTagIt(imageHost, requesterPage,chromeFilename) { // gets filename
 	// ! TWITTER
 	// TODO: Add twitter caption recognition
 	if (imageHost.indexOf('twimg') > -1) {
-		//filename = localStorage["active_tab_title"];
+		// title is usually "Artist (@twitter_link) | Twitter" or "Artist on twitter «picture_caption»"
 		var author = "";
 		var name = "";
 
 		filename = '[' + author + '@TW] ' + name + " " + filename;
+
+		if (localStorage["origin"] === "TW") {
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+			for (i = 0; i < arrayOfTags.length; i++) {
+				filename = filename + " " + arrayOfTags[i];
+			};
+		};
+
 		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('large')-1); }; //cleaning ext - twitter links are nasty
 	};
 	
 	// ! PIXIV
 	if ((imageHost.indexOf('pximg') > -1)||(requesterPage.indexOf('pixiv') > -1)) {
-		
-		var activeTabTitle = localStorage["active_tab_title"]; //since pixiv does not give info about name and author, try to extract it from the title of the page
 		// old Pixiv naming standart
 		//var author = activeTabTitle.substring(activeTabTitle.lastIndexOf('\u300C')+1,activeTabTitle.lastIndexOf('\u300D')); // '「' and '」' as last indexes
 		//var name = activeTabTitle.substring(activeTabTitle.indexOf('\u300C')+1,activeTabTitle.indexOf('\u300D'));
@@ -66,15 +79,18 @@ function nicelyTagIt(imageHost, requesterPage,chromeFilename) { // gets filename
 		filename = '[' + author + '@PX] pixiv_' + PXnumber + '_' + PXpage + ' ' + name;
 	};
 
-
 	// ! ARTSTATION
-	// TODO: Add artstation caption recognition
 	if ( (imageHost.indexOf('artstation') > -1) || (requesterPage.indexOf('artstation') > -1) ) {
-		//filename = localStorage["active_tab_title"];
-		var author = "";
-		var name = "";
-
+		var author = activeTabTitle.substring(activeTabTitle.lastIndexOf(', ')+2,activeTabTitle.length);
+		var name = activeTabTitle.substring(activeTabTitle.lastIndexOf(' - ')+3,activeTabTitle.lastIndexOf(', '));
 		filename = '[' + author + '@AS] ' + name + " " + filename;
+
+		if (localStorage["origin"] === "AS") {
+		var arrayOfTags = JSON.parse(localStorage["tags"]);
+			for (i = 0; i < arrayOfTags.length; i++) {
+				filename = filename + " " + arrayOfTags[i];
+			};
+		}
 	};
 
 	// ! HENTAIFOUNDRY
@@ -87,7 +103,7 @@ function nicelyTagIt(imageHost, requesterPage,chromeFilename) { // gets filename
 		filename = '[' + author + '@HF] ' + name + " " + filename;
 	};
 
-	filename = filename.replace(/[\\/:*?\"<>|]/,''); // make sure the modified filename doesn't contain any illegal characters
+	filename = filename.replace(/[\,\\/:*?\"<>|]/,''); // make sure the modified filename doesn't contain any illegal characters
 
 	if (filename == "") { // make sure the name is not left blank
 		filename = "tagme"; 
@@ -100,28 +116,46 @@ function nicelyTagIt(imageHost, requesterPage,chromeFilename) { // gets filename
 	filename = filename + "." + ext; // add back the extension to the file name
 	
 	//console.log("Renaming result: " + filename);
+	alert(filename);
 	return filename;
 };
 
-// TODO: Add tags recieving based on chrome messaging API
+
+
+function requestTagsAndWriteEm(TabIdToSendTo) {
+	chrome.tabs.sendMessage(TabIdToSendTo, {order: "giffTags"},
+		function requestAndWrite(response) {
+			if ( chrome.runtime.lastError ) {
+				localStorage.clear;
+			} else {
+				if (typeof response !== 'undefined') {
+					localStorage["tags"] = JSON.stringify(response.tags);
+					localStorage["origin"] = response.origin;
+					//console.log(response.tags);
+				}
+			}
+		}
+	)
+} 
 
 chrome.tabs.onActivated.addListener( 
-	function(tabId, changeInfo) { // send to fire after Tab Activated procedure
+	function runOnActivated(tabId, changeInfo) { // send to fire after Tab Activated procedure
 		chrome.tabs.query({active: true, currentWindow: true, status: "complete"}, // send into query (if active tab and current window were true)
 			function setStorage(tabs) {
 				if (tabs.length > 0) {
 					//console.log("onActivated returned those values: " + tabs[0].title + " " + tabs[0].url);
 					localStorage["active_tab_title"] = tabs[0].title;			// needs the "tabs" permission
-					localStorage["active_tab_url"] = tabs[0].url;				// needs the "tabs" permission
+					//requestTagsAndWriteEm(tabs[0].id);
 				}
 			}
 		);
 	}
 );
 
+// TODO: MAYBE inject my content scripts programmatically instead of declaratively? Context menu -> Save with all the info ?
 // the safety checks in this one is pure magic - it should only proceed to do its buisiness if the FINALIZED page was updated and it's currently the active one
 chrome.tabs.onUpdated.addListener( 
-	function (tabId , changeInfo, culprit) {
+	function runOnUpdated(tabId , changeInfo, culprit) {
 		if (culprit.status === "complete") {
 			chrome.tabs.query({active: true, currentWindow: true, status: "complete"},
 				function fireIfActive(tabs) {
@@ -129,8 +163,8 @@ chrome.tabs.onUpdated.addListener(
 						if (tabs.length > 0) {
 							if (tabs[0].tabId === culprit.tabId) { // Definitely the ACTIVE one was updated
 								//console.log("onUpdated! Culprit: " + culprit.url + " " + culprit.title + "\n Active tab:" + tabs[0].title + " " + tabs[0].url);
-								localStorage["active_tab_url"] = tabs[0].url;		// needs the "tabs" permission
 								localStorage["active_tab_title"] = tabs[0].title; 	// needs the "tabs" permission
+								requestTagsAndWriteEm(tabs[0].id);
 							}
 						}	
 					}
@@ -142,7 +176,7 @@ chrome.tabs.onUpdated.addListener(
 
 
 chrome.downloads.onDeterminingFilename.addListener(
-	function(item, suggest) { // sent into DeterminingFilename
+	function swapTheFilename(item, suggest) { // sent into DeterminingFilename
 	// Has access only to chrome's background page
 
 			// get where that image is hosted on by 
