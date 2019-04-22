@@ -39,6 +39,12 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		var name = "";
 
 		filename = '[' + author + '@TW] ' + name + " " + filename;
+		if (localStorage["origin"] === "TU") {
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+			for (i = 0; i < arrayOfTags.length; i++) {
+				filename = filename + " " + arrayOfTags[i];
+			};
+		};
 	};
 	
 	// ! TWITTER
@@ -77,6 +83,13 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		};
 			
 		filename = '[' + author + '@PX] pixiv_' + PXnumber + '_' + PXpage + ' ' + name;
+
+		if (localStorage["origin"] === "PX") {
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+				for (i = 0; i < arrayOfTags.length; i++) {
+					filename = filename + " " + arrayOfTags[i];
+				};
+		}
 	};
 
 	// ! ARTSTATION
@@ -94,13 +107,18 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 	};
 
 	// ! HENTAIFOUNDRY
-	// TODO: Add hentaifoundry caption recognition
 	if ( (imageHost.indexOf('hentai-foundry') > -1) || (requesterPage.indexOf('hentai-foundry') > -1) ) {
-		//filename = localStorage["active_tab_title"];
-		var author = "";
-		var name = "";
+		var author = activeTabTitle.substring(activeTabTitle.indexOf(' by ')+4,activeTabTitle.lastIndexOf(' - '));
+		var name = activeTabTitle.substring(0,activeTabTitle.indexOf(' by '));
 
-		filename = '[' + author + '@HF] ' + name + " " + filename;
+		filename = '[' + author + '@HF] ' + name;
+
+		if (localStorage["origin"] === "HF") {
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+				for (i = 0; i < arrayOfTags.length; i++) {
+					filename = filename + " " + arrayOfTags[i];
+				};
+		}
 	};
 
 	filename = filename.replace(/[\,\\/:*?\"<>|]/,''); // make sure the modified filename doesn't contain any illegal characters
@@ -116,7 +134,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 	filename = filename + "." + ext; // add back the extension to the file name
 	
 	//console.log("Renaming result: " + filename);
-	alert(filename);
+	//alert(filename);
 	return filename;
 };
 
