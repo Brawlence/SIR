@@ -1,4 +1,5 @@
-// TODO: Add parser for <figcaption>AUTHOR</figcaption>
+// TODO: also get author 
+// Add parser for <figcaption>AUTHOR</figcaption>
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
         if (request.order === "giffTags") {

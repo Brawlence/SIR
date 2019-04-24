@@ -41,13 +41,21 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 	};
 	
 	// ! TWITTER
-	// TODO: Add twitter caption recognition
-	if (imageHost.indexOf('twimg') > -1) {
-		// title is usually "Artist (@twitter_link) | Twitter" or "Artist on twitter «picture_caption»"
-		var author = "";
-		var name = "";
-
-		filename = '[' + author + '@TW] ' + name + " " + filename;
+	if ( (imageHost.indexOf('twimg') > -1) || (requesterPage.indexOf('twitter') > -1) ) {
+		var author = ""; // in this case, @handle of twitter profile
+		var name = "";  // name of the author profile, not the name of the image itself
+		if (activeTabTitle.indexOf(' | ') > -1) { // on profile page: 'Artist (@twitter_link) | Twitter'
+			var temp = activeTabTitle.split(' | ')[0];
+			author = temp.substring(temp.indexOf('(')+1,temp.indexOf(')'));
+			name = temp.substring(0, temp.indexOf(' ('));
+		}; 
+		if (activeTabTitle.indexOf(': ') > -1 ) { // on a random feed page: 'Artist on twitter: «picture_caption»'
+			var temp = activeTabTitle.split(': ')[0];
+			temp = temp.substring(0, temp.lastIndexOf(' '));
+			author = "___";
+			name = temp.substring(0, temp.lastIndexOf(' '));
+		};
+		filename = '[' + author + '@TW] ' + name;
 
 		if (localStorage["origin"] === "TW") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
@@ -56,7 +64,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 			};
 		};
 
-		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('large')-1); }; //cleaning ext - twitter links are nasty
+		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('large')-1); }; //cleaning ext - twitter image links are nasty
 	};
 	
 	// ! PIXIV

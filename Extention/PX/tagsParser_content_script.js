@@ -1,4 +1,5 @@
-// TODO: The illustration name is always in <figcaption> <h1>NAME</h1> </figcaption> , tags are there too
+// TODO: also get the name 
+// The illustration name is always in <figcaption> <h1>NAME</h1> </figcaption> , tags are there too
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
         if (request.order === "giffTags") {
