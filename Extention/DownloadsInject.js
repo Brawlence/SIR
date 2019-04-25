@@ -4,10 +4,10 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		return chromeFilename;
 	};
 
-	var activeTabTitle = localStorage["active_tab_title"];
-
 	var filename = chromeFilename.substring(0, chromeFilename.lastIndexOf('.'));
 	var ext = chromeFilename.substr(chromeFilename.lastIndexOf('.') + 1); // separate extension from the filename
+	
+	var activeTabTitle = localStorage["active_tab_title"];
 
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	// ! DEVIANTART
@@ -55,7 +55,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 			author = "___";
 			name = temp.substring(0, temp.lastIndexOf(' '));
 		};
-		filename = '[' + author + '@TW] ' + name;
+		filename = '[' + author + '@TW] (' + name + ')';
 
 		if (localStorage["origin"] === "TW") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
@@ -77,7 +77,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		var PXpage = filename.substring(filename.lastIndexOf('_p')+2, filename.lastIndexOf('_p')+4);
 
 		if (filename.indexOf('master') > -1) { 
-			filename = 'THUMBNAIL!' + filename.substring(0, filename.lastIndexOf('_master')); // if user wants to save a rescaled thumbnail, add a tag
+			PXpage = 'THUMBNAIL!' + PXpage; // if user wants to save a rescaled thumbnail, add a tag
 		};
 			
 		filename = '[' + author + '@PX] pixiv_' + PXnumber + '_' + PXpage + ' ' + name;
@@ -119,7 +119,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		}
 	};
 
-	filename = filename.replace(/[\,\\/:*?\"<>|]/,''); // make sure the modified filename doesn't contain any illegal characters
+	filename = filename.replace(/[\,\\/:*?\"<>|]/g,''); // make sure the modified filename doesn't contain any illegal characters
 
 	if (filename == "") { // make sure the name is not left blank
 		filename = "tagme"; 
