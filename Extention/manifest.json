@@ -14,7 +14,7 @@
 		},
 		"default_title": "SIR!"
 	},
-	"version": "0.5.1",
+	"version": "0.5.3",
 	"manifest_version": 3,
 	"permissions": ["downloads", "storage", "tabs"],
 	"content_scripts": [{
@@ -55,7 +55,7 @@
 		}
 	],
 	"background": {
-		"scripts": ["DownloadsInject.js"],
+		"scripts": ["Background.js"],
 		"persistent": false
 	}
 }

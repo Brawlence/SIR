@@ -1,15 +1,19 @@
 function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filename determined by Chrome, those together will be used as a fallback
 
-	if ( localStorage["active_tab_title"] == -1 ) { // if nothing is found, drop everything
+	if ( ( localStorage["active_tab_title"] == -1 )||(localStorage["active_tab_title"] == "") ) { // if the tab title was not found, drop everything
 		return chromeFilename;
 	};
 
-	var filename = chromeFilename.substring(0, chromeFilename.lastIndexOf('.'));
-	var ext = chromeFilename.substr(chromeFilename.lastIndexOf('.') + 1); // separate extension from the filename
-	
+	// indexOf is freakingly fast, see https://jsperf.com/substring-test
+	if (chromeFilename.indexOf('.') > -1) { //checks for mistakenly queued download
+		var filename = chromeFilename.substring(0, chromeFilename.lastIndexOf('.'));
+		var ext = chromeFilename.substr(chromeFilename.lastIndexOf('.') + 1); // separate extension from the filename
+	} else {
+		return chromeFilename;
+	};
+
 	var activeTabTitle = localStorage["active_tab_title"];
 
-	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	// ! DEVIANTART
 	if ( (imageHost.indexOf('deviantart') > -1) || (requesterPage.indexOf('deviantart') > -1) ) {
 		var author = activeTabTitle.substring(activeTabTitle.lastIndexOf(' by ')+4,activeTabTitle.lastIndexOf(' on Deviant'));
@@ -20,7 +24,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		if (localStorage["origin"] === "DA") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i];
+				filename = filename + " " + arrayOfTags[i].replace(/ /g,'_');
 			};
 		};
 	};
@@ -35,18 +39,18 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		if (localStorage["origin"] === "TU") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i];
+				filename = filename + " " + arrayOfTags[i].replace(/ /g,'_');
 			};
 		};
 	};
 	
 	// ! TWITTER
 	if ( (imageHost.indexOf('twimg') > -1) || (requesterPage.indexOf('twitter') > -1) ) {
-		var author = ""; // in this case, @handle of twitter profile
+		var author = "___"; // in this case, @handle of twitter profile
 		var name = "";  // name of the author profile, not the name of the image itself
 		if (activeTabTitle.indexOf(' | ') > -1) { // on profile page: 'Artist (@twitter_link) | Twitter'
 			var temp = activeTabTitle.split(' | ')[0];
-			author = temp.substring(temp.indexOf('(')+1,temp.indexOf(')'));
+			author = temp.substring(temp.indexOf('(')+2,temp.indexOf(')'));
 			name = temp.substring(0, temp.indexOf(' ('));
 		}; 
 		if (activeTabTitle.indexOf(': ') > -1 ) { // on a random feed page: 'Artist on twitter: «picture_caption»'
@@ -60,7 +64,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		if (localStorage["origin"] === "TW") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i];
+				filename = filename + " " + arrayOfTags[i].replace(/ /g,'_');
 			};
 		};
 
@@ -76,7 +80,8 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		var PXnumber = filename.substring(0,filename.lastIndexOf('_'));
 		var PXpage = filename.substring(filename.lastIndexOf('_p')+2, filename.lastIndexOf('_p')+4);
 
-		if (filename.indexOf('master') > -1) { 
+		if (filename.indexOf('master') > -1) {
+			alert("You are saving a thumbnail. If you want a full-sized picture, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.") 
 			PXpage = 'THUMBNAIL!' + PXpage; // if user wants to save a rescaled thumbnail, add a tag
 		};
 			
@@ -85,7 +90,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		if (localStorage["origin"] === "PX") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i];
+				filename = filename + " " + arrayOfTags[i].replace(/[ \:]/g,'_');
 			};
 		}
 	};
@@ -99,7 +104,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		if (localStorage["origin"] === "AS") {
 		var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i];
+				filename = filename + " " + arrayOfTags[i].replace(/ /g,'_');
 			};
 		}
 	};
@@ -114,33 +119,33 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		if (localStorage["origin"] === "HF") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i];
+				filename = filename + " " + arrayOfTags[i].replace(/ /g,'_');
 			};
 		}
 	};
 
+	if (ext.length > 5) { //additional check for various madness
+		return chromeFilename;
+	}
+	
 	filename = filename.replace(/[\,\\/:*?\"<>|]/g,''); // make sure the modified filename doesn't contain any illegal characters
 
 	if (filename == "") { // make sure the name is not left blank
 		filename = "tagme"; 
-	}
-
-	if (ext == "") { // also make sure that extention did not magically disappear
+	} else if (ext == "") { // also make sure that extention did not magically disappear
 		ext == "maybe.jpeg";
 	}
-	
-	filename = filename + "." + ext; // add back the extension to the file name
-	
-	//console.log("Renaming result: " + filename);
 
-	return filename;
+	//console.log("Renaming result: " + filename + "." + ext);
+
+	return ( filename + "." + ext ); // add back the extension to the file name and return them
 };
 
 function requestTagsAndWriteEm(TabIdToSendTo) {
 	chrome.tabs.sendMessage(TabIdToSendTo, {order: "giffTags"},
 		function requestAndWrite(response) {
 			if ( chrome.runtime.lastError ) {
-				localStorage.clear;
+				//localStorage.clear(); //TODO: decide if a clean-up is needed here
 			} else {
 				if (typeof response !== 'undefined') {
 					localStorage["tags"] = JSON.stringify(response.tags);
@@ -211,3 +216,9 @@ chrome.downloads.onDeterminingFilename.addListener(
 		suggest({ filename: resultingFilename, conflictAction: "uniquify" });
 	}
 );
+
+chrome.runtime.onSuspend.addListener(
+	function clearItAll() {
+		localStorage.clear();
+	}
+)
