@@ -30,16 +30,16 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 	};
 
 	// ! TUMBLR
-	if ( (imageHost.indexOf('tumblr') > -1) || (referrer.indexOf('tumblr') > -1) ) {
+	if ( (imageHost.indexOf('tumblr') > -1) || (requesterPage.indexOf('tumblr') > -1) ) {
 		var temp = activeTabTitle.split(': ')[0];
 		if (temp.indexOf(' ') > -1) {
 			name = temp.replace(/ /g,'_');
-			if ( referrer.indexOf('//tumblr') > -1 ) {
-				author = referrer.substring(referrer.indexOf('tumblr.'),referrer.lastIndexOf('.com'));
+			if ( requesterPage.indexOf('//tumblr') > -1 ) {
+				author = requesterPage.substring(requesterPage.indexOf('tumblr.'),requesterPage.lastIndexOf('.com'));
 			} else {
-				author = referrer.substring(referrer.indexOf('//'),referrer.lastIndexOf('.tumblr'));
+				author = requesterPage.substring(requesterPage.indexOf('//'),requesterPage.lastIndexOf('.tumblr'));
 			}
-		} else if ( temp == referrer.substring(referrer.indexOf('//'),referrer.lastIndexOf('.tumblr')) ) { 
+		} else if ( temp == requesterPage.substring(requesterPage.indexOf('//'),requesterPage.lastIndexOf('.tumblr')) ) { 
 			author = temp;
 			name = "";
 		};
