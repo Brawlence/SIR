@@ -31,6 +31,7 @@ The renaming code waits for Chrome's attempt to save a file, then checks if the 
 If matched, it renames the image based on the title of the currently opened tab and appends any found tags.
 
 Additionally, if you're on *pixiv* and are trying to save a thumbnail, SIR will warn you (but won't restrict your ability to proceed).
+
 ![Example alert](./Img/thumbnail_warning.png)
 
 ## Known bugs ##
