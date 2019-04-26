@@ -35,6 +35,5 @@ If you're on *pixiv* and are trying to save a thumbnail, SIR will warn you (but 
 ![Example alert](./Img/thumbnail_warning.png)
 
 ## Known bugs ##
-- *Tumbler* - author name \ image title recognition not implemented yet
 - *Twitter* - unrelated tags are fetched when trying to save an image from the feed
 - Tags sometimes can't be fetched for js-made image transitions (Page reload (`F5`) fixes that)

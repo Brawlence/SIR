@@ -14,10 +14,11 @@
 		},
 		"default_title": "SIR!"
 	},
-	"version": "0.5.3",
-	"manifest_version": 3,
+	"version": "0.6.0",
+	"manifest_version": 2,
 	"permissions": ["downloads", "storage", "tabs"],
-	"content_scripts": [{
+	"content_scripts": [
+		{
 			"matches": ["*://*.deviantart.com/*", "*://*.deviantart.net/*"],
 			"css": ["DA/tagsStyle.css"],
 			"run_at": "document_end",

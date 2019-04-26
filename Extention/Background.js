@@ -30,11 +30,16 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 	};
 
 	// ! TUMBLR
-	// TODO: Add tumblr caption recognition
-	if (imageHost.indexOf('tumblr') > -1) {
-		var author = "";
-		var name = "";
-
+	if ( (imageHost.indexOf('tumblr') > -1) || (referrer.indexOf('tumblr') > -1) ) {
+		var temp = activeTabTitle.split(': ')[0];
+		if (temp.indexOf(' ') > -1) {
+			name = temp.replace(/ /g,'_');
+			author = referrer.substring(referrer.indexOf('//'),referrer.lastIndexOf('.tumblr'));
+		} else if ( temp == referrer.substring(referrer.indexOf('//'),referrer.lastIndexOf('.tumblr')) ) { 
+			author = temp;
+			name = "";
+		};
+		
 		filename = '[' + author + '@TW] ' + name + " " + filename;
 		if (localStorage["origin"] === "TU") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
@@ -43,7 +48,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 			};
 		};
 	};
-	
+
 	// ! TWITTER
 	if ( (imageHost.indexOf('twimg') > -1) || (requesterPage.indexOf('twitter') > -1) ) {
 		var author = "___"; // in this case, @handle of twitter profile
@@ -51,13 +56,13 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		if (activeTabTitle.indexOf(' | ') > -1) { // on profile page: 'Artist (@twitter_link) | Twitter'
 			var temp = activeTabTitle.split(' | ')[0];
 			author = temp.substring(temp.indexOf('(')+2,temp.indexOf(')'));
-			name = temp.substring(0, temp.indexOf(' ('));
+			name = temp.substring(0, temp.indexOf(' (')).replace(/ /g,'_');
 		}; 
 		if (activeTabTitle.indexOf(': ') > -1 ) { // on a random feed page: 'Artist on twitter: «picture_caption»'
 			var temp = activeTabTitle.split(': ')[0];
 			temp = temp.substring(0, temp.lastIndexOf(' '));
 			author = "___";
-			name = temp.substring(0, temp.lastIndexOf(' '));
+			name = temp.substring(0, temp.lastIndexOf(' ')).replace(/ /g,'_');
 		};
 		filename = '[' + author + '@TW] (' + name + ')';
 
@@ -84,7 +89,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 			alert("You are saving a thumbnail. If you want a full-sized picture, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.") 
 			PXpage = 'THUMBNAIL!' + PXpage; // if user wants to save a rescaled thumbnail, add a tag
 		};
-			
+
 		filename = '[' + author + '@PX] pixiv_' + PXnumber + '_' + PXpage + ' ' + name;
 
 		if (localStorage["origin"] === "PX") {
@@ -128,6 +133,10 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		return chromeFilename;
 	}
 	
+	// TODO: merge two correction replace ops with regexp
+	filename = filename.replace(/\ \ /g,' ');
+	filename = filename.replace(/\ \./g,'.'); 
+
 	filename = filename.replace(/[\,\\/:*?\"<>|]/g,''); // make sure the modified filename doesn't contain any illegal characters
 
 	if (filename == "") { // make sure the name is not left blank
