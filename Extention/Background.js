@@ -34,13 +34,17 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		var temp = activeTabTitle.split(': ')[0];
 		if (temp.indexOf(' ') > -1) {
 			name = temp.replace(/ /g,'_');
-			author = referrer.substring(referrer.indexOf('//'),referrer.lastIndexOf('.tumblr'));
+			if ( referrer.indexOf('//tumblr') > -1 ) {
+				author = referrer.substring(referrer.indexOf('tumblr.'),referrer.lastIndexOf('.com'));
+			} else {
+				author = referrer.substring(referrer.indexOf('//'),referrer.lastIndexOf('.tumblr'));
+			}
 		} else if ( temp == referrer.substring(referrer.indexOf('//'),referrer.lastIndexOf('.tumblr')) ) { 
 			author = temp;
 			name = "";
 		};
 		
-		filename = '[' + author + '@TW] ' + name + " " + filename;
+		filename = '[' + author + '@TU] ' + name + " " + filename;
 		if (localStorage["origin"] === "TU") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
