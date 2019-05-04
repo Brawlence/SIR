@@ -82,7 +82,11 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 	
 	// ! PIXIV
 	if ( (imageHost.indexOf('pximg') > -1) || (requesterPage.indexOf('pixiv') > -1) ) {
-		var splotted = activeTabTitle.split('\"');
+		if ( activeTabTitle.indexOf('\"') > -1 ) { // why am I even supposed to check for this shit?
+			var splotted = activeTabTitle.split('\"');
+		} else {
+			return chromeFilename;
+		}
 		var name = splotted[1];
 		var author = splotted[3];
 
