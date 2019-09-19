@@ -1,4 +1,5 @@
-div.dev-title-container a.discoverytag { /*Deviantart tag */
+div.dev-title-container a.discoverytag {
+	/*Deviantart tag */
 	color: #172b84 !important;
 }
 
@@ -7,6 +8,7 @@ div.dev-title-container a.discoverytag::before {
 	color: crimson;
 }
 
-div.dev-title-container span.discoverytag-hash { /*Hash of said tag*/
+div.dev-title-container span.discoverytag-hash {
+	/*Hash of said tag*/
 	color: #172b84 !important;
 }

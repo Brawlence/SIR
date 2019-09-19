@@ -1,4 +1,5 @@
-.twitter-hashtag b { /* the whole kit is also .pretty-link and .js-nav */
+.twitter-hashtag b {
+	/* the whole kit is also .pretty-link and .js-nav */
 	color: #172b84 !important;
 }
 
@@ -6,6 +7,7 @@
 	content: "TAG: ";
 	color: crimson;
 }
+
 .twitter-hashtag s {
 	color: #172b84 !important;
 }

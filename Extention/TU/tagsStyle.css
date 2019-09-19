@@ -1,17 +1,19 @@
-a.post_tag   { /* Tumblr - with hash-sign */
+a.post_tag {
+	/* Tumblr - with hash-sign */
 	color: #172b84 !important;
 }
 
-a.post_tag::before   {
+a.post_tag::before {
 	content: "TAG: ";
 	color: crimson;
 }
 
-ul.tags li a  { /* Tumblr - with hash-sign */
+ul.tags li a {
+	/* Tumblr - with hash-sign */
 	color: #172b84 !important;
 }
 
-ul.tags li a::before   {
+ul.tags li a::before {
 	content: "TAG: ";
 	color: crimson;
 }

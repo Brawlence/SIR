@@ -1,4 +1,5 @@
-figcaption div h1 { /* usually the name of the picture */
+figcaption div h1 {
+	/* usually the name of the picture */
 	color: #172b84 !important;
 }
 
@@ -7,7 +8,8 @@ figcaption div h1::before {
 	color: crimson;
 }
 
-figcaption div footer ul li { /* usually the tag - translated or not, no hash-sign */ 
+figcaption div footer ul li {
+	/* usually the tag - translated or not, no hash-sign */
 	color: #172b84 !important;
 }
 
