@@ -1,4 +1,74 @@
+var saveSilentlyEnabled = false;
+
+var sir = {
+	//adds an individual item to the context menu and gives it the index passed into the function
+	makeMenuItem: function(index, item, icon, useIcon) {
+		if (useIcon) {
+			chrome.contextMenus.create({
+				id: index.toString(),
+				title: item.toString(),
+				contexts: ["image"],
+				icons: { "16": icon.toString() }
+			})
+		} else {
+			//icons not supported, or undesirable. leave them out
+			chrome.contextMenus.create({
+				id: index.toString(),
+				title: item.toString(),
+				contexts: ["image"]
+			})
+		}
+	},
+
+	//adds all URLs to the function from local storage, using indices 0 - urlList.length-1 as their IDs
+	makeMenuItems: function(browserInfo) {
+		chrome.contextMenus.removeAll();
+
+		var useIcons = true;
+		if (parseInt(browserInfo.version, 10) < 56) { //not sure when icon support was added, but it existed in 56 and does not exist in 52
+			useIcons = false;
+		}
+
+
+		sir.makeMenuItem(0 /* Index */ , "Download with tags" /* title */ , "SIR_16x16.png" /* Icon */ , useIcons);
+
+		chrome.contextMenus.create({
+			type: "checkbox",
+			id: "saveSilently",
+			title: "Save silently",
+			checked: saveSilentlyEnabled,
+			contexts: ["image"]
+		})
+
+		// useful for getting from LocalStorage in async
+		var urls = chrome.storage.local.get(["urlList"], function(result) {
+			if (!result.urlList || (result.urlList.length == 0)) {
+				//FUCK
+			} else {
+
+			}
+		})
+	},
+
+	//gets browser info and passes it to makeMenuItems to determine if things like icons are supported
+	makeMenu: function() {
+		var gettingBrowserInfo = browser.runtime.getBrowserInfo();
+		gettingBrowserInfo.then(sir.makeMenuItems);
+	},
+
+	firstRun: function(details) {
+		if (details.reason === 'install' || details.reason === 'update') {
+			console.log("SIR is installed successefully.");
+		}
+	},
+}
+
+browser.runtime.onInstalled.addListener(sir.firstRun);
+sir.makeMenu();
+
 function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filename determined by Chrome, those together will be used as a fallback
+
+	//sasuga
 
 	if ((localStorage["active_tab_title"] == -1) || (localStorage["active_tab_title"] == "")) { // if the tab title was not found, drop everything
 		return chromeFilename;
@@ -137,6 +207,20 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		}
 	};
 
+	// ! DRAWFRIENDS BOROO
+	if ((imageHost.indexOf('drawfriends.booru.org') > -1) || (requesterPage.indexOf('drawfriends') > -1)) {
+		/* no failover, just get the tags */
+		filename = "";
+
+		if (localStorage["origin"] === "DF") {
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+			for (i = 0; i < arrayOfTags.length; i++) {
+				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_');
+			};
+		}
+	};
+
+
 	if (ext.length > 5) { //additional check for various madness
 		return chromeFilename;
 	}
@@ -210,32 +294,34 @@ chrome.tabs.onUpdated.addListener(
 	}
 );
 
-chrome.downloads.onDeterminingFilename.addListener(
-	function swapTheFilename(item, suggest) {
-
+//perform the requested action on menu click
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+	if (info.menuItemId == "saveSilently") {
+		//handle alt option toggle
+		saveSilentlyEnabled = !saveSilentlyEnabled;
+	} else {
 		// get where that image is hosted on by
 		var tempContainer = document.createElement('a'); // creating an link-type (a) object
-		tempContainer.href = item.url; // ! linking to the item we are about to save
+		tempContainer.href = info.srcUrl; // ! linking to the item we are about to save
 		//tempContainer.innerHTML = "Heh, not bad, kid. You made me use my HTML power!"; 	// with inner HTML structure
 		//document.body.appendChild(tempContainer);											// on chrome's generated background page
 
-		// at we can see, item.hostname is undefined
-		//console.log("Item URL: " + item.url + ", Item hostname: " + item.hostname);
+		// at we can see, info.hostname is undefined
+		console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
 		// but if we do this, suddenly url is undefined but hostname works
-		//console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
+		console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
 
 		var imageHost = tempContainer.hostname;
+		var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
 
-		var resultingFilename = nicelyTagIt(imageHost, item.referrer, item.filename);
+		console.log("imageHost : " + imageHost + ", info.pageUrl : " + info.pageUrl + ", failOverName : " + failOverName);
+		var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName);
 
-		// end of MEANINGFUL NAMING
-		// suggest the new filename to Chrome IF getting the tab name was successeffull
-		suggest({ filename: resultingFilename, conflictAction: "uniquify" });
+		browser.downloads.download({
+			saveAs: !saveSilentlyEnabled,
+			filename: resultingFilename,
+			url: info.srcUrl
+		});
+		console.log("resultingFilename: " + resultingFilename + ", url: " + info.pageUrl);
 	}
-);
-
-chrome.runtime.onSuspend.addListener(
-	function clearItAll() {
-		localStorage.clear();
-	}
-)
+})

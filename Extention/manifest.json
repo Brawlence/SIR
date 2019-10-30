@@ -14,14 +14,13 @@
 		},
 		"default_title": "SIR!"
 	},
-	"version": "0.6.1",
+
+	"version": "0.7.0",
 	"manifest_version": 2,
-	"permissions": [ "downloads", "storage", "tabs" ],
-	"content_scripts": [
-		{
+	"permissions": [ "downloads", "storage", "tabs", "contextMenus" ],
+	"content_scripts": [ {
 			"matches": [ "*://*.deviantart.com/*", "*://*.deviantart.net/*" ],
 			"css": [ "DA/tagsStyle.css" ],
-
 			"run_at": "document_end",
 			"js": [ "DA/tagsParser_content_script.js" ]
 		},
@@ -54,10 +53,15 @@
 			"css": [ "HF/tagsStyle.css" ],
 			"run_at": "document_end",
 			"js": [ "HF/tagsParser_content_script.js" ]
+		},
+		{
+			"matches": [ "*://drawfriends.booru.org/*" ],
+			"css": [ "DF/tagsStyle.css" ],
+			"run_at": "document_end",
+			"js": [ "DF/tagsParser_content_script.js" ]
 		}
 	],
 	"background": {
-		"scripts": [ "Background.js" ],
-		"persistent": false
+		"scripts": [ "Background.js" ]
 	}
 }
