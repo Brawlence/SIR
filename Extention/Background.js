@@ -210,14 +210,15 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 	// ! DRAWFRIENDS BOROO
 	if ((imageHost.indexOf('drawfriends.booru.org') > -1) || (requesterPage.indexOf('drawfriends') > -1)) {
 		/* no failover, just get the tags */
-		filename = "";
+		filename = "DF";
 
 		if (localStorage["origin"] === "DF") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_');
+				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_').replace(/_\(artist\)/g, '\@DF');
 			};
 		}
+		console.log(filename);
 	};
 
 
