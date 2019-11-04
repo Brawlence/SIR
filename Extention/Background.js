@@ -1,4 +1,5 @@
 var saveSilentlyEnabled = false;
+var firefoxEnviroment = false;
 
 var sir = {
 	//adds an individual item to the context menu and gives it the index passed into the function
@@ -24,62 +25,94 @@ var sir = {
 	makeMenuItems: function(browserInfo) {
 		chrome.contextMenus.removeAll();
 
-		var useIcons = true;
-		if (parseInt(browserInfo.version, 10) < 56) { //not sure when icon support was added, but it existed in 56 and does not exist in 52
-			useIcons = false;
+		var useIcons = false;
+		if (!(browserInfo === undefined || browserInfo === null)) { //if the browserInfo was actually sent here and we're in Firefox
+			if (parseInt(browserInfo.version, 10) >= 56) { //not sure when icon support was added, but it existed in 56 and does not exist in 52
+				useIcons = true;
+			}
 		}
 
-
-		sir.makeMenuItem(0 /* Index */ , "Download with tags" /* title */ , "SIR_16x16.png" /* Icon */ , useIcons);
+		sir.makeMenuItem( /* Index */ 0, /* title */ "Download with tags", /* Icon */ "SIR_16x16.png", useIcons);
 
 		chrome.contextMenus.create({
 			type: "checkbox",
 			id: "saveSilently",
-			title: "Save silently",
+			title: "Supress \"Save As\" dialog?",
 			checked: saveSilentlyEnabled,
 			contexts: ["image"]
 		})
 
-		// useful for getting from LocalStorage in async
-		var urls = chrome.storage.local.get(["urlList"], function(result) {
-			if (!result.urlList || (result.urlList.length == 0)) {
-				//FUCK
-			} else {
-
-			}
-		})
 	},
 
 	//gets browser info and passes it to makeMenuItems to determine if things like icons are supported
 	makeMenu: function() {
-		var gettingBrowserInfo = browser.runtime.getBrowserInfo();
-		gettingBrowserInfo.then(sir.makeMenuItems);
+		// indexOf is freakingly fast, see https://jsperf.com/substring-test
+		if (firefoxEnviroment) {
+			var gettingBrowserInfo = browser.runtime.getBrowserInfo();
+			gettingBrowserInfo.then(sir.makeMenuItems);
+		} else {
+			sir.makeMenuItems();
+		}
 	},
 
 	firstRun: function(details) {
 		if (details.reason === 'install' || details.reason === 'update') {
-			console.log("SIR is installed successefully.");
+			console.log("SIR is installed successefully. Performing first-run checks.");
+			if (navigator.userAgent.indexOf('Firefox') > -1) {
+				firefoxEnviroment = true;
+				console.log("Firefox enviroment confirmed. Proceeding as usual.");
+			} else if (navigator.userAgent.indexOf('Chrom') > -1) {
+				firefoxEnviroment = false;
+				console.log("Chromium enviroment discovered. Pixiv saving will require additional work.");
+			} else {
+				firefoxEnviroment = false;
+				console.log("Unknown user-agent type. Proceed at your own risk.");
+			}
 		}
+		chrome.commands.onCommand.addListener(function(command) {
+			if (command == "SIR_it") {
+				console.log("Command received.");
+
+				var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
+					console.log(result);
+					for (let tab of result) {
+						console.log(tab);
+						chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
+							function justWaitTillFinished(response) {
+								if (chrome.runtime.lastError) {
+									localStorage.clear();
+								} else {
+									if (typeof response !== 'undefined') {
+										// What to do, what to do...
+									}
+								}
+							}
+						);
+					}
+				});
+			}
+		});
 	},
 }
 
-browser.runtime.onInstalled.addListener(sir.firstRun);
+chrome.runtime.onInstalled.addListener(sir.firstRun);
 sir.makeMenu();
 
-function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filename determined by Chrome, those together will be used as a fallback
+function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename determined by browser, it will be used as a fallback
 
+	console.log("nicelyTagIt commenced with the following parameters:\n imageHost: " + imageHost + "\n requster page: " + requesterPage + "\n failOverName: " + failOverName);
 	//sasuga
 
 	if ((localStorage["active_tab_title"] == -1) || (localStorage["active_tab_title"] == "")) { // if the tab title was not found, drop everything
-		return chromeFilename;
+		return failOverName;
 	};
 
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
-	if (chromeFilename.indexOf('.') > -1) { //checks for mistakenly queued download
-		var filename = chromeFilename.substring(0, chromeFilename.lastIndexOf('.'));
-		var ext = chromeFilename.substr(chromeFilename.lastIndexOf('.') + 1); // separate extension from the filename
+	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
+		var filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
+		var ext = failOverName.substr(failOverName.lastIndexOf('.') + 1); // separate extension from the filename
 	} else {
-		return chromeFilename;
+		return failOverName;
 	};
 
 	var activeTabTitle = localStorage["active_tab_title"];
@@ -155,7 +188,7 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		if (typeof activeTabTitle !== "undefined") { // why am I even supposed to check for this shit?
 			var splotted = activeTabTitle.split('\"');
 		} else {
-			return chromeFilename;
+			return failOverName;
 		}
 		var name = splotted[1];
 		var author = splotted[3];
@@ -210,20 +243,22 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 	// ! DRAWFRIENDS BOROO
 	if ((imageHost.indexOf('drawfriends.booru.org') > -1) || (requesterPage.indexOf('drawfriends') > -1)) {
 		/* no failover, just get the tags */
-		filename = "DF";
-
+		filename = "";
 		if (localStorage["origin"] === "DF") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_').replace(/_\(artist\)/g, '\@DF');
 			};
+			if (filename.indexOf('@DF') == -1) {
+				filename = "drawfriends" + filename;
+			}
+			filename.trim();
 		}
-		console.log(filename);
 	};
 
 
 	if (ext.length > 5) { //additional check for various madness
-		return chromeFilename;
+		return failOverName;
 	}
 
 	// TODO: merge two correction replace ops with regexp
@@ -238,7 +273,10 @@ function nicelyTagIt(imageHost, requesterPage, chromeFilename) { // gets filenam
 		ext == "maybe.jpeg";
 	}
 
-	//console.log("Renaming result: " + filename + "." + ext);
+	if (filename.length + ext.length + 1 >= 255) {
+		filename = filename.substr(0, 230); // 230 is an arbitary number
+		filename = filename.substring(0, filename.lastIndexOf(' ')); // substr - specified amount, substring - between the specified indices
+	}
 
 	return (filename + "." + ext); // add back the extension to the file name and return them
 };
@@ -308,21 +346,43 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 		//document.body.appendChild(tempContainer);											// on chrome's generated background page
 
 		// at we can see, info.hostname is undefined
-		console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
+		// console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
 		// but if we do this, suddenly url is undefined but hostname works
-		console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
+		// console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
 
 		var imageHost = tempContainer.hostname;
 		var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
 
-		console.log("imageHost : " + imageHost + ", info.pageUrl : " + info.pageUrl + ", failOverName : " + failOverName);
 		var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName);
 
-		browser.downloads.download({
-			saveAs: !saveSilentlyEnabled,
-			filename: resultingFilename,
-			url: info.srcUrl
-		});
-		console.log("resultingFilename: " + resultingFilename + ", url: " + info.pageUrl);
+		console.log("Attempting to download:\n url: " + info.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+
+		if (firefoxEnviroment) {
+			chrome.downloads.download({
+				url: info.srcUrl,
+				saveAs: !saveSilentlyEnabled,
+				filename: resultingFilename,
+				headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
+			});
+		} else if (localStorage["origin"] === "PX") {
+			//alert("PIXIV refuses to serve pictures without the correct referrer. Suggested name is copied into clipboard.\n Use the \"Save As...\" dialogue.");
+			chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
+				function justWaitTillFinished(response) {
+					if (chrome.runtime.lastError) {
+						localStorage.clear(); //TODO: decide if a clean-up is needed here
+					} else {
+						if (typeof response !== 'undefined') {
+							// What to do, what to do...
+						}
+					}
+				}
+			);
+		} else {
+			chrome.downloads.download({
+				url: info.srcUrl,
+				saveAs: !saveSilentlyEnabled,
+				filename: resultingFilename,
+			});
+		};
 	}
 })

@@ -1,9 +1,9 @@
-div.boxbody td a[rel="tag"] {
-	/* Those are called "Keywords" on HF */
+div#tag_list li a {
+	/* Drawfriends has a pretty easy structure: div class="sidebar" contains a div class="tag_list", containing list in which are separate links which are tags */
 	color: #172b84 !important;
 }
 
-div.boxbody td a[rel="tag"]::before {
+div#tag_list li a::before {
 	content: "TAG: ";
 	color: crimson;
 }

@@ -1,6 +1,6 @@
 {
 	"name": "SIR",
-	"description": "SIR is an Image Renamer.\nProvides meaningful names when saving from Pixiv, Twitter, Deviantart, Tumblr, Artstation, Hentai-Foundry.",
+	"description": "SIR is an Image Renamer.\nProvides meaningful names when saving from Pixiv, Twitter, Deviantart, Tumblr, Artstation, Hentai-Foundry, Drawfriends.",
 	"icons": {
 		"128": "SIR_128x128.png",
 		"48": "SIR_48x48.png",
@@ -14,8 +14,7 @@
 		},
 		"default_title": "SIR!"
 	},
-
-	"version": "0.7.0",
+	"version": "0.8.0",
 	"manifest_version": 2,
 	"permissions": [ "downloads", "storage", "tabs", "contextMenus" ],
 	"content_scripts": [ {
@@ -55,7 +54,7 @@
 			"js": [ "HF/tagsParser_content_script.js" ]
 		},
 		{
-			"matches": [ "*://drawfriends.booru.org/*" ],
+			"matches": [ "*://drawfriends.booru.org/*s=view*" ],
 			"css": [ "DF/tagsStyle.css" ],
 			"run_at": "document_end",
 			"js": [ "DF/tagsParser_content_script.js" ]
@@ -63,5 +62,14 @@
 	],
 	"background": {
 		"scripts": [ "Background.js" ]
+	},
+	"commands": {
+		"SIR_it": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+1",
+				"mac": "Command+Shift+1"
+			},
+			"description": "Runs SIR on the main image of the page"
+		}
 	}
 }
