@@ -1,10 +1,15 @@
-// TODO: also get the name 
 // The illustration name is always in <figcaption> <h1>NAME</h1> </figcaption> , tags are there too
+// Author's name is in <aside> <section> <h2> <div> <div> <a> <div>
 function getImageTags() {
 	var resultingTags = new Array;
+	var authorName = document.querySelectorAll('aside section h2 div div a div');
+	var pictureName = document.querySelectorAll('figcaption div div h1');
 	var tempArray = document.querySelectorAll('figcaption div footer ul li a');
+
+	resultingTags.push(authorName[0].innerText+"@PX");
+	resultingTags.push(pictureName[0].innerText);
 	for (i = 0; i < tempArray.length; i++) {
-		resultingTags[i] = tempArray[i].innerText;
+		resultingTags.push(tempArray[i].innerText);
 	};
 	return resultingTags;
 };
@@ -26,13 +31,13 @@ function createElderMagicField() {
 			elderMagicField.value = tagsString;
 		//somewhy I can't add onclick events to buttons with this method so I'll have to use innerHTML instead
 		const buttonsParagraph = document.createElement('p');
-			buttonsParagraph.innerHTML = "<button style=\"float:right\" onclick=\"javascript:document.getElementById('elderMagicField').select();document.execCommand('copy');document.getElementById('root').removeChild(document.getElementById('sirArea'));\">Copy & Hide</button><button onclick=\"javascript:document.getElementById('root').removeChild(document.getElementById('sirArea'));\">Cancel</button>";
+			buttonsParagraph.innerHTML = "<button id=\"c-and-h\" style=\"float:right\" onclick=\"javascript:document.getElementById('elderMagicField').select();document.execCommand('copy');document.getElementById('root').removeChild(document.getElementById('sirArea'));\">Copy & Hide</button><button onclick=\"javascript:document.getElementById('root').removeChild(document.getElementById('sirArea'));\">Cancel</button>";
 	
 		document.getElementById('root').appendChild(sirDivArea);
 		document.getElementById('sirArea').appendChild(elderMagicField);
 		document.getElementById('sirArea').appendChild(buttonsParagraph);
 	
-		elderMagicField.select();
+		document.getElementById('c-and-h').focus();
 	
 	} else {
 		document.getElementById('root').removeChild(document.getElementById('sirArea'));

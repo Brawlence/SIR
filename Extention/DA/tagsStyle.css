@@ -1,12 +1,17 @@
 div.dev-title-container a.discoverytag {
 	/*Deviantart tag */
 	color: #172b84 !important;
+	border-width: 2px;
+	border-style: dotted;
+	border-color: lightpink;
 }
 
+/*
 div.dev-title-container a.discoverytag::before {
 	content: "TAG: ";
 	color: crimson;
 }
+*/
 
 div.dev-title-container span.discoverytag-hash {
 	/*Hash of said tag*/

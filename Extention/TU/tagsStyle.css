@@ -1,19 +1,29 @@
 a.post_tag {
 	/* Tumblr - with hash-sign */
 	color: #172b84 !important;
+	border-width: 2px;
+	border-style: dotted;
+	border-color: lightpink;
 }
 
+/*
 a.post_tag::before {
 	content: "TAG: ";
 	color: crimson;
 }
+*/
 
 ul.tags li a {
 	/* Tumblr - with hash-sign */
 	color: #172b84 !important;
+	border-width: 2px;
+	border-style: dotted;
+	border-color: lightpink;
 }
 
+/*
 ul.tags li a::before {
 	content: "TAG: ";
 	color: crimson;
 }
+*/

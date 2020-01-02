@@ -1,9 +1,14 @@
 div#tag_list li a {
 	/* Drawfriends has a pretty easy structure: div class="sidebar" contains a div class="tag_list", containing list in which are separate links which are tags */
 	color: #172b84 !important;
+	border-width: 2px;
+	border-style: dotted;
+	border-color: lightpink;
 }
 
+/*
 div#tag_list li a::before {
 	content: "TAG: ";
 	color: crimson;
 }
+*/

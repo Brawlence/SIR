@@ -203,14 +203,6 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! PIXIV
 	if ((imageHost.indexOf('pximg') > -1) || (requesterPage.indexOf('pixiv') > -1)) {
-		if (typeof activeTabTitle !== "undefined") { // why am I even supposed to check for this shit?
-			var splotted = activeTabTitle.split('\"');
-		} else {
-			return failOverName;
-		}
-		var name = splotted[1];
-		var author = splotted[3];
-
 		var PXnumber = filename.substring(0, filename.lastIndexOf('_'));
 		var PXpage = filename.substring(filename.lastIndexOf('_p') + 2, filename.lastIndexOf('_p') + 4);
 
@@ -219,7 +211,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 			PXpage = 'THUMBNAIL!' + PXpage; // if user wants to save a rescaled thumbnail, add a tag
 		};
 
-		filename = '[' + author + '@PX] pixiv_' + PXnumber + '_' + PXpage + ' ' + name;
+		filename = 'pixiv_' + PXnumber + '_' + PXpage;
 
 		if (localStorage["origin"] === "PX") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
