@@ -257,12 +257,11 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "DF") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_').replace(/_\(artist\)/g, '\@DF');
+				filename = filename + arrayOfTags[i].replace(/ /g, '_').replace(/_\(artist\)/g, '\@DF') + " ";
 			};
 			if (filename.indexOf('@DF') == -1) {
 				filename = "drawfriends" + filename;
 			}
-			filename.trim();
 		}
 	};
 
