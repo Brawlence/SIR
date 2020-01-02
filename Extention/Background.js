@@ -2,11 +2,11 @@ var saveSilentlyEnabled = false;
 var firefoxEnviroment = false;
 
 var sir = {
-	//adds an individual item to the context menu and gives it the index passed into the function
-	makeMenuItem: function(index, item, icon, useIcon) {
+	//adds an individual item to the context menu and gives it the id passed into the function
+	makeMenuItem: function(id, item, icon, useIcon) {
 		if (useIcon) {
 			chrome.contextMenus.create({
-				id: index.toString(),
+				id: id.toString(),
 				title: item.toString(),
 				contexts: ["image"],
 				icons: { "16": icon.toString() }
@@ -14,7 +14,7 @@ var sir = {
 		} else {
 			//icons not supported, or undesirable. leave them out
 			chrome.contextMenus.create({
-				id: index.toString(),
+				id: id.toString(),
 				title: item.toString(),
 				contexts: ["image"]
 			})
@@ -32,7 +32,8 @@ var sir = {
 			}
 		}
 
-		sir.makeMenuItem( /* Index */ 0, /* title */ "Download with tags", /* Icon */ "SIR_16x16.png", useIcons);
+		sir.makeMenuItem( /* id */ "dl", /* title */ "Download with tags", /* Icon */ "SIR_16x16.png", useIcons);
+		sir.makeMenuItem( /* id */ "invokeEMF", /* title */ "Get tags string", /* Icon */ "SIR_16x16.png", useIcons);
 
 		chrome.contextMenus.create({
 			type: "checkbox",
@@ -55,6 +56,42 @@ var sir = {
 		}
 	},
 
+	invokeTagsField: function() {
+		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
+			for (let tab of result) {
+				chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
+					function justWaitTillFinished(response) {
+						if (chrome.runtime.lastError) {
+							localStorage.clear();
+						} else {
+							if (typeof response !== 'undefined') {
+								//TODO: decide if cleanup needed
+							}
+						}
+					}
+				);
+			}
+		});
+	},
+
+	displayWarning: function(message){
+		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
+			for (let tab of result) {
+				chrome.tabs.sendMessage(tab.id, { order: "displayWarning", warning: message },
+					function justWaitTillFinished(response) {
+						if (chrome.runtime.lastError) {
+							localStorage.clear();
+						} else {
+							if (typeof response !== 'undefined') {
+								//TODO: decide if cleanup needed
+							}
+						}
+					}
+				);
+			}
+		});
+	},
+
 	firstRun: function(details) {
 		if (details.reason === 'install' || details.reason === 'update') {
 			console.log("SIR is installed successefully. Performing first-run checks.");
@@ -71,25 +108,7 @@ var sir = {
 		}
 		chrome.commands.onCommand.addListener(function(command) {
 			if (command == "SIR_it") {
-				console.log("Command received.");
-
-				var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
-					console.log(result);
-					for (let tab of result) {
-						console.log(tab);
-						chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
-							function justWaitTillFinished(response) {
-								if (chrome.runtime.lastError) {
-									localStorage.clear();
-								} else {
-									if (typeof response !== 'undefined') {
-										// What to do, what to do...
-									}
-								}
-							}
-						);
-					}
-				});
+				sir.invokeTagsField();
 			}
 		});
 	},
@@ -101,7 +120,6 @@ sir.makeMenu();
 function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename determined by browser, it will be used as a fallback
 
 	console.log("nicelyTagIt commenced with the following parameters:\n imageHost: " + imageHost + "\n requster page: " + requesterPage + "\n failOverName: " + failOverName);
-	//sasuga
 
 	if ((localStorage["active_tab_title"] == -1) || (localStorage["active_tab_title"] == "")) { // if the tab title was not found, drop everything
 		return failOverName;
@@ -197,7 +215,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		var PXpage = filename.substring(filename.lastIndexOf('_p') + 2, filename.lastIndexOf('_p') + 4);
 
 		if (filename.indexOf('master') > -1) {
-			alert("You are saving a thumbnail. If you want a full-sized picture, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.")
+			sir.displayWarning("You are saving a thumbnail. If you want a full-sized picture, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
 			PXpage = 'THUMBNAIL!' + PXpage; // if user wants to save a rescaled thumbnail, add a tag
 		};
 
@@ -335,54 +353,53 @@ chrome.tabs.onUpdated.addListener(
 
 //perform the requested action on menu click
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-	if (info.menuItemId == "saveSilently") {
-		//handle alt option toggle
-		saveSilentlyEnabled = !saveSilentlyEnabled;
-	} else {
-		// get where that image is hosted on by
-		var tempContainer = document.createElement('a'); // creating an link-type (a) object
-		tempContainer.href = info.srcUrl; // ! linking to the item we are about to save
-		//tempContainer.innerHTML = "Heh, not bad, kid. You made me use my HTML power!"; 	// with inner HTML structure
-		//document.body.appendChild(tempContainer);											// on chrome's generated background page
+	switch (info.menuItemId) {
+		case 'saveSilently':
+			//handle alt option toggle
+			saveSilentlyEnabled = !saveSilentlyEnabled;
+			break;
+		case 'invokeEMF':
+			sir.invokeTagsField();
+			break;
+		case 'dl':
+			// get where that image is hosted on by
+			var tempContainer = document.createElement('a'); // creating an link-type (a) object
+			tempContainer.href = info.srcUrl; // ! linking to the item we are about to save
+			//tempContainer.innerHTML = "Heh, not bad, kid. You made me use my HTML power!"; 	// with inner HTML structure
+			//document.body.appendChild(tempContainer);											// on chrome's generated background page
 
-		// at we can see, info.hostname is undefined
-		// console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
-		// but if we do this, suddenly url is undefined but hostname works
-		// console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
+			// at we can see, info.hostname is undefined
+			// console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
+			// but if we do this, suddenly url is undefined but hostname works
+			// console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
 
-		var imageHost = tempContainer.hostname;
-		var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
+			var imageHost = tempContainer.hostname;
+			var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
 
-		var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName);
+			var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName);
 
-		console.log("Attempting to download:\n url: " + info.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+			console.log("Attempting to download:\n url: " + info.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
 
-		if (firefoxEnviroment) {
-			chrome.downloads.download({
-				url: info.srcUrl,
-				saveAs: !saveSilentlyEnabled,
-				filename: resultingFilename,
-				headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
-			});
-		} else if (localStorage["origin"] === "PX") {
-			//alert("PIXIV refuses to serve pictures without the correct referrer. Suggested name is copied into clipboard.\n Use the \"Save As...\" dialogue.");
-			chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
-				function justWaitTillFinished(response) {
-					if (chrome.runtime.lastError) {
-						localStorage.clear(); //TODO: decide if a clean-up is needed here
-					} else {
-						if (typeof response !== 'undefined') {
-							// What to do, what to do...
-						}
-					}
-				}
-			);
-		} else {
-			chrome.downloads.download({
-				url: info.srcUrl,
-				saveAs: !saveSilentlyEnabled,
-				filename: resultingFilename,
-			});
-		};
+			if (firefoxEnviroment) {
+				chrome.downloads.download({
+					url: info.srcUrl,
+					saveAs: !saveSilentlyEnabled,
+					filename: resultingFilename,
+					headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
+				});
+			} else if (localStorage["origin"] === "PX") {
+				sir.displayWarning("PIXIV refuses to serve pictures without the correct referrer. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+			} else {
+				chrome.downloads.download({
+					url: info.srcUrl,
+					saveAs: !saveSilentlyEnabled,
+					filename: resultingFilename,
+				});
+			};
+			break;
+		default:
+			console.log("Strange thing happened in Menu handling. Info state: " + info);
+			console.log("Tab state: " + tab);
 	}
-})
+
+});
