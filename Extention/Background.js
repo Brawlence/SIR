@@ -57,8 +57,8 @@ var sir = {
 		}
 	},
 
+	//TODO: re-issue command to get tags into local storage? Dynamically enable DL sub-menu?
 	invokeTagsField: function() {
-		//TODO: re-issue command to get tags into local storage? Dynamically enable DL sub-menu? 
 		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
 			for (let tab of result) {
 				chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
@@ -76,7 +76,7 @@ var sir = {
 		});
 	},
 
-	displayWarning: function(message){
+	displayWarning: function(message) {
 		if (!firefoxEnviroment) {
 			alert(message);
 		}
@@ -133,7 +133,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
 		if (failOverName.indexOf('?') > -1) {
-			failOverName = failOverName.substring(0,failOverName.indexOf('?')); //prune the access token from the filename if it exists
+			failOverName = failOverName.substring(0, failOverName.indexOf('?')); //prune the access token from the filename if it exists
 		}
 		var filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
 		var ext = failOverName.substr(failOverName.lastIndexOf('.') + 1); // separate extension from the filename
@@ -164,7 +164,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 	// ! DRAWFRIENDS BOROO
 	if ((imageHost.indexOf('drawfriends.booru.org') > -1) || (requesterPage.indexOf('drawfriends') > -1)) {
 		if (localStorage["origin"] === "DF") {
-			filename="";
+			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_').replace(/_\(artist\)/g, '\@DF') + " ";
@@ -183,34 +183,13 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
+			if (filename.indexOf('@DA') == -1) {
+				filename = "deviantart " + filename;
+			}
 		};
 	};
 
 	var activeTabTitle = localStorage["active_tab_title"];
-
-	// ! TUMBLR
-	if ((imageHost.indexOf('tumblr') > -1) || (requesterPage.indexOf('tumblr') > -1)) {
-		var temp = activeTabTitle.split(': ')[0];
-		if (temp.indexOf(' ') > -1) {
-			name = temp.replace(/ /g, '_');
-			if (requesterPage.indexOf('//tumblr') > -1) {
-				author = requesterPage.substring(requesterPage.indexOf('tumblr.'), requesterPage.lastIndexOf('.com'));
-			} else {
-				author = requesterPage.substring(requesterPage.indexOf('//'), requesterPage.lastIndexOf('.tumblr'));
-			}
-		} else if (temp == requesterPage.substring(requesterPage.indexOf('//'), requesterPage.lastIndexOf('.tumblr'))) {
-			author = temp;
-			name = "";
-		};
-
-		filename = '[' + author + '@TU] ' + name + " " + filename;
-		if (localStorage["origin"] === "TU") {
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
-				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
-			};
-		};
-	};
 
 	// ! TWITTER
 	if ((imageHost.indexOf('twimg') > -1) || (requesterPage.indexOf('twitter') > -1)) {
@@ -266,6 +245,30 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 		}
+	};
+
+	// ! TUMBLR
+	if ((imageHost.indexOf('tumblr') > -1) || (requesterPage.indexOf('tumblr') > -1)) {
+		var temp = activeTabTitle.split(': ')[0];
+		if (temp.indexOf(' ') > -1) {
+			name = temp.replace(/ /g, '_');
+			if (requesterPage.indexOf('//tumblr') > -1) {
+				author = requesterPage.substring(requesterPage.indexOf('tumblr.'), requesterPage.lastIndexOf('.com'));
+			} else {
+				author = requesterPage.substring(requesterPage.indexOf('//'), requesterPage.lastIndexOf('.tumblr'));
+			}
+		} else if (temp == requesterPage.substring(requesterPage.indexOf('//'), requesterPage.lastIndexOf('.tumblr'))) {
+			author = temp;
+			name = "";
+		};
+
+		filename = '[' + author + '@TU] ' + name + " " + filename;
+		if (localStorage["origin"] === "TU") {
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+			for (i = 0; i < arrayOfTags.length; i++) {
+				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
+			};
+		};
 	};
 
 	if (ext.length > 5) { //additional check for various madness
