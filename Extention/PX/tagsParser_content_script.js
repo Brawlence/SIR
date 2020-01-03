@@ -19,7 +19,7 @@ function createElderMagicField() {
 		var arrayOfTags = getImageTags();
 		var tagsString = "";
 		for (i = 0; i < arrayOfTags.length; i++) {
-			tagsString = tagsString + " " + arrayOfTags[i].replace(/ /g, '_');
+			tagsString += arrayOfTags[i].replace(/ /g, '_') + " ";
 		};
 	
 		const sirDivArea = document.createElement('div');

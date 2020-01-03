@@ -32,6 +32,7 @@ var sir = {
 			}
 		}
 
+		//TODO: check if the tags fetched by content scripts had arrived before enabling dl?
 		sir.makeMenuItem( /* id */ "dl", /* title */ "Download with tags", /* Icon */ "SIR_16x16.png", useIcons);
 		sir.makeMenuItem( /* id */ "invokeEMF", /* title */ "Get tags string", /* Icon */ "SIR_16x16.png", useIcons);
 
@@ -57,6 +58,7 @@ var sir = {
 	},
 
 	invokeTagsField: function() {
+		//TODO: re-issue command to get tags into local storage? Dynamically enable DL sub-menu? 
 		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
 			for (let tab of result) {
 				chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
@@ -75,6 +77,9 @@ var sir = {
 	},
 
 	displayWarning: function(message){
+		if (!firefoxEnviroment) {
+			alert(message);
+		}
 		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
 			for (let tab of result) {
 				chrome.tabs.sendMessage(tab.id, { order: "displayWarning", warning: message },
@@ -127,28 +132,61 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
+		if (failOverName.indexOf('?') > -1) {
+			failOverName = failOverName.substring(0,failOverName.indexOf('?')); //prune the access token from the filename if it exists
+		}
 		var filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
 		var ext = failOverName.substr(failOverName.lastIndexOf('.') + 1); // separate extension from the filename
 	} else {
 		return failOverName;
 	};
 
-	var activeTabTitle = localStorage["active_tab_title"];
+	// ! PIXIV
+	if ((imageHost.indexOf('pximg') > -1) || (requesterPage.indexOf('pixiv') > -1)) {
+		var PXnumber = filename.substring(0, filename.lastIndexOf('_'));
+		var PXpage = filename.substring(filename.lastIndexOf('_p') + 2, filename.lastIndexOf('_p') + 4);
+
+		if (filename.indexOf('master') > -1) {
+			sir.displayWarning("You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
+			PXpage = 'THUMBNAIL!' + PXpage; // if user wants to save a rescaled thumbnail, add a tag
+		};
+
+		filename = 'pixiv_' + PXnumber + '_' + PXpage + " ";
+
+		if (localStorage["origin"] === "PX") {
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+			for (i = 0; i < arrayOfTags.length; i++) {
+				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
+			};
+		}
+	};
+
+	// ! DRAWFRIENDS BOROO
+	if ((imageHost.indexOf('drawfriends.booru.org') > -1) || (requesterPage.indexOf('drawfriends') > -1)) {
+		if (localStorage["origin"] === "DF") {
+			filename="";
+			var arrayOfTags = JSON.parse(localStorage["tags"]);
+			for (i = 0; i < arrayOfTags.length; i++) {
+				filename += arrayOfTags[i].replace(/[ \:]/g, '_').replace(/_\(artist\)/g, '\@DF') + " ";
+			};
+			if (filename.indexOf('@DF') == -1) {
+				filename = "drawfriends " + filename;
+			}
+		}
+	};
 
 	// ! DEVIANTART
 	if ((imageHost.indexOf('deviantart') > -1) || (requesterPage.indexOf('deviantart') > -1)) {
-		var author = activeTabTitle.substring(activeTabTitle.lastIndexOf(' by ') + 4, activeTabTitle.lastIndexOf(' on Deviant'));
-		var name = activeTabTitle.substring(0, activeTabTitle.lastIndexOf(' by '));
-
-		filename = '[' + author + '@DA] ' + name; //reformat filename to this template, moving the author info
-
 		if (localStorage["origin"] === "DA") {
+			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_');
+				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 		};
 	};
+
+	var activeTabTitle = localStorage["active_tab_title"];
 
 	// ! TUMBLR
 	if ((imageHost.indexOf('tumblr') > -1) || (requesterPage.indexOf('tumblr') > -1)) {
@@ -169,7 +207,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "TU") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_');
+				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 		};
 	};
@@ -194,31 +232,11 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "TW") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_');
+				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 		};
 
 		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('large') - 1); }; //cleaning ext - twitter image links are nasty
-	};
-
-	// ! PIXIV
-	if ((imageHost.indexOf('pximg') > -1) || (requesterPage.indexOf('pixiv') > -1)) {
-		var PXnumber = filename.substring(0, filename.lastIndexOf('_'));
-		var PXpage = filename.substring(filename.lastIndexOf('_p') + 2, filename.lastIndexOf('_p') + 4);
-
-		if (filename.indexOf('master') > -1) {
-			sir.displayWarning("You are saving a thumbnail. If you want a full-sized picture, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
-			PXpage = 'THUMBNAIL!' + PXpage; // if user wants to save a rescaled thumbnail, add a tag
-		};
-
-		filename = 'pixiv_' + PXnumber + '_' + PXpage;
-
-		if (localStorage["origin"] === "PX") {
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i].replace(/[ \:]/g, '_');
-			};
-		}
 	};
 
 	// ! ARTSTATION
@@ -230,7 +248,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "AS") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_');
+				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 		}
 	};
@@ -245,26 +263,10 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "HF") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + " " + arrayOfTags[i].replace(/ /g, '_');
+				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 		}
 	};
-
-	// ! DRAWFRIENDS BOROO
-	if ((imageHost.indexOf('drawfriends.booru.org') > -1) || (requesterPage.indexOf('drawfriends') > -1)) {
-		/* no failover, just get the tags */
-		filename = "";
-		if (localStorage["origin"] === "DF") {
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
-				filename = filename + arrayOfTags[i].replace(/ /g, '_').replace(/_\(artist\)/g, '\@DF') + " ";
-			};
-			if (filename.indexOf('@DF') == -1) {
-				filename = "drawfriends" + filename;
-			}
-		}
-	};
-
 
 	if (ext.length > 5) { //additional check for various madness
 		return failOverName;
@@ -272,7 +274,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// TODO: merge two correction replace ops with regexp
 	filename = filename.replace(/\ \ /g, ' ');
-	filename = filename.replace(/\ \./g, '.');
+	filename = filename.replace(/[ ]$/g, '');
 
 	filename = filename.replace(/[\,\\/:*?\"<>|]/g, ''); // make sure the modified filename doesn't contain any illegal characters
 
