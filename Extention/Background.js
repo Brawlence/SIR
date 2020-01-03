@@ -169,7 +169,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_').replace(/_\(artist\)/g, '\@DF') + " ";
 			};
-			if (filename.indexOf('@DF') == -1) {
+			if ((filename.indexOf('@DF') == -1) && (filename.indexOf('drawfriends') == -1)) {
 				filename = "drawfriends " + filename;
 			}
 		}
