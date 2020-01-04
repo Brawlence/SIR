@@ -130,28 +130,32 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		return failOverName;
 	};
 
+	var filename, ext;
+
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
 		if (failOverName.indexOf('?') > -1) {
 			failOverName = failOverName.substring(0, failOverName.indexOf('?')); //prune the access token from the filename if it exists
 		}
-		var filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
-		var ext = failOverName.substr(failOverName.lastIndexOf('.') + 1); // separate extension from the filename
+		filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
+		ext = failOverName.substr(failOverName.lastIndexOf('.') + 1); // separate extension from the filename
 	} else {
 		return failOverName;
 	};
 
 	// ! PIXIV
 	if ((imageHost.indexOf('pximg') > -1) || (requesterPage.indexOf('pixiv') > -1)) {
-		var PXnumber = filename.substring(0, filename.lastIndexOf('_'));
-		var PXpage = filename.substring(filename.lastIndexOf('_p') + 2, filename.lastIndexOf('_p') + 4);
+		var PXnumber = filename.substring(0, filename.indexOf('_p'));
+		var PXpage = filename.substr(filename.indexOf('_p') + 2);
+		var PXthumb = "";
 
-		if (filename.indexOf('master') > -1) {
+		if (PXpage.indexOf('master') > -1) {
+			PXpage = PXpage.substring(0, PXpage.indexOf('_master'));
+			PXthumb = " -THUMBNAIL!- "; // if user wants to save a rescaled thumbnail, add a tag
 			sir.displayWarning("You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
-			PXpage = 'THUMBNAIL!' + PXpage; // if user wants to save a rescaled thumbnail, add a tag
 		};
 
-		filename = 'pixiv_' + PXnumber + '_' + PXpage + " ";
+		filename = "pixiv_" + PXnumber + PXthumb + " page_" + PXpage + " ";
 
 		if (localStorage["origin"] === "PX") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
