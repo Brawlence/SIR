@@ -14,44 +14,44 @@
 		},
 		"default_title": "SIR!"
 	},
-	"version": "0.8.1",
+	"version": "0.8.2",
 	"manifest_version": 2,
-	"permissions": [ "downloads", "storage", "tabs", "contextMenus" ],
+	"permissions": [ "downloads", "storage", "contextMenus", "tabs" ],
 	"content_scripts": [ {
 			"matches": [ "*://*.deviantart.com/*", "*://*.deviantart.net/*" ],
 			"css": [ "DA/tagsStyle.css" ],
 			"run_at": "document_end",
-			"js": [ "DA/tagsParser_content_script.js" ]
+			"js": [ "DA/tagsParser.js", "Content.js" ]
 		},
 		{
 			"matches": [ "*://*.pixiv.net/*", "*://*.pximg.net/*" ],
 			"css": [ "PX/tagsStyle.css" ],
 			"run_at": "document_end",
-			"js": [ "PX/tagsParser_content_script.js" ]
+			"js": [ "PX/tagsParser.js", "Content.js" ]
 		},
 		{
-			"matches": [ "*://*.tumblr.com/*" ],
+			"matches": [ "*://*.tumblr.com/post/*" ],
 			"css": [ "TU/tagsStyle.css" ],
 			"run_at": "document_end",
-			"js": [ "TU/tagsParser_content_script.js" ]
+			"js": [ "TU/tagsParser.js", "Content.js" ]
 		},
 		{
 			"matches": [ "*://*.twitter.com/*", "*://*.twimg.com/*" ],
 			"css": [ "TW/tagsStyle.css" ],
 			"run_at": "document_end",
-			"js": [ "TW/tagsParser_content_script.js" ]
+			"js": [ "TW/tagsParser.js", "Content.js" ]
 		},
 		{
 			"matches": [ "*://*.artstation.com/*" ],
 			"css": [ "AS/tagsStyle.css" ],
 			"run_at": "document_end",
-			"js": [ "AS/tagsParser_content_script.js" ]
+			"js": [ "AS/tagsParser.js", "Content.js" ]
 		},
 		{
 			"matches": [ "*://*.hentai-foundry.com/*", "*://*.hentaifoundry.com/*" ],
 			"css": [ "HF/tagsStyle.css" ],
 			"run_at": "document_end",
-			"js": [ "HF/tagsParser_content_script.js" ]
+			"js": [ "HF/tagsParser.js", "Content.js" ]
 		},
 		{
 			"matches": [ "*://drawfriends.booru.org/*s=view*" ],
