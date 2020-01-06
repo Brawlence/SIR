@@ -4,9 +4,9 @@ var tagsOrigin = "TW";
 
 function getImageTags() {
 	var resultingTags = new Array;
-	var tempArray = document.getElementsByClassName("twitter-hashtag");
+	var tempArray = document.querySelectorAll("div span a[href*='/hashtag/']");
 	for (i = 0; i < tempArray.length; i++) {
-		resultingTags.push(tempArray[i].innerText.substr(1));
+		resultingTags.push(tempArray[i].innerText.replace(/[\#]/g, ''));
 	};
 	return resultingTags;
 };

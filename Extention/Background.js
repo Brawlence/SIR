@@ -134,11 +134,16 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
+
 		if (failOverName.indexOf('?') > -1) {
 			failOverName = failOverName.substring(0, failOverName.indexOf('?')); //prune the access token from the filename if it exists
 		}
 		filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
 		ext = failOverName.substr(failOverName.lastIndexOf('.') + 1); // separate extension from the filename
+	} else if (failOverName.indexOf('\?format=') > -1) { // TWITER HAS SILLY LINKS
+		
+		filename = failOverName.substring(0,failOverName.indexOf('\?format='));
+		ext = failOverName.substring(failOverName.indexOf('\?format=')+8,failOverName.indexOf('\&name='));
 	} else {
 		return failOverName;
 	};
@@ -162,6 +167,9 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
+			if ((filename.indexOf('@PX') == -1)&&(filename.indexOf('pixiv_') == -1)) {
+				filename = "pixiv " + filename;
+			}
 		}
 	};
 
@@ -197,25 +205,14 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! TWITTER
 	if ((imageHost.indexOf('twimg') > -1) || (requesterPage.indexOf('twitter') > -1)) {
-		var author = "___"; // in this case, @handle of twitter profile
-		var name = ""; // name of the author profile, not the name of the image itself
-		if (activeTabTitle.indexOf(' | ') > -1) { // on profile page: 'Artist (@twitter_link) | Twitter'
-			var temp = activeTabTitle.split(' | ')[0];
-			author = temp.substring(temp.indexOf('(') + 2, temp.indexOf(')'));
-			name = temp.substring(0, temp.indexOf(' (')).replace(/ /g, '_');
-		};
-		if (activeTabTitle.indexOf(': ') > -1) { // on a random feed page: 'Artist on twitter: «picture_caption»'
-			var temp = activeTabTitle.split(': ')[0];
-			temp = temp.substring(0, temp.lastIndexOf(' '));
-			author = requesterPage.substring(requesterPage.lastIndexOf('.com/') + 5, requesterPage.lastIndexOf('/status/'));
-			name = temp.substring(0, temp.lastIndexOf(' ')).replace(/ /g, '_');
-		};
-		filename = '[' + author + '@TW] (' + name + ')';
-
 		if (localStorage["origin"] === "TW") {
+			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
+			};
+			if (filename.indexOf('@HF') == -1) {
+				filename = "twitter " + filename;
 			};
 		};
 
@@ -224,53 +221,42 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! ARTSTATION
 	if ((imageHost.indexOf('artstation') > -1) || (requesterPage.indexOf('artstation') > -1)) {
-		var author = activeTabTitle.substring(activeTabTitle.lastIndexOf(', ') + 2, activeTabTitle.length);
-		var name = activeTabTitle.substring(activeTabTitle.lastIndexOf(' - ') + 3, activeTabTitle.lastIndexOf(', '));
-		filename = '[' + author + '@AS] ' + name + " " + filename;
-
 		if (localStorage["origin"] === "AS") {
+			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
-		}
+			if (filename.indexOf('@AS') == -1) {
+				filename = "artstation " + filename;
+			};
+		};
 	};
 
 	// ! HENTAIFOUNDRY
 	if ((imageHost.indexOf('hentai-foundry') > -1) || (requesterPage.indexOf('hentai-foundry') > -1)) {
-		var author = activeTabTitle.substring(activeTabTitle.indexOf(' by ') + 4, activeTabTitle.lastIndexOf(' - '));
-		var name = activeTabTitle.substring(0, activeTabTitle.indexOf(' by '));
-
-		filename = '[' + author + '@HF] ' + name;
-
 		if (localStorage["origin"] === "HF") {
+			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
-		}
+			if (filename.indexOf('@HF') == -1) {
+				filename = "hentai-foundry " + filename;
+			};
+		};
 	};
 
 	// ! TUMBLR
 	if ((imageHost.indexOf('tumblr') > -1) || (requesterPage.indexOf('tumblr') > -1)) {
-		var temp = activeTabTitle.split(': ')[0];
-		if (temp.indexOf(' ') > -1) {
-			name = temp.replace(/ /g, '_');
-			if (requesterPage.indexOf('//tumblr') > -1) {
-				author = requesterPage.substring(requesterPage.indexOf('tumblr.'), requesterPage.lastIndexOf('.com'));
-			} else {
-				author = requesterPage.substring(requesterPage.indexOf('//'), requesterPage.lastIndexOf('.tumblr'));
-			}
-		} else if (temp == requesterPage.substring(requesterPage.indexOf('//'), requesterPage.lastIndexOf('.tumblr'))) {
-			author = temp;
-			name = "";
-		};
-
-		filename = '[' + author + '@TU] ' + name + " " + filename;
 		if (localStorage["origin"] === "TU") {
+			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
+			};
+			if (filename.indexOf('@TU') == -1) {
+				filename = "tumblr " + filename;
 			};
 		};
 	};
