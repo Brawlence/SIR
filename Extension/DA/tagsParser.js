@@ -1,6 +1,7 @@
 // TODO: parse picture name and author handle
 
 var tagsOrigin = "DA";
+var windowDisplacement = 0;
 
 function getImageTags() {
 	var resultingTags = new Array;

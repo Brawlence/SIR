@@ -42,7 +42,9 @@ function createElderMagicField() {
 
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
-		if (request.order === "giffTags") {
+		if (request.order === "ping") {
+			sendResponse({message: true, origin: "DF"});
+		} else if (request.order === "giffTags") {
 			sendResponse({ tags: getImageTags(), origin: "DF" });
 		} else if (request.order === "imprintTags") {
 			createElderMagicField();

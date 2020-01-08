@@ -1,6 +1,7 @@
 // The illustration name is always in <figcaption> <h1>NAME</h1> </figcaption> , tags are there too
 // Author's name is in <aside> <section> <h2> <div> <div> <a> <div>
 var tagsOrigin = "PX";
+var windowDisplacement = 0;
 
 function getImageTags() {
 	var resultingTags = new Array;

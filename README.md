@@ -55,7 +55,7 @@ Since SIR is still in development, no packed releases had been made yet. To inst
 - Overabundant tags can sometimes exceed the filename length limit, thus they are currently trimmed to nearest space symbol below 230 symbols.  
 
 ## Known bugs ##
-- Tags sometimes can't be fetched for js-made image transitions — page reload (`F5`), browser tab re-selecting or Invoke Tag List (`Ctrl+Shift+1`) fixes that.
-- *Tumblr* - `Cancel` and `Copy-&-Hide` buttons do not conceal the tags windown. Using Invoke Tag List (`Ctrl+Shift+1`) the second time works normally.
-
+- *Tumblr* & *Twitter* - `Cancel` and `Copy-&-Hide` buttons do not conceal the tags windown. Using Invoke Tag List (`Ctrl+Shift+1`) the second time works normally.
+- *ArtStation* - if no tags are present, both "Dl with tags" & "Get tags string" won't work and are enabled.
+ 
 If you happen to enconuter an unlisted bug, please submit it through https://github.com/Brawlence/SIR/issues/new

@@ -3,163 +3,15 @@
 var saveSilentlyEnabled = false;
 var firefoxEnviroment = false;
 
-var sir = {
-	//adds an individual item to the context menu and gives it the id passed into the function
-	makeMenuItem: function (id, item, icon, clickable, useIcon) {
-		if (useIcon) {
-			chrome.contextMenus.create({
-				id: id.toString(),
-				title: item.toString(),
-				enabled: clickable,
-				contexts: ["image"],
-				icons: { "16": icon.toString() },
-			})
-		} else {
-			//icons not supported, or undesirable. leave them out
-			chrome.contextMenus.create({
-				id: id.toString(),
-				title: item.toString(),
-				enabled: clickable,
-				contexts: ["image"]
-			})
-		}
-	},
+function nicelyTagIt(imageHost, requesterPage, failOverName, response, tabId) { // gets filename determined by browser, it will be used as a fallback - and also the response from content scripts
 
-	//adds all URLs to the function from local storage, using indices 0 - urlList.length-1 as their IDs
-	makeMenuItems: function (browserInfo) {
-		chrome.contextMenus.removeAll();
-
-		var useIcons = false;
-		if (!(browserInfo === undefined || browserInfo === null)) { //if the browserInfo was actually sent here and we're in Firefox
-			if (parseInt(browserInfo.version, 10) >= 56) { //not sure when icon support was added, but it existed in 56 and does not exist in 52
-				useIcons = true;
-			}
-		}
-
-		//TODO: check if the tags fetched by content scripts had arrived before enabling dl?
-		sir.makeMenuItem( /* id */ "dl", /* title */ "Download with tags", /* Icon */ "Icons/dl.png", /* clickable */ false, useIcons);
-		sir.makeMenuItem( /* id */ "invokeEMF", /* title */ "Get tags string", /* Icon */ "Icons/emf.png", /* clickable */ true, useIcons);
-
-		chrome.contextMenus.create({
-			type: "checkbox",
-			id: "saveSilently",
-			title: "Supress \"Save As\" dialog?",
-			checked: saveSilentlyEnabled,
-			contexts: ["image"]
-		})
-
-	},
-
-	//gets browser info and passes it to makeMenuItems to determine if things like icons are supported
-	makeMenu: function () {
-		// indexOf is freakingly fast, see https://jsperf.com/substring-test
-		if (firefoxEnviroment) {
-			var gettingBrowserInfo = browser.runtime.getBrowserInfo();
-			gettingBrowserInfo.then(sir.makeMenuItems);
-		} else {
-			sir.makeMenuItems();
-		}
-	},
-
-	//TODO: re-issue command to get tags into local storage? Dynamically enable DL sub-menu?
-	invokeTagsField: function () {
-		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function (result) {
-			for (let tab of result) {
-				chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
-					function justWaitTillFinished(response) {
-						if (chrome.runtime.lastError) {
-							localStorage.clear();
-						} else {
-							if (typeof response !== 'undefined') {
-								//TODO: decide if cleanup needed
-							}
-						}
-					}
-				);
-			}
-		});
-	},
-
-	displayWarning: function (message) {
-		if (!firefoxEnviroment) {
-			alert(message);
-		}
-		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function (result) {
-			for (let tab of result) {
-				chrome.tabs.sendMessage(tab.id, { order: "displayWarning", warning: message },
-					function justWaitTillFinished(response) {
-						if (chrome.runtime.lastError) {
-							localStorage.clear();
-						} else {
-							if (typeof response !== 'undefined') {
-								//TODO: decide if cleanup needed
-							}
-						}
-					}
-				);
-			}
-		});
-	},
-
-	firstRun: function (details) {
-		if (typeof (details) !== "undefined") {
-			if (details.reason.indexOf('install') > 0 || details.reason.indexOf('update') > 0) {
-				console.log("SIR is installed successefully. Performing first-run checks.");
-			};
-		} else {
-			console.log("SIR is installed, but unable to access the details of its installation.")
-		}
-		chrome.commands.onCommand.addListener(function (command) {
-			if (command == "SIR_it") {
-				sir.invokeTagsField();
-			}
-		});
-	},
-
-	initialize: function () {
-		if (navigator.userAgent.indexOf('Firefox') > -1) {
-			firefoxEnviroment = true;
-			console.log("Firefox enviroment confirmed. Proceeding as usual.");
-		} else if (navigator.userAgent.indexOf('Chrom') > -1) {
-			firefoxEnviroment = false;
-			console.log("Chromium enviroment discovered. Pixiv saving will require additional work.");
-		} else {
-			firefoxEnviroment = false;
-			console.log("Unknown user-agent type. Proceed at your own risk.");
-		};
-		sir.makeMenu();
-	},
-
-	disableDl: function () {
-		chrome.contextMenus.update("dl", {
-			icons: { "16": "Icons/no_dl.png" },
-			title: "No tags were fetched from this page",
-			enabled: false
-		})
-	},
-
-	enableDl: function () {
-		chrome.contextMenus.update("dl", {
-			icons: { "16": "Icons/dl.png" },
-			title: "Download with tags",
-			enabled: true
-		})
-	}
-}
-
-chrome.runtime.onInstalled.addListener(sir.firstRun);
-sir.initialize();
-
-function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename determined by browser, it will be used as a fallback
-
-	console.log("nicelyTagIt commenced with the following parameters:\n imageHost: " + imageHost + "\n requster page: " + requesterPage + "\n failOverName: " + failOverName);
-
-	if ((localStorage["active_tab_title"] == -1) || (localStorage["active_tab_title"] == "")) { // if the tab title was not found, drop everything
-		return failOverName;
-	};
+	console.log("nicelyTagIt commenced with the following parameters:\n imageHost: " + imageHost +
+				"\n requster page: " + requesterPage + "\n failOverName: " + failOverName + 
+				"\n content script result: " + response.origin + " " + response.tags);
 
 	var filename = "",
 		ext = "";
+	var arrayOfTags = response.tags;
 
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
@@ -185,13 +37,12 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (PXpage.indexOf('master') > -1) {
 			PXpage = PXpage.substring(0, PXpage.indexOf('_master'));
 			PXthumb = " -THUMBNAIL!- "; // if user wants to save a rescaled thumbnail, add a tag
-			sir.displayWarning("You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
+			sir.displayWarning(tabId, "You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
 		};
 
 		filename = "pixiv_" + PXnumber + PXthumb + " page_" + PXpage + " ";
 
-		if (localStorage["origin"] === "PX") {
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
+		if (response.origin === "PX") {
 			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
@@ -203,9 +54,8 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! DRAWFRIENDS BOROO
 	if ((imageHost.indexOf('drawfriends.booru.org') > -1) || (requesterPage.indexOf('drawfriends') > -1)) {
-		if (localStorage["origin"] === "DF") {
+		if (response.origin === "DF") {
 			filename = "";
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_').replace(/_\(artist\)/g, '\@DF') + " ";
 			};
@@ -217,9 +67,8 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! DEVIANTART
 	if ((imageHost.indexOf('deviantart') > -1) || (requesterPage.indexOf('deviantart') > -1)) {
-		if (localStorage["origin"] === "DA") {
+		if (response.origin === "DA") {
 			filename = "";
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
@@ -231,9 +80,8 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! TWITTER
 	if ((imageHost.indexOf('twimg') > -1) || (requesterPage.indexOf('twitter') > -1)) {
-		if (localStorage["origin"] === "TW") {
+		if (response.origin === "TW") {
 			filename = "";
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
@@ -247,9 +95,8 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! ARTSTATION
 	if ((imageHost.indexOf('artstation') > -1) || (requesterPage.indexOf('artstation') > -1)) {
-		if (localStorage["origin"] === "AS") {
+		if (response.origin === "AS") {
 			filename = "";
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
@@ -261,9 +108,8 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! HENTAIFOUNDRY
 	if ((imageHost.indexOf('hentai-foundry') > -1) || (requesterPage.indexOf('hentai-foundry') > -1)) {
-		if (localStorage["origin"] === "HF") {
+		if (response.origin === "HF") {
 			filename = "";
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
@@ -275,9 +121,8 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 	// ! TUMBLR
 	if ((imageHost.indexOf('tumblr') > -1) || (requesterPage.indexOf('tumblr') > -1)) {
-		if (localStorage["origin"] === "TU") {
+		if (response.origin === "TU") {
 			filename = "";
-			var arrayOfTags = JSON.parse(localStorage["tags"]);
 			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
@@ -291,11 +136,9 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		return failOverName;
 	}
 
-	// TODO: merge two correction replace ops with regexp
-	filename = filename.replace(/\ \ /g, ' ');
-	filename = filename.replace(/[ ]$/g, '');
-
-	filename = filename.replace(/[\,\\/:*?\"<>|]/g, ''); // make sure the modified filename doesn't contain any illegal characters
+	filename = filename.replace(/\ \ /g, ' '); 				// remove double spaces
+	filename = filename.replace(/[ ]$/g, '');				// remove trailing whitespaces
+	filename = filename.replace(/[\,\\/:*?\"<>|]/g, ''); 	// make sure the modified filename in general doesn't contain any illegal characters
 
 	if (filename == "") { // make sure the name is not left blank
 		filename = "tagme";
@@ -311,107 +154,230 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 	return (filename + "." + ext); // add back the extension to the file name and return them
 };
 
-function requestTagsAndWriteEm(TabIdToSendTo) {
-	chrome.tabs.sendMessage(TabIdToSendTo, { order: "giffTags" },
-		function requestAndWrite(response) {
-			if (chrome.runtime.lastError) {
-				//localStorage.clear(); //TODO: decide if a clean-up is needed here
-			} else {
-				if (typeof response !== 'undefined') {
-					localStorage["tags"] = JSON.stringify(response.tags);
-					localStorage["origin"] = response.origin;
+var sir = {
+	//adds an individual item to the context menu and gives it the id passed into the function
+	makeMenuItem: function (id, item, icon, clickable, useIcon) {
+		if (useIcon) {
+			chrome.contextMenus.create({
+				id: id.toString(),
+				title: item.toString(),
+				enabled: clickable,
+				contexts: ["image"],
+				icons: { "16": icon.toString() },
+			})
+		} else {
+			//icons not supported, leave them out
+			chrome.contextMenus.create({
+				id: id.toString(),
+				title: item.toString(),
+				enabled: clickable,
+				contexts: ["image"]
+			})
+		}
+	},
 
-					sir.enableDl(); //allow the image to be dl'ed
-				}
+	makeMenuItems: function (browserInfo) {
+		chrome.contextMenus.removeAll();
+
+		var useIcons = false;
+		if (!(browserInfo === undefined || browserInfo === null)) { //if the browserInfo was actually sent here
+			if (parseInt(browserInfo.version, 10) >= 56) { //not sure when icon support was added, but it existed in 56 and does not exist in 52
+				useIcons = true;
 			}
 		}
-	)
-}
 
-chrome.tabs.onActivated.addListener(
-	function runOnActivated(tabId, changeInfo) { // send to fire after Tab Activated procedure
-		sir.disableDl(); //disable the context menu while we don't know if SIR context scripts are working here
-		chrome.tabs.query({ active: true, currentWindow: true, status: "complete" }, // send into query (if active tab and current window were true)
-			function setStorage(tabs) {
-				if (tabs.length > 0) {
-					localStorage["active_tab_title"] = tabs[0].title; // needs the "tabs" permission
+		sir.makeMenuItem( /* id */ "dl", /* title */ "Download with tags", /* Icon */ "Icons/dl.png", /* clickable */ false, useIcons);
+		sir.makeMenuItem( /* id */ "invokeEMF", /* title */ "Get tags string", /* Icon */ "Icons/emf.png", /* clickable */ false, useIcons);
+
+		chrome.contextMenus.create({
+			type: "checkbox",
+			id: "saveSilently",
+			title: "Supress \"Save As\" dialog?",
+			checked: saveSilentlyEnabled,
+			contexts: ["image"]
+		})
+
+	},
+
+	//gets browser info and passes it to makeMenuItems to determine if things like icons are supported
+	makeMenu: function () {
+		if (firefoxEnviroment) {
+			var gettingBrowserInfo = browser.runtime.getBrowserInfo();
+			gettingBrowserInfo.then(sir.makeMenuItems);
+		} else {
+			sir.makeMenuItems();
+		}
+	},
+
+	disableMenu: function () {
+		chrome.contextMenus.update("dl", {
+			icons: { "16": "Icons/no_dl.png" },
+			title: "No tags were fetched from this page",
+			enabled: false
+		});
+		chrome.contextMenus.update("invokeEMF", {
+			icons: { "16": "Icons/no_emf.png" },
+			enabled: false
+		});
+	},
+
+	enableMenu: function () {
+		chrome.contextMenus.update("dl", {
+			icons: { "16": "Icons/dl.png" },
+			title: "Download with tags",
+			enabled: true
+		});
+		chrome.contextMenus.update("invokeEMF", {
+			icons: { "16": "Icons/emf.png" },
+			enabled: true
+		});
+	},
+
+	invokeTagsField: function (tabId) {
+		chrome.tabs.sendMessage(tabId, { order: "imprintTags" },
+			function justWaitTillFinished(response) {
+				if (chrome.runtime.lastError) {
+					console.log(chrome.runtime.lastError);
+				} else {
+					if (typeof response !== 'undefined') {
+						console.log(response);
+					}
 				}
 			}
 		);
+	},
+
+	displayWarning: function (tabId, message) {
+		if (!firefoxEnviroment) {
+			alert(message);
+		};
+		chrome.tabs.sendMessage(tabId, { order: "displayWarning", warning: message },
+			function justWaitTillFinished(response) {
+				if (chrome.runtime.lastError) {
+				console.log(chrome.runtime.lastError);
+				} else {
+					if (typeof response !== 'undefined') {
+						console.log(response);
+					}
+				}
+			}
+		);
+	},
+
+	initialize: function () {
+		if (navigator.userAgent.indexOf('Firefox') > -1) {
+			firefoxEnviroment = true;
+			console.log("Firefox enviroment confirmed. Proceeding as usual.");
+		} else if (navigator.userAgent.indexOf('Chrom') > -1) {
+			firefoxEnviroment = false;
+			console.log("Chromium enviroment discovered. Pixiv saving will require additional work.");
+		} else {
+			firefoxEnviroment = false;
+			console.log("Unknown user-agent type. Proceed at your own risk.");
+		};
+		chrome.commands.onCommand.addListener(function hotkey_triggered(command) {
+			if (command == "SIR_it") {
+				var querying = chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
+					for (let tab of result) {
+							sir.invokeTagsField(tab.id);
+					}
+				});
+			}
+		});
+		sir.makeMenu();
+	},
+	
+	setupConnection: function(tabId, reason) { 
+		sir.disableMenu(); //disable the context menu while we don't know if SIR context scripts are working here
+		chrome.tabs.sendMessage(tabId, { order: "ping" }, // ! already formatted id
+			function updateMenu(response) {
+				if (typeof response !== 'undefined') {
+					if (response.message) {
+						sir.enableMenu();
+						console.log( reason + " Connection extablished with " + response.origin);
+					}
+				}
+			}
+		);
+	},
+	
+	dlWithTags: function (info, tabId) {
+		chrome.tabs.sendMessage(tabId, { order: "giffTags" }, // ! already formatted id
+			function requestAndWrite(response) {
+				if (chrome.runtime.lastError) {
+					console.log(chrome.runtime.lastError);
+				} else {
+					if (typeof response !== 'undefined') {
+						// get where that image is hosted on by
+						var tempContainer = document.createElement('a'); // creating an link-type (a) object
+						tempContainer.href = info.srcUrl; // linking to the item we are about to save
+						//tempContainer.innerHTML = "Heh, not bad, kid. You made me use my HTML power!"; 	// with inner HTML structure
+						//document.body.appendChild(tempContainer);											// on chrome's generated background page
+
+						// at we can see, info.hostname is undefined
+						// console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
+						// but if we do this, suddenly url is undefined but hostname works
+						// console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
+
+						var imageHost = tempContainer.hostname;
+						var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
+
+						var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName, response, tabId);
+
+						console.log("Attempting to download:\n url: " + info.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+
+						if (firefoxEnviroment) {
+							chrome.downloads.download({
+								url: info.srcUrl,
+								saveAs: !saveSilentlyEnabled,
+								filename: resultingFilename,
+								headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
+							});
+						} else if (response.origin === "PX") {
+							sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+						} else {
+							chrome.downloads.download({
+								url: info.srcUrl,
+								saveAs: !saveSilentlyEnabled,
+								filename: resultingFilename,
+							});
+						};
+					}
+				}
+			}
+		)
+
+	}
+}
+
+sir.initialize();
+
+chrome.tabs.onActivated.addListener(
+	function runOnActivated(flowingTabId, changeInfo) { // send to fire after Tab Activated procedure
+		sir.setupConnection(flowingTabId.tabId, "Tab activated."); // ! the flowingTabId has other properties than tabId (which is the tab's id)! Madness! 
 	}
 );
 
-// TODO: MAYBE inject my content scripts programmatically instead of declaratively? Context menu -> Save with all the info ?
-// the safety checks in this one is pure magic - it should only proceed to do its buisiness if the FINALIZED page was updated and it's currently the active one
 chrome.tabs.onUpdated.addListener(
-	function runOnUpdated(tabId, changeInfo, culprit) {
-		if (culprit.status === "complete") {
-			sir.disableDl();
-			chrome.tabs.query({ active: true, currentWindow: true, status: "complete" },
-				function fireIfActive(tabs) {
-					if (typeof tabs !== 'undefined') {
-						if (tabs.length > 0) {
-							if (tabs[0].tabId === culprit.tabId) { // Definitely the ACTIVE one was updated
-								localStorage["active_tab_title"] = tabs[0].title; // needs the "tabs" permission
-								requestTagsAndWriteEm(tabs[0].id);
-							}
-						}
-					}
-				}
-			);
-		}
+	function runOnUpdated(tabId, changeInfo) {
+		sir.setupConnection(tabId, "Page loaded."); // ! this TabID is just an id of the tab — no consistensy!
 	}
 );
 
 //perform the requested action on menu click
-chrome.contextMenus.onClicked.addListener(function (info, tab) {
+chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! tab is where the action at
 	switch (info.menuItemId) {
 	case 'saveSilently':
-		//handle alt option toggle
 		saveSilentlyEnabled = !saveSilentlyEnabled;
 		break;
 	case 'invokeEMF':
-		sir.invokeTagsField();
+		sir.invokeTagsField(tab.id); // ! so tab.id will be passed
 		break;
 	case 'dl':
-		// get where that image is hosted on by
-		var tempContainer = document.createElement('a'); // creating an link-type (a) object
-		tempContainer.href = info.srcUrl; // ! linking to the item we are about to save
-		//tempContainer.innerHTML = "Heh, not bad, kid. You made me use my HTML power!"; 	// with inner HTML structure
-		//document.body.appendChild(tempContainer);											// on chrome's generated background page
-
-		// at we can see, info.hostname is undefined
-		// console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
-		// but if we do this, suddenly url is undefined but hostname works
-		// console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
-
-		var imageHost = tempContainer.hostname;
-		var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
-
-		var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName);
-
-		console.log("Attempting to download:\n url: " + info.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
-
-		if (firefoxEnviroment) {
-			chrome.downloads.download({
-				url: info.srcUrl,
-				saveAs: !saveSilentlyEnabled,
-				filename: resultingFilename,
-				headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
-			});
-		} else if (localStorage["origin"] === "PX") {
-			sir.displayWarning("PIXIV refuses to serve pictures without the correct referrer. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
-		} else {
-			chrome.downloads.download({
-				url: info.srcUrl,
-				saveAs: !saveSilentlyEnabled,
-				filename: resultingFilename,
-			});
-		};
+		sir.dlWithTags(info, tab.id);
 		break;
 	default:
 		console.log("Strange thing happened in Menu handling. Info state: " + info);
 		console.log("Tab state: " + tab);
 	}
-
 });
