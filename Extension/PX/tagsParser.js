@@ -10,7 +10,7 @@ function getImageTags() {
 
 	resultingTags.push(authorName[0].innerText + "@PX");
 	resultingTags.push(pictureName[0].innerText);
-	for (i = 0; i < tempArray.length; i++) {
+	for (var i = 0; i < tempArray.length; i++) {
 		resultingTags.push(tempArray[i].innerText);
 	};
 	return resultingTags;

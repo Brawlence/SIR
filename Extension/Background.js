@@ -1,9 +1,11 @@
+"use strict";
+
 var saveSilentlyEnabled = false;
 var firefoxEnviroment = false;
 
 var sir = {
 	//adds an individual item to the context menu and gives it the id passed into the function
-	makeMenuItem: function(id, item, icon, useIcon) {
+	makeMenuItem: function (id, item, icon, useIcon) {
 		if (useIcon) {
 			chrome.contextMenus.create({
 				id: id.toString(),
@@ -22,7 +24,7 @@ var sir = {
 	},
 
 	//adds all URLs to the function from local storage, using indices 0 - urlList.length-1 as their IDs
-	makeMenuItems: function(browserInfo) {
+	makeMenuItems: function (browserInfo) {
 		chrome.contextMenus.removeAll();
 
 		var useIcons = false;
@@ -47,7 +49,7 @@ var sir = {
 	},
 
 	//gets browser info and passes it to makeMenuItems to determine if things like icons are supported
-	makeMenu: function() {
+	makeMenu: function () {
 		// indexOf is freakingly fast, see https://jsperf.com/substring-test
 		if (firefoxEnviroment) {
 			var gettingBrowserInfo = browser.runtime.getBrowserInfo();
@@ -58,8 +60,8 @@ var sir = {
 	},
 
 	//TODO: re-issue command to get tags into local storage? Dynamically enable DL sub-menu?
-	invokeTagsField: function() {
-		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
+	invokeTagsField: function () {
+		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function (result) {
 			for (let tab of result) {
 				chrome.tabs.sendMessage(tab.id, { order: "imprintTags" },
 					function justWaitTillFinished(response) {
@@ -76,11 +78,11 @@ var sir = {
 		});
 	},
 
-	displayWarning: function(message) {
+	displayWarning: function (message) {
 		if (!firefoxEnviroment) {
 			alert(message);
 		}
-		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function(result) {
+		var querying = chrome.tabs.query({ active: true, currentWindow: true }, function (result) {
 			for (let tab of result) {
 				chrome.tabs.sendMessage(tab.id, { order: "displayWarning", warning: message },
 					function justWaitTillFinished(response) {
@@ -97,30 +99,39 @@ var sir = {
 		});
 	},
 
-	firstRun: function(details) {
-		if (details.reason === 'install' || details.reason === 'update') {
-			console.log("SIR is installed successefully. Performing first-run checks.");
-			if (navigator.userAgent.indexOf('Firefox') > -1) {
-				firefoxEnviroment = true;
-				console.log("Firefox enviroment confirmed. Proceeding as usual.");
-			} else if (navigator.userAgent.indexOf('Chrom') > -1) {
-				firefoxEnviroment = false;
-				console.log("Chromium enviroment discovered. Pixiv saving will require additional work.");
-			} else {
-				firefoxEnviroment = false;
-				console.log("Unknown user-agent type. Proceed at your own risk.");
-			}
+	firstRun: function (details) {
+		if (typeof (details) !== "undefined") {
+			if (details.reason.indexOf('install') > 0 || details.reason.indexOf('update') > 0) {
+				console.log("SIR is installed successefully. Performing first-run checks.");
+			};
+		} else {
+			console.log("SIR is installed, but unable to access the details of its installation.")
 		}
-		chrome.commands.onCommand.addListener(function(command) {
+		chrome.commands.onCommand.addListener(function (command) {
 			if (command == "SIR_it") {
 				sir.invokeTagsField();
 			}
 		});
 	},
+
+	initialize: function () {
+		if (navigator.userAgent.indexOf('Firefox') > -1) {
+			firefoxEnviroment = true;
+			console.log("Firefox enviroment confirmed. Proceeding as usual.");
+		} else if (navigator.userAgent.indexOf('Chrom') > -1) {
+			firefoxEnviroment = false;
+			console.log("Chromium enviroment discovered. Pixiv saving will require additional work.");
+		} else {
+			firefoxEnviroment = false;
+			console.log("Unknown user-agent type. Proceed at your own risk.");
+		};
+		sir.makeMenu();
+		chrome.contextMenus.update("dl", { enabled: false })
+	}
 }
 
 chrome.runtime.onInstalled.addListener(sir.firstRun);
-sir.makeMenu();
+sir.initialize();
 
 function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename determined by browser, it will be used as a fallback
 
@@ -130,20 +141,20 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		return failOverName;
 	};
 
-	var filename, ext;
+	var filename = "",
+		ext = "";
 
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
-
 		if (failOverName.indexOf('?') > -1) {
 			failOverName = failOverName.substring(0, failOverName.indexOf('?')); //prune the access token from the filename if it exists
 		}
 		filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
 		ext = failOverName.substr(failOverName.lastIndexOf('.') + 1); // separate extension from the filename
 	} else if (failOverName.indexOf('\?format=') > -1) { // TWITER HAS SILLY LINKS
-		
-		filename = failOverName.substring(0,failOverName.indexOf('\?format='));
-		ext = failOverName.substring(failOverName.indexOf('\?format=')+8,failOverName.indexOf('\&name='));
+
+		filename = failOverName.substring(0, failOverName.indexOf('\?format='));
+		ext = failOverName.substring(failOverName.indexOf('\?format=') + 8, failOverName.indexOf('\&name='));
 	} else {
 		return failOverName;
 	};
@@ -164,10 +175,10 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 
 		if (localStorage["origin"] === "PX") {
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
+			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
-			if ((filename.indexOf('@PX') == -1)&&(filename.indexOf('pixiv_') == -1)) {
+			if ((filename.indexOf('@PX') == -1) && (filename.indexOf('pixiv_') == -1)) {
 				filename = "pixiv " + filename;
 			}
 		}
@@ -178,7 +189,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "DF") {
 			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
+			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_').replace(/_\(artist\)/g, '\@DF') + " ";
 			};
 			if ((filename.indexOf('@DF') == -1) && (filename.indexOf('drawfriends') == -1)) {
@@ -192,7 +203,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "DA") {
 			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
+			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 			if (filename.indexOf('@DA') == -1) {
@@ -201,14 +212,12 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		};
 	};
 
-	var activeTabTitle = localStorage["active_tab_title"];
-
 	// ! TWITTER
 	if ((imageHost.indexOf('twimg') > -1) || (requesterPage.indexOf('twitter') > -1)) {
 		if (localStorage["origin"] === "TW") {
 			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
+			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 			if (filename.indexOf('@HF') == -1) {
@@ -224,7 +233,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "AS") {
 			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
+			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 			if (filename.indexOf('@AS') == -1) {
@@ -238,7 +247,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "HF") {
 			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
+			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 			if (filename.indexOf('@HF') == -1) {
@@ -252,7 +261,7 @@ function nicelyTagIt(imageHost, requesterPage, failOverName) { // gets filename 
 		if (localStorage["origin"] === "TU") {
 			filename = "";
 			var arrayOfTags = JSON.parse(localStorage["tags"]);
-			for (i = 0; i < arrayOfTags.length; i++) {
+			for (var i = 0; i < arrayOfTags.length; i++) {
 				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
 			};
 			if (filename.indexOf('@TU') == -1) {
@@ -294,6 +303,8 @@ function requestTagsAndWriteEm(TabIdToSendTo) {
 				if (typeof response !== 'undefined') {
 					localStorage["tags"] = JSON.stringify(response.tags);
 					localStorage["origin"] = response.origin;
+
+					chrome.contextMenus.update("dl", { enabled: true }) //allow the image to be dl'ed
 				}
 			}
 		}
@@ -302,14 +313,11 @@ function requestTagsAndWriteEm(TabIdToSendTo) {
 
 chrome.tabs.onActivated.addListener(
 	function runOnActivated(tabId, changeInfo) { // send to fire after Tab Activated procedure
+		chrome.contextMenus.update("dl", { enabled: false }) //disable the context menu while we don't know if SIR context scripts are working here
 		chrome.tabs.query({ active: true, currentWindow: true, status: "complete" }, // send into query (if active tab and current window were true)
 			function setStorage(tabs) {
 				if (tabs.length > 0) {
 					localStorage["active_tab_title"] = tabs[0].title; // needs the "tabs" permission
-
-					// somewhy the following wrecks havoc on everything
-					// TODO: I need to think how to actually switch current line of tags when the active tab is changed
-					//requestTagsAndWriteEm(tabs[0].id);
 				}
 			}
 		);
@@ -338,54 +346,54 @@ chrome.tabs.onUpdated.addListener(
 );
 
 //perform the requested action on menu click
-chrome.contextMenus.onClicked.addListener(function(info, tab) {
+chrome.contextMenus.onClicked.addListener(function (info, tab) {
 	switch (info.menuItemId) {
-		case 'saveSilently':
-			//handle alt option toggle
-			saveSilentlyEnabled = !saveSilentlyEnabled;
-			break;
-		case 'invokeEMF':
-			sir.invokeTagsField();
-			break;
-		case 'dl':
-			// get where that image is hosted on by
-			var tempContainer = document.createElement('a'); // creating an link-type (a) object
-			tempContainer.href = info.srcUrl; // ! linking to the item we are about to save
-			//tempContainer.innerHTML = "Heh, not bad, kid. You made me use my HTML power!"; 	// with inner HTML structure
-			//document.body.appendChild(tempContainer);											// on chrome's generated background page
+	case 'saveSilently':
+		//handle alt option toggle
+		saveSilentlyEnabled = !saveSilentlyEnabled;
+		break;
+	case 'invokeEMF':
+		sir.invokeTagsField();
+		break;
+	case 'dl':
+		// get where that image is hosted on by
+		var tempContainer = document.createElement('a'); // creating an link-type (a) object
+		tempContainer.href = info.srcUrl; // ! linking to the item we are about to save
+		//tempContainer.innerHTML = "Heh, not bad, kid. You made me use my HTML power!"; 	// with inner HTML structure
+		//document.body.appendChild(tempContainer);											// on chrome's generated background page
 
-			// at we can see, info.hostname is undefined
-			// console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
-			// but if we do this, suddenly url is undefined but hostname works
-			// console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
+		// at we can see, info.hostname is undefined
+		// console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
+		// but if we do this, suddenly url is undefined but hostname works
+		// console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
 
-			var imageHost = tempContainer.hostname;
-			var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
+		var imageHost = tempContainer.hostname;
+		var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
 
-			var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName);
+		var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName);
 
-			console.log("Attempting to download:\n url: " + info.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+		console.log("Attempting to download:\n url: " + info.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
 
-			if (firefoxEnviroment) {
-				chrome.downloads.download({
-					url: info.srcUrl,
-					saveAs: !saveSilentlyEnabled,
-					filename: resultingFilename,
-					headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
-				});
-			} else if (localStorage["origin"] === "PX") {
-				sir.displayWarning("PIXIV refuses to serve pictures without the correct referrer. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
-			} else {
-				chrome.downloads.download({
-					url: info.srcUrl,
-					saveAs: !saveSilentlyEnabled,
-					filename: resultingFilename,
-				});
-			};
-			break;
-		default:
-			console.log("Strange thing happened in Menu handling. Info state: " + info);
-			console.log("Tab state: " + tab);
+		if (firefoxEnviroment) {
+			chrome.downloads.download({
+				url: info.srcUrl,
+				saveAs: !saveSilentlyEnabled,
+				filename: resultingFilename,
+				headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
+			});
+		} else if (localStorage["origin"] === "PX") {
+			sir.displayWarning("PIXIV refuses to serve pictures without the correct referrer. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+		} else {
+			chrome.downloads.download({
+				url: info.srcUrl,
+				saveAs: !saveSilentlyEnabled,
+				filename: resultingFilename,
+			});
+		};
+		break;
+	default:
+		console.log("Strange thing happened in Menu handling. Info state: " + info);
+		console.log("Tab state: " + tab);
 	}
 
 });

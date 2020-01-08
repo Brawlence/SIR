@@ -6,7 +6,7 @@ var tagsOrigin = "TU";
 function getImageTags() {
 	var resultingTags = new Array;
 	var tempArray = document.querySelectorAll("[href*='/tagged/']");
-	for (i = 0; i < tempArray.length; i++) {
+	for (var i = 0; i < tempArray.length; i++) {
 		resultingTags.push(tempArray[i].innerText.replace(/[\#]/g, ''));
 	};
 	return resultingTags;

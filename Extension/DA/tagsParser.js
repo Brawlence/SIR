@@ -11,7 +11,7 @@ function getImageTags() {
 	//resultingTags.push(pictureName[0].innerText);
 
 	var eclipseTags = document.querySelectorAll("[href*='/tag/']");
-	for (i = 0; i < eclipseTags.length; i++) {
+	for (var i = 0; i < eclipseTags.length; i++) {
 		resultingTags.push(eclipseTags[i].innerText.replace(/[\#]/g, '')); // Eclipse design has no hash here #, old site has hash. SO FILTER IT
 	};
 	return resultingTags;

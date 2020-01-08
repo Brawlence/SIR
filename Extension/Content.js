@@ -1,4 +1,5 @@
 // A unified content script for almost ALL the sites, relies on defined getImageTags(); in XX\tagsParser.js
+"use strict";
 
 function createElderMagicField() {
 	if (document.getElementById('sirArea') == null) {

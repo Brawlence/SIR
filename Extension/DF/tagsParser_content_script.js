@@ -1,3 +1,5 @@
+"use strict";
+
 function getImageTags() {
 	var resultingTags = new Array;
 	var resultingTags = document.querySelectorAll('td textarea[id="tags"]')[0].innerHTML.split(' ');
