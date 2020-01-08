@@ -5,19 +5,21 @@ var firefoxEnviroment = false;
 
 var sir = {
 	//adds an individual item to the context menu and gives it the id passed into the function
-	makeMenuItem: function (id, item, icon, useIcon) {
+	makeMenuItem: function (id, item, icon, clickable, useIcon) {
 		if (useIcon) {
 			chrome.contextMenus.create({
 				id: id.toString(),
 				title: item.toString(),
+				enabled: clickable,
 				contexts: ["image"],
-				icons: { "16": icon.toString() }
+				icons: { "16": icon.toString() },
 			})
 		} else {
 			//icons not supported, or undesirable. leave them out
 			chrome.contextMenus.create({
 				id: id.toString(),
 				title: item.toString(),
+				enabled: clickable,
 				contexts: ["image"]
 			})
 		}
@@ -35,8 +37,8 @@ var sir = {
 		}
 
 		//TODO: check if the tags fetched by content scripts had arrived before enabling dl?
-		sir.makeMenuItem( /* id */ "dl", /* title */ "Download with tags", /* Icon */ "SIR_16x16.png", useIcons);
-		sir.makeMenuItem( /* id */ "invokeEMF", /* title */ "Get tags string", /* Icon */ "SIR_16x16.png", useIcons);
+		sir.makeMenuItem( /* id */ "dl", /* title */ "Download with tags", /* Icon */ "Icons/dl.png", /* clickable */ false, useIcons);
+		sir.makeMenuItem( /* id */ "invokeEMF", /* title */ "Get tags string", /* Icon */ "Icons/emf.png", /* clickable */ true, useIcons);
 
 		chrome.contextMenus.create({
 			type: "checkbox",
@@ -126,7 +128,22 @@ var sir = {
 			console.log("Unknown user-agent type. Proceed at your own risk.");
 		};
 		sir.makeMenu();
-		chrome.contextMenus.update("dl", { enabled: false })
+	},
+
+	disableDl: function () {
+		chrome.contextMenus.update("dl", {
+			icons: { "16": "Icons/no_dl.png" },
+			title: "No tags were fetched from this page",
+			enabled: false
+		})
+	},
+
+	enableDl: function () {
+		chrome.contextMenus.update("dl", {
+			icons: { "16": "Icons/dl.png" },
+			title: "Download with tags",
+			enabled: true
+		})
 	}
 }
 
@@ -304,7 +321,7 @@ function requestTagsAndWriteEm(TabIdToSendTo) {
 					localStorage["tags"] = JSON.stringify(response.tags);
 					localStorage["origin"] = response.origin;
 
-					chrome.contextMenus.update("dl", { enabled: true }) //allow the image to be dl'ed
+					sir.enableDl(); //allow the image to be dl'ed
 				}
 			}
 		}
@@ -313,7 +330,7 @@ function requestTagsAndWriteEm(TabIdToSendTo) {
 
 chrome.tabs.onActivated.addListener(
 	function runOnActivated(tabId, changeInfo) { // send to fire after Tab Activated procedure
-		chrome.contextMenus.update("dl", { enabled: false }) //disable the context menu while we don't know if SIR context scripts are working here
+		sir.disableDl(); //disable the context menu while we don't know if SIR context scripts are working here
 		chrome.tabs.query({ active: true, currentWindow: true, status: "complete" }, // send into query (if active tab and current window were true)
 			function setStorage(tabs) {
 				if (tabs.length > 0) {
@@ -329,6 +346,7 @@ chrome.tabs.onActivated.addListener(
 chrome.tabs.onUpdated.addListener(
 	function runOnUpdated(tabId, changeInfo, culprit) {
 		if (culprit.status === "complete") {
+			sir.disableDl();
 			chrome.tabs.query({ active: true, currentWindow: true, status: "complete" },
 				function fireIfActive(tabs) {
 					if (typeof tabs !== 'undefined') {
