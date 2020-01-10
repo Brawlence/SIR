@@ -2,6 +2,7 @@
 
 var saveSilentlyEnabled = false;
 var firefoxEnviroment = false;
+var useIcons = false;
 
 function nicelyTagIt(imageHost, requesterPage, failOverName, response, tabId) { // gets filename determined by browser, it will be used as a fallback - and also the response from content scripts
 
@@ -178,16 +179,14 @@ var sir = {
 
 	makeMenuItems: function (browserInfo) {
 		chrome.contextMenus.removeAll();
-
-		var useIcons = false;
 		if (!(browserInfo === undefined || browserInfo === null)) { //if the browserInfo was actually sent here
 			if (parseInt(browserInfo.version, 10) >= 56) { //not sure when icon support was added, but it existed in 56 and does not exist in 52
 				useIcons = true;
 			}
 		}
 
-		sir.makeMenuItem( /* id */ "dl", /* title */ "Download with tags", /* Icon */ "Icons/dl.png", /* clickable */ false, useIcons);
-		sir.makeMenuItem( /* id */ "invokeEMF", /* title */ "Get tags string", /* Icon */ "Icons/emf.png", /* clickable */ false, useIcons);
+		sir.makeMenuItem("dl", "Download with tags","Icons/dl.png",  false, useIcons);
+		sir.makeMenuItem("gts","Get tags string",   "Icons/gts.png", false, useIcons);
 
 		chrome.contextMenus.create({
 			type: "checkbox",
@@ -196,7 +195,6 @@ var sir = {
 			checked: saveSilentlyEnabled,
 			contexts: ["image"]
 		})
-
 	},
 
 	//gets browser info and passes it to makeMenuItems to determine if things like icons are supported
@@ -210,34 +208,30 @@ var sir = {
 	},
 
 	disableMenu: function () {
-		chrome.contextMenus.update("dl", {
-			icons: { "16": "Icons/no_dl.png" },
-			title: "No tags were fetched from this page",
-			enabled: false
-		});
-		chrome.contextMenus.update("invokeEMF", {
-			icons: { "16": "Icons/no_emf.png" },
-			enabled: false
-		});
+		if (useIcons) {
+			chrome.contextMenus.update("dl", {icons: {"16": "Icons/no_dl.png"},	title: "No tags were fetched from this page", enabled: false});
+			chrome.contextMenus.update("gts", {icons: { "16": "Icons/no_gts.png" }, enabled: false});
+		} else {
+			chrome.contextMenus.update("dl", {title: "No tags were fetched from this page", enabled: false});
+			chrome.contextMenus.update("gts", {enabled: false});
+		}
 	},
 
 	enableMenu: function () {
-		chrome.contextMenus.update("dl", {
-			icons: { "16": "Icons/dl.png" },
-			title: "Download with tags",
-			enabled: true
-		});
-		chrome.contextMenus.update("invokeEMF", {
-			icons: { "16": "Icons/emf.png" },
-			enabled: true
-		});
+		if (useIcons) {
+			chrome.contextMenus.update("dl", {icons: { "16": "Icons/dl.png" }, title: "Download with tags", enabled: true});
+			chrome.contextMenus.update("gts", { icons: { "16": "Icons/gts.png" }, enabled: true});
+		} else {
+			chrome.contextMenus.update("dl", {title: "Download with tags", enabled: true});
+			chrome.contextMenus.update("gts", {enabled: true});
+		}
 	},
 
 	invokeTagsField: function (tabId) {
-		chrome.tabs.sendMessage(tabId, { order: "imprintTags" },
+		chrome.tabs.sendMessage(tabId, { order: "getTagsString" },
 			function justWaitTillFinished(response) {
 				if (chrome.runtime.lastError) {
-					console.log(chrome.runtime.lastError);
+					console.warn(chrome.runtime.lastError.message);
 				} else {
 					if (typeof response !== 'undefined') {
 						console.log(response);
@@ -254,7 +248,7 @@ var sir = {
 		chrome.tabs.sendMessage(tabId, { order: "displayWarning", warning: message },
 			function justWaitTillFinished(response) {
 				if (chrome.runtime.lastError) {
-				console.log(chrome.runtime.lastError);
+				console.warn(chrome.runtime.lastError.message);
 				} else {
 					if (typeof response !== 'undefined') {
 						console.log(response);
@@ -273,28 +267,23 @@ var sir = {
 			console.log("Chromium enviroment discovered. Pixiv saving will require additional work.");
 		} else {
 			firefoxEnviroment = false;
-			console.log("Unknown user-agent type. Proceed at your own risk.");
+			console.warn("Unknown user-agent type. Proceed at your own risk.");
 		};
-		chrome.commands.onCommand.addListener(function hotkey_triggered(command) {
-			if (command == "SIR_it") {
-				var querying = chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
-					for (let tab of result) {
-							sir.invokeTagsField(tab.id);
-					}
-				});
-			}
-		});
 		sir.makeMenu();
 	},
 	
 	setupConnection: function(tabId, reason) { 
 		sir.disableMenu(); //disable the context menu while we don't know if SIR context scripts are working here
-		chrome.tabs.sendMessage(tabId, { order: "ping" }, // ! already formatted id
+		chrome.tabs.sendMessage(tabId, { order: "ping" }, // ! tabId is an integer
 			function updateMenu(response) {
-				if (typeof response !== 'undefined') {
-					if (response.message) {
-						sir.enableMenu();
-						console.log( reason + " Connection extablished with " + response.origin);
+				if(chrome.runtime.lastError) {
+					console.warn(chrome.runtime.lastError.message);
+				} else {
+					if (typeof response !== 'undefined') {
+						if (response.message) {
+							sir.enableMenu();
+							console.log( reason + " Connection extablished with " + response.origin);
+						}
 					}
 				}
 			}
@@ -302,10 +291,10 @@ var sir = {
 	},
 	
 	dlWithTags: function (info, tabId) {
-		chrome.tabs.sendMessage(tabId, { order: "giffTags" }, // ! already formatted id
+		chrome.tabs.sendMessage(tabId, { order: "giffTags" }, // ! tabId is an integer
 			function requestAndWrite(response) {
 				if (chrome.runtime.lastError) {
-					console.log(chrome.runtime.lastError);
+					console.warn(chrome.runtime.lastError.message);
 				} else {
 					if (typeof response !== 'undefined') {
 						// get where that image is hosted on by
@@ -353,31 +342,42 @@ var sir = {
 sir.initialize();
 
 chrome.tabs.onActivated.addListener(
-	function runOnActivated(flowingTabId, changeInfo) { // send to fire after Tab Activated procedure
-		sir.setupConnection(flowingTabId.tabId, "Tab activated."); // ! the flowingTabId has other properties than tabId (which is the tab's id)! Madness! 
+	function runOnActivated(swappingTab, changeInfo) { // send to fire after Tab Activated procedure
+		sir.setupConnection(swappingTab.tabId, "Tab activated."); // ! the swappingTab is an object with references to previous Active Tab and current Active Tab 
 	}
 );
 
 chrome.tabs.onUpdated.addListener(
 	function runOnUpdated(tabId, changeInfo) {
-		sir.setupConnection(tabId, "Page loaded."); // ! this TabID is just an id of the tab — no consistensy!
+		sir.setupConnection(tabId, "Page loaded."); // ! this TabID is just an integer id of the tab — no consistensy!
+	}
+);
+
+chrome.commands.onCommand.addListener(
+	function hotkey_triggered(command) {
+		if (command == "SIR_it") {
+			var querying = chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
+				for (let tab of result) {
+						sir.invokeTagsField(tab.id);
+				}
+			});
+		}
 	}
 );
 
 //perform the requested action on menu click
-chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! tab is where the action at
+chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an object which spawned the menu, tab is literally a tab object where the action happened
 	switch (info.menuItemId) {
 	case 'saveSilently':
 		saveSilentlyEnabled = !saveSilentlyEnabled;
 		break;
-	case 'invokeEMF':
+	case 'gts':
 		sir.invokeTagsField(tab.id); // ! so tab.id will be passed
 		break;
 	case 'dl':
 		sir.dlWithTags(info, tab.id);
 		break;
 	default:
-		console.log("Strange thing happened in Menu handling. Info state: " + info);
-		console.log("Tab state: " + tab);
+		console.error("Strange thing happened in Menu handling. Info state: " + info + "\nTab state: " + tab);
 	}
 });

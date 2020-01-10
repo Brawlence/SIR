@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener(
 			sendResponse({message: true, origin: "DF"});
 		} else if (request.order === "giffTags") {
 			sendResponse({ tags: getImageTags(), origin: "DF" });
-		} else if (request.order === "imprintTags") {
+		} else if (request.order === "getTagsString") {
 			createElderMagicField();
 		} else if (request.order === "displayWarning") {
 			alert(request.warning);
