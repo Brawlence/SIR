@@ -1,5 +1,5 @@
 "use strict";
-
+// Drawfriends is a special case because it already HAS a field with all the tags.
 function getImageTags() {
 	var resultingTags = new Array;
 	var resultingTags = document.querySelectorAll('td textarea[id="tags"]')[0].innerHTML.split(' ');

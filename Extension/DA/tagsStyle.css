@@ -1,26 +1,13 @@
 div.dev-title-container a.discoverytag {
-	/* Deviantart tag */
-	color: #172b84 !important;
+	/* Deviantart tag - prefixed by a hashsign with 
+	div.dev-title-container span.discoverytag-hash */
 	border-width: 2px;
 	border-style: dotted;
 	border-color: lightpink;
 }
 
-/*
-div.dev-title-container a.discoverytag::before {
-	content: "TAG: ";
-	color: crimson;
-}
-*/
-
-div.dev-title-container span.discoverytag-hash {
-	/*Hash of said tag*/
-	color: #172b84 !important;
-}
-
 a[href*='/tag/'] {
 	/* Deviantart tag with Eclipse on, no hashsign */
-	color: #6767e9 !important;
 	border-width: 2px;
 	border-style: dotted;
 	border-color: lightpink;

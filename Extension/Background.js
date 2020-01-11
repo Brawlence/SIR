@@ -17,12 +17,11 @@ function nicelyTagIt(imageHost, requesterPage, failOverName, response, tabId) { 
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
 		if (failOverName.indexOf('?') > -1) {
-			failOverName = failOverName.substring(0, failOverName.indexOf('?')); //prune the access token from the filename if it exists
+			failOverName = failOverName.substring(0, failOverName.indexOf('?')); 	//prune the access token from the filename if it exists
 		}
 		filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
-		ext = failOverName.substr(failOverName.lastIndexOf('.') + 1); // separate extension from the filename
-	} else if (failOverName.indexOf('\?format=') > -1) { // TWITER HAS SILLY LINKS
-
+		ext = failOverName.substring(failOverName.lastIndexOf('.') + 1); 			// separate extension from the filename
+	} else if (failOverName.indexOf('\?format=') > -1) { 							// TWITER HAS SILLY LINKS
 		filename = failOverName.substring(0, failOverName.indexOf('\?format='));
 		ext = failOverName.substring(failOverName.indexOf('\?format=') + 8, failOverName.indexOf('\&name='));
 	} else {
@@ -32,12 +31,12 @@ function nicelyTagIt(imageHost, requesterPage, failOverName, response, tabId) { 
 	// ! PIXIV
 	if ((imageHost.indexOf('pximg') > -1) || (requesterPage.indexOf('pixiv') > -1)) {
 		var PXnumber = filename.substring(0, filename.indexOf('_p'));
-		var PXpage = filename.substr(filename.indexOf('_p') + 2);
+		var PXpage = filename.substring(filename.indexOf('_p') + 2);
 		var PXthumb = "";
 
 		if (PXpage.indexOf('master') > -1) {
 			PXpage = PXpage.substring(0, PXpage.indexOf('_master'));
-			PXthumb = " -THUMBNAIL!- "; // if user wants to save a rescaled thumbnail, add a tag
+			PXthumb = " -THUMBNAIL!- "; 											// if user wants to save a rescaled thumbnail, add a tag
 			sir.displayWarning(tabId, "You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
 		};
 
@@ -133,26 +132,26 @@ function nicelyTagIt(imageHost, requesterPage, failOverName, response, tabId) { 
 		};
 	};
 
-	if (ext.length > 5) { //additional check for various madness
+	if (ext.length > 5) { 												//additional check for various madness
 		return failOverName;
 	}
 
-	filename = filename.replace(/\ \ /g, ' '); 				// remove double spaces
-	filename = filename.replace(/[ ]$/g, '');				// remove trailing whitespaces
-	filename = filename.replace(/[\,\\/:*?\"<>|]/g, ''); 	// make sure the modified filename in general doesn't contain any illegal characters
+	filename = filename.replace(/\ \ /g, ' '); 							// remove double spaces
+	filename = filename.replace(/[ ]$/g, '');							// remove trailing whitespaces
+	filename = filename.replace(/[\,\\/:*?\"<>|]/g, ''); 				// make sure the modified filename in general doesn't contain any illegal characters
 
-	if (filename == "") { // make sure the name is not left blank
+	if (filename == "") { 												// make sure the name is not left blank
 		filename = "tagme";
-	} else if (ext == "") { // also make sure that extention did not magically disappear
+	} else if (ext == "") { 											// also make sure that extention did not magically disappear
 		ext == "maybe.jpeg";
 	}
 
 	if (filename.length + ext.length + 1 >= 255) {
-		filename = filename.substr(0, 230); // 230 is an arbitary number
-		filename = filename.substring(0, filename.lastIndexOf(' ')); // substr - specified amount, substring - between the specified indices
+		filename = filename.substr(0, 230); 							// 230 is an arbitary number
+		filename = filename.substring(0, filename.lastIndexOf(' '));	// substr - specified amount, substring - between the specified indices
 	}
 
-	return (filename + "." + ext); // add back the extension to the file name and return them
+	return (filename + "." + ext);
 };
 
 var sir = {
@@ -179,8 +178,8 @@ var sir = {
 
 	makeMenuItems: function (browserInfo) {
 		chrome.contextMenus.removeAll();
-		if (!(browserInfo === undefined || browserInfo === null)) { //if the browserInfo was actually sent here
-			if (parseInt(browserInfo.version, 10) >= 56) { //not sure when icon support was added, but it existed in 56 and does not exist in 52
+		if (!(browserInfo === undefined || browserInfo === null)) { // if the browserInfo was actually sent here
+			if (parseInt(browserInfo.version, 10) >= 56) { 			// not sure when icon support was added, but it existed in 56 and does not exist in 52
 				useIcons = true;
 			}
 		}
@@ -290,7 +289,7 @@ var sir = {
 		);
 	},
 	
-	dlWithTags: function (info, tabId) {
+	dlWithTags: function (imageObject, tabId) {
 		chrome.tabs.sendMessage(tabId, { order: "giffTags" }, // ! tabId is an integer
 			function workWithThis(response) {
 				if (chrome.runtime.lastError) {
@@ -299,28 +298,21 @@ var sir = {
 					if (typeof response !== 'undefined') {
 						// get where that image is hosted on by
 						var tempContainer = document.createElement('a'); // creating an link-type (a) object
-						tempContainer.href = info.srcUrl; // linking to the item we are about to save
-						//tempContainer.innerHTML = "Heh, not bad, kid. You made me use my HTML power!"; 	// with inner HTML structure
-						//document.body.appendChild(tempContainer);											// on chrome's generated background page
-
-						// at we can see, info.hostname is undefined
-						// console.log("Item URL: " + info.srcUrl + ", Item hostname: " + info.hostname);
-						// but if we do this, suddenly url is undefined but hostname works
-						// console.log("temp object URL: " + tempContainer.url + ", temp object hostname: " + tempContainer.hostname);
+						tempContainer.href = imageObject.srcUrl; // linking to the item we are about to sav
 
 						var imageHost = tempContainer.hostname;
-						var failOverName = info.srcUrl.substr(info.srcUrl.lastIndexOf('/') + 1, info.srcUrl.length - info.srcUrl.lastIndexOf('/') - 1);
+						var failOverName = imageObject.srcUrl.substring(imageObject.srcUrl.lastIndexOf('/') + 1);
 
-						var resultingFilename = nicelyTagIt(imageHost, info.pageUrl, failOverName, response, tabId);
+						var resultingFilename = nicelyTagIt(imageHost, imageObject.pageUrl, failOverName, response, tabId); // tabId is only needed to display a warning if something goes afool
 
-						console.log("Attempting to download:\n url: " + info.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+						console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
 
 						if (firefoxEnviroment) {
 							chrome.downloads.download({
-								url: info.srcUrl,
+								url: imageObject.srcUrl,
 								saveAs: !saveSilentlyEnabled,
 								filename: resultingFilename,
-								headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
+								headers: [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }]
 							}, function reportOnTrying() {
 								if (chrome.runtime.lastError) {
 									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
@@ -331,10 +323,11 @@ var sir = {
 								};
 							});
 						} else if (response.origin === "PX") {
-							sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+							sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+							sir.invokeTagsField(tabId);
 						} else {
 							chrome.downloads.download({
-								url: info.srcUrl,
+								url: imageObject.srcUrl,
 								saveAs: !saveSilentlyEnabled,
 								filename: resultingFilename,
 							}, function reportOnTrying() {

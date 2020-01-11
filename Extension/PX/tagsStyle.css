@@ -14,13 +14,6 @@ figcaption div h1 {
 	border-color: lightpink;
 }
 
-/*
-figcaption div h1::before {
-	content: "NAME: ";
-	color: crimson;
-} 
-*/
-
 figcaption div footer ul li {
 	/* tags - with enlish translation following, no hash*/
 	color: #172b84 !important;
@@ -28,10 +21,3 @@ figcaption div footer ul li {
 	border-style: dotted;
 	border-color: lightpink;
 }
-
-/*
-figcaption div footer ul li::before {
-	content: "TAG: ";
-	color: crimson;
-}
-*/

@@ -5,10 +5,3 @@ div.tags a {
 	border-style: dotted;
 	border-color: lightpink;
 }
-
-/*
-div.tags a::before {
-	content: "TAG: ";
-	color: crimson;
-}
-*/

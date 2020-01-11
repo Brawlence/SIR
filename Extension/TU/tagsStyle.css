@@ -1,34 +1,4 @@
-/* Tumblr - NOT an individual page
-a.post_tag {
-	color: #172b84 !important;
-	border-width: 2px;
-	border-style: dotted;
-	border-color: lightpink;
-}
-
-
-a.post_tag::before {
-	content: "TAG: ";
-	color: crimson;
-}
-
-
-ul.tags li a {
-	color: #172b84 !important;
-	border-width: 2px;
-	border-style: dotted;
-	border-color: lightpink;
-}
-
-
-ul.tags li a::before {
-	content: "TAG: ";
-	color: crimson;
-}
-*/
-
 a[href*='/tagged/'] {
-	/* Deviantart tag with Eclipse on, no hashsign */
 	color: #6767e9 !important;
 	border-width: 2px;
 	border-style: dotted;
