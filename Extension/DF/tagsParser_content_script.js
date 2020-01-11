@@ -11,7 +11,7 @@ function getImageTags() {
 };
 
 //this one is different - instead of the popup field like everyone else this uses the existing tags text field on the page
-function createElderMagicField() {
+function createTagsStringField() {
 	if (document.getElementById('sirArea') == null) {
 		document.getElementById('edit_form').style = "display: ";
 		const buttonsParagraph = document.createElement('p');
@@ -47,7 +47,7 @@ chrome.runtime.onMessage.addListener(
 		} else if (request.order === "giffTags") {
 			sendResponse({ tags: getImageTags(), origin: "DF" });
 		} else if (request.order === "getTagsString") {
-			createElderMagicField();
+			createTagsStringField();
 		} else if (request.order === "displayWarning") {
 			alert(request.warning);
 		};

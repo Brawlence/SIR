@@ -1,19 +1,20 @@
-// TODO: parse picture name and author handle
-
 var tagsOrigin = "DA";
 var windowDisplacement = 0;
 
 function getImageTags() {
 	var resultingTags = new Array;
-	//var authorName = document.querySelectorAll('aside section h2 div div a div');
-	//var pictureName = document.querySelectorAll('figcaption div div h1');
 
-	//resultingTags.push(authorName[0].innerText+"@PX");
-	//resultingTags.push(pictureName[0].innerText);
+	var authorHandle = document.URL.substring(document.URL.lastIndexOf('.com/')+5,document.URL.lastIndexOf('/art/'));
+	//var authorName = document.querySelectorAll(EXPRESSION_HERE)[0].innerText; authorHandle & Name are one and the same
+	var pictureName = document.URL.substring(document.URL.lastIndexOf('/art/')+5,document.URL.lastIndexOf('-'));
+	var tempArray = document.querySelectorAll("[href*='/tag/']");
 
-	var eclipseTags = document.querySelectorAll("[href*='/tag/']");
-	for (var i = 0; i < eclipseTags.length; i++) {
-		resultingTags.push(eclipseTags[i].innerText.replace(/[\#]/g, '')); // Eclipse design has no hash here #, old site has hash. SO FILTER IT
+	resultingTags.push(authorHandle + "@" + tagsOrigin);
+	//resultingTags.push(authorName.replace(/[ ]/g, '-'));
+	resultingTags.push(pictureName.replace(/[ ]/g, '-')); //replace is not needed
+
+	for (var i = 0; i < tempArray.length; i++) {
+		resultingTags.push(tempArray[i].innerText.replace(/[\#]/g, '')); // Eclipse design has no hash here #, old site has hash
 	};
 	return resultingTags;
 };

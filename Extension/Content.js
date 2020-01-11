@@ -1,7 +1,7 @@
 // A unified content script for almost ALL the sites, relies on defined getImageTags(); in XX\tagsParser.js
 "use strict";
 
-function createElderMagicField() {
+function createTagsStringField() {
 	if (document.getElementById('sirArea') == null) {
 		var arrayOfTags = getImageTags();
 		var tagsString = "";
@@ -12,7 +12,7 @@ function createElderMagicField() {
 		const sirDivArea = document.createElement('div');
 			sirDivArea.id = "sirArea";
 			windowDisplacement += 20;
-			sirDivArea.style = "top:" + windowDisplacement + "px; left: 20px; position: fixed; z-index: 255;  border-width: 3px; border-style: solid; padding: 5px; background-color: lightgray;"
+			sirDivArea.style = "top:" + windowDisplacement + "px; left: 20px; position: fixed; z-index: 255;  border-width: 3px; border-style: solid; padding-left: 5px; padding-right: 5px; padding-top: 5px; background-color: lightgray;"
 		document.body.appendChild(sirDivArea);
 
 		const elderMagicField = document.createElement('textarea');
@@ -22,8 +22,12 @@ function createElderMagicField() {
 		document.getElementById('sirArea').appendChild(elderMagicField);
 
 		const buttonsParagraph = document.createElement('p');
-		try {
-			//somewhy I can't add onclick events to buttons with this method so I'll have to use innerHTML instead — but sometimes
+		if ((tagsOrigin=="TU")|(tagsOrigin=="TW")) {
+			buttonsParagraph.innerHTML = "<span style ='font-size: small; float: right;'>Select 'Get Tags String' again to close this window.</p>"
+			document.getElementById('sirArea').appendChild(buttonsParagraph);
+			document.getElementById('elderMagicField').focus();
+		} else {
+			// ! Can't add onclick events to buttons with the usual method, have to use innerHTML instead
 			buttonsParagraph.innerHTML =
 				"<button id=\"c-and-h\" style=\"float:right\" onclick=\"javascript:\
 					document.getElementById('elderMagicField').select();\
@@ -35,12 +39,6 @@ function createElderMagicField() {
 				Cancel</button>";
 			document.getElementById('sirArea').appendChild(buttonsParagraph);
 			document.getElementById('c-and-h').focus();
-		} catch(error) {
-			console.error(error);
-			if (error.indexOf('Content Security Policy') > -1) { // it gets blocked by policies
-				document.getElementById('sirArea').removeChild(buttonsParagraph);
-				document.getElementById('elderMagicField').focus();
-			};
 		};
 
 	} else {
@@ -55,7 +53,7 @@ chrome.runtime.onMessage.addListener(
 		} else if(request.order === "giffTags") {
 			sendResponse({ tags: getImageTags(), origin: tagsOrigin });
 		} else if (request.order === "getTagsString") {
-			createElderMagicField();
+			createTagsStringField();
 		} else if (request.order === "displayWarning") {
 			alert(request.warning);
 		};

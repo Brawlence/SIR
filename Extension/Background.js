@@ -292,7 +292,7 @@ var sir = {
 	
 	dlWithTags: function (info, tabId) {
 		chrome.tabs.sendMessage(tabId, { order: "giffTags" }, // ! tabId is an integer
-			function requestAndWrite(response) {
+			function workWithThis(response) {
 				if (chrome.runtime.lastError) {
 					console.warn(chrome.runtime.lastError.message);
 				} else {
@@ -321,6 +321,14 @@ var sir = {
 								saveAs: !saveSilentlyEnabled,
 								filename: resultingFilename,
 								headers: [{ name: 'referrer', value: info.pageUrl }, { name: 'referer', value: info.pageUrl }]
+							}, function reportOnTrying() {
+								if (chrome.runtime.lastError) {
+									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+										console.log(chrome.runtime.lastError.message);
+									} else {
+										console.warn(chrome.runtime.lastError.message);
+									};
+								};
 							});
 						} else if (response.origin === "PX") {
 							sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
@@ -329,6 +337,14 @@ var sir = {
 								url: info.srcUrl,
 								saveAs: !saveSilentlyEnabled,
 								filename: resultingFilename,
+							}, function reportOnTrying() {
+								if (chrome.runtime.lastError) {
+									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+										console.log(chrome.runtime.lastError.message);
+									} else {
+										console.warn(chrome.runtime.lastError.message);
+									};
+								};
 							});
 						};
 					}
