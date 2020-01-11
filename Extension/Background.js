@@ -365,6 +365,7 @@ chrome.commands.onCommand.addListener(
 	}
 );
 
+// TODO: make tag highlight toggle-able
 //perform the requested action on menu click
 chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an object which spawned the menu, tab is literally a tab object where the action happened
 	switch (info.menuItemId) {

@@ -8,7 +8,7 @@
 
 The result typically looks like:
 
-`uniq_ID Author_handle@OR (Author_full_name) Title tag another_tag tag-episode2 tag_that_contained_spaces.ext`,
+`uniq_ID Author_handle@OR Author-Name Picture-Title tag another_tag tag_episode-2 tag&replaced_spaces.ext`,
 
 where `OR` (origin) is specified as follows:
 - AS - ArtStation
