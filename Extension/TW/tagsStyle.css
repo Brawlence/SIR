@@ -1,5 +1,4 @@
 a[href*='/hashtag/'] {
-	color: #6767e9 !important;
 	border-width: 2px;
 	border-style: dotted;
 	border-color: lightpink;

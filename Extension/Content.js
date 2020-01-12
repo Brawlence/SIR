@@ -2,7 +2,7 @@
 "use strict";
 
 function createTagsStringField() {
-	if (document.getElementById('sirArea') == null) {
+	if (document.getElementById('sirArea') === null) {
 		var arrayOfTags = getImageTags();
 		var tagsString = "";
 		for (var i = 0; i < arrayOfTags.length; i++) {
@@ -11,7 +11,7 @@ function createTagsStringField() {
 
 		const sirDivArea = document.createElement('div');
 			sirDivArea.id = "sirArea";
-			windowDisplacement += 20;
+			windowDisplacement += 20; // TODO: decide if +20 px per invocation is a bug or a feature
 			sirDivArea.style = "top:" + windowDisplacement + "px; left: 20px; position: fixed; z-index: 255;  border-width: 3px; border-style: solid; padding-left: 5px; padding-right: 5px; padding-top: 5px; background-color: lightgray;"
 		document.body.appendChild(sirDivArea);
 
@@ -22,7 +22,7 @@ function createTagsStringField() {
 		document.getElementById('sirArea').appendChild(elderMagicField);
 
 		const buttonsParagraph = document.createElement('p');
-		if ((tagsOrigin=="TU")|(tagsOrigin=="TW")) {
+		if ((tagsOrigin==="TU")|(tagsOrigin==="TW")) {
 			buttonsParagraph.innerHTML = "<span style ='font-size: small; float: right;'>Select 'Get Tags String' again to close this window.</p>"
 			document.getElementById('sirArea').appendChild(buttonsParagraph);
 			document.getElementById('elderMagicField').focus();
@@ -47,7 +47,7 @@ function createTagsStringField() {
 };
 
 chrome.runtime.onMessage.addListener(
-	function(request, sender, sendResponse) {
+	function(request, _sender, sendResponse) {
 		if (request.order === "ping") {
 			sendResponse({message: true, origin: tagsOrigin});
 		} else if(request.order === "giffTags") {

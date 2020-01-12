@@ -1,6 +1,7 @@
 # SIR #
 **SIR** is an **Image Renamer** extension for Google Chrome and Mozilla Firefox.
 
+[![codebeat badge](https://codebeat.co/badges/a1038521-6438-40a5-86c1-3f333b1a1772)](https://codebeat.co/projects/github-com-brawlence-sir-master)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/3565/badge)](https://bestpractices.coreinfrastructure.org/projects/3565)
 
 ## Description ##
@@ -55,7 +56,8 @@ Since SIR is still in development, no packed releases had been made yet. To inst
 - Overabundant tags can sometimes exceed the filename length limit, thus they are currently trimmed to nearest space symbol below 230 symbols.  
 
 ## Known bugs ##
-- *Tumblr* & *Twitter* - `Cancel` and `Copy-&-Hide` buttons do not conceal the tags windown. Using Invoke Tag List (`Ctrl+Shift+1`) the second time works normally.
-- *ArtStation* - if no tags are present, both "Dl with tags" & "Get tags string" won't work and are enabled.
+- *Twitter* - in the timeline, unrelated tags are fetched from the whole page. Please save from individual post page for now.
+- *Chromium 77* (probably others too?) - sometimes the extension fails to fetch tags. Page reload (`F5`) / Tab switch / `Get Tags String` fixes that
+- Every new `Get Tags String` window on the same page is placed 20 px lower than the previous one. Should I keep it as a feature?
  
 If you happen to enconuter an unlisted bug, please submit it through https://github.com/Brawlence/SIR/issues/new

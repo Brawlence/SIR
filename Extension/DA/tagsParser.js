@@ -11,7 +11,7 @@ function getImageTags() {
 	resultingTags.push(pictureName.replace(/[ ]/g, '-')); //replace is not needed
 	
 	for (var i = 0; i < tempArray.length; i++) {
-		resultingTags.push(tempArray[i].innerText.replace(/[\#]/g, '')); // Eclipse design has no hash here #, old site has hash
+		resultingTags.push(tempArray[i].innerText.replace(/[#]/g, '')); // Eclipse design has no hash here #, old site has hash
 	};
 	return resultingTags;
 };

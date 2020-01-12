@@ -4,11 +4,30 @@ var saveSilentlyEnabled = false;
 var firefoxEnviroment = false;
 var useIcons = false;
 
-function nicelyTagIt(imageHost, requesterPage, failOverName, response, tabId) { // gets filename determined by browser, it will be used as a fallback - and also the response from content scripts
+function validateAnswer(tagsOrigin, imageHost, requesterPage) {
+	let match = false;
+	const validityMap = [
+		["PX", "pximg", 				"pixiv"],
+		["DF", "drawfriends.booru.org",	"drawfriends"],
+		["DA", "deviantart", 			"deviantart"],
+		["TW", "twimg", 				"twitter"],
+		["AS", "artstation", 			"artstation"],
+		["HF", "hentai-foundry", 		"hentai-foundry"],
+		["TU", "tumblr", 				"tumblr"]
+	];
 
-	console.log("nicelyTagIt commenced with the following parameters:\n imageHost: " + imageHost +
-				"\n requster page: " + requesterPage + "\n failOverName: " + failOverName + 
-				"\n content script result: " + response.origin + " " + response.tags);
+	for (var i = 0; i < validityMap.length; i++) {
+		if ((tagsOrigin.indexOf(validityMap[i][0])>-1) && ((imageHost.indexOf(validityMap[i][1])>-1) || (requesterPage.indexOf(validityMap[i][2])>-1))) {
+			match = true;
+			break;
+		}
+	}
+	return match;
+};
+
+function nicelyTagIt(response, failOverName, tabId) { // gets filename determined by browser, it will be used as a fallback - and also the response from content scripts
+
+	console.log("nicelyTagIt commenced with the following parameters:\n failOverName: " + failOverName + "\n content script result: " + response.origin + " " + response.tags);
 
 	var filename = "",
 		ext = "";
@@ -21,129 +40,52 @@ function nicelyTagIt(imageHost, requesterPage, failOverName, response, tabId) { 
 		}
 		filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
 		ext = failOverName.substring(failOverName.lastIndexOf('.') + 1); 			// separate extension from the filename
-	} else if (failOverName.indexOf('\?format=') > -1) { 							// TWITER HAS SILLY LINKS
-		filename = failOverName.substring(0, failOverName.indexOf('\?format='));
-		ext = failOverName.substring(failOverName.indexOf('\?format=') + 8, failOverName.indexOf('\&name='));
+	} else if (failOverName.indexOf('?format=') > -1) { 							// TWITER HAS SILLY LINKS
+		filename = failOverName.substring(0, failOverName.indexOf('?format='));
+		ext = failOverName.substring(failOverName.indexOf('?format=') + 8, failOverName.indexOf('&name='));
 	} else {
 		return failOverName;
 	};
 
-	// ! PIXIV
-	if ((imageHost.indexOf('pximg') > -1) || (requesterPage.indexOf('pixiv') > -1)) {
+	if (response.origin === "PX") { 									// ! PIXIV — format the name to be WiseTagger-compatible
 		var PXnumber = filename.substring(0, filename.indexOf('_p'));
 		var PXpage = filename.substring(filename.indexOf('_p') + 2);
 		var PXthumb = "";
 
 		if (PXpage.indexOf('master') > -1) {
 			PXpage = PXpage.substring(0, PXpage.indexOf('_master'));
-			PXthumb = " -THUMBNAIL!- "; 											// if user wants to save a rescaled thumbnail, add a tag
+			PXthumb = " -THUMBNAIL!- "; 								// if user wants to save a rescaled thumbnail, add a tag
 			sir.displayWarning(tabId, "You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
 		};
 
 		filename = "pixiv_" + PXnumber + PXthumb + " page_" + PXpage + " ";
-
-		if (response.origin === "PX") {
-			for (var i = 0; i < arrayOfTags.length; i++) {
-				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
-			};
-			if ((filename.indexOf('@PX') == -1) && (filename.indexOf('pixiv_') == -1)) {
-				filename = "pixiv " + filename;
-			}
-		}
+	} else {
+		filename = ""; 													// other than PIXIV we don't actually need any info from the filename
+	};
+	
+	for (var i = 0; i < arrayOfTags.length; i++) {
+		filename += arrayOfTags[i].replace(/[ :]/g, '_') + " ";
+	};
+	if ((filename.indexOf(response.origin) === -1) && (filename.indexOf('drawfriends') === -1)) {
+		filename = response.origin + " " + filename;
 	};
 
-	// ! DRAWFRIENDS BOROO
-	if ((imageHost.indexOf('drawfriends.booru.org') > -1) || (requesterPage.indexOf('drawfriends') > -1)) {
-		if (response.origin === "DF") {
-			filename = "";
-			for (var i = 0; i < arrayOfTags.length; i++) {
-				filename += arrayOfTags[i].replace(/[ \:]/g, '_').replace(/_\(artist\)/g, '\@DF') + " ";
-			};
-			if ((filename.indexOf('@DF') == -1) && (filename.indexOf('drawfriends') == -1)) {
-				filename = "drawfriends " + filename;
-			}
-		}
-	};
+	filename = filename.replace(/  /g, ' '); 							// remove double spaces
+	filename = filename.replace(/[ ]$/g, '');							// remove trailing whitespaces
+	filename = filename.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '');		// make sure the modified filename in general doesn't contain any illegal characters
 
-	// ! DEVIANTART
-	if ((imageHost.indexOf('deviantart') > -1) || (requesterPage.indexOf('deviantart') > -1)) {
-		if (response.origin === "DA") {
-			filename = "";
-			for (var i = 0; i < arrayOfTags.length; i++) {
-				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
-			};
-			if (filename.indexOf('@DA') == -1) {
-				filename = "deviantart " + filename;
-			}
-		};
-	};
-
-	// ! TWITTER
-	if ((imageHost.indexOf('twimg') > -1) || (requesterPage.indexOf('twitter') > -1)) {
-		if (response.origin === "TW") {
-			filename = "";
-			for (var i = 0; i < arrayOfTags.length; i++) {
-				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
-			};
-			if (filename.indexOf('@HF') == -1) {
-				filename = "twitter " + filename;
-			};
-		};
-
-		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('large') - 1); }; //cleaning ext - twitter image links are nasty
-	};
-
-	// ! ARTSTATION
-	if ((imageHost.indexOf('artstation') > -1) || (requesterPage.indexOf('artstation') > -1)) {
-		if (response.origin === "AS") {
-			filename = "";
-			for (var i = 0; i < arrayOfTags.length; i++) {
-				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
-			};
-			if (filename.indexOf('@AS') == -1) {
-				filename = "artstation " + filename;
-			};
-		};
-	};
-
-	// ! HENTAIFOUNDRY
-	if ((imageHost.indexOf('hentai-foundry') > -1) || (requesterPage.indexOf('hentai-foundry') > -1)) {
-		if (response.origin === "HF") {
-			filename = "";
-			for (var i = 0; i < arrayOfTags.length; i++) {
-				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
-			};
-			if (filename.indexOf('@HF') == -1) {
-				filename = "hentai-foundry " + filename;
-			};
-		};
-	};
-
-	// ! TUMBLR
-	if ((imageHost.indexOf('tumblr') > -1) || (requesterPage.indexOf('tumblr') > -1)) {
-		if (response.origin === "TU") {
-			filename = "";
-			for (var i = 0; i < arrayOfTags.length; i++) {
-				filename += arrayOfTags[i].replace(/[ \:]/g, '_') + " ";
-			};
-			if (filename.indexOf('@TU') == -1) {
-				filename = "tumblr " + filename;
-			};
-		};
+	if (response.origin === "TW") {										// ! TWITTER — cleaning the filename from that trailing flag
+		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('large') - 1); }; 
 	};
 
 	if (ext.length > 5) { 												//additional check for various madness
 		return failOverName;
 	}
 
-	filename = filename.replace(/\ \ /g, ' '); 							// remove double spaces
-	filename = filename.replace(/[ ]$/g, '');							// remove trailing whitespaces
-	filename = filename.replace(/[\,\\/:*?\"<>|]/g, ''); 				// make sure the modified filename in general doesn't contain any illegal characters
-
-	if (filename == "") { 												// make sure the name is not left blank
+	if (filename === "") { 												// make sure the name is not left blank
 		filename = "tagme";
-	} else if (ext == "") { 											// also make sure that extention did not magically disappear
-		ext == "maybe.jpeg";
+	} else if (ext === "") { 											// also make sure that extention did not magically disappear
+		ext = "maybe.jpeg";
 	}
 
 	if (filename.length + ext.length + 1 >= 255) {
@@ -243,18 +185,19 @@ var sir = {
 	displayWarning: function (tabId, message) {
 		if (!firefoxEnviroment) {
 			alert(message);
-		};
-		chrome.tabs.sendMessage(tabId, { order: "displayWarning", warning: message },
-			function justWaitTillFinished(response) {
-				if (chrome.runtime.lastError) {
-				console.warn(chrome.runtime.lastError.message);
-				} else {
-					if (typeof response !== 'undefined') {
-						console.log(response);
+		} else {
+			chrome.tabs.sendMessage(tabId, { order: "displayWarning", warning: message },
+				function justWaitTillFinished(response) {
+					if (chrome.runtime.lastError) {
+					console.warn(chrome.runtime.lastError.message);
+					} else {
+						if (typeof response !== 'undefined') {
+							console.log(response);
+						}
 					}
 				}
-			}
-		);
+			);
+		};
 	},
 
 	initialize: function () {
@@ -303,42 +246,44 @@ var sir = {
 						var imageHost = tempContainer.hostname;
 						var failOverName = imageObject.srcUrl.substring(imageObject.srcUrl.lastIndexOf('/') + 1);
 
-						var resultingFilename = nicelyTagIt(imageHost, imageObject.pageUrl, failOverName, response, tabId); // tabId is only needed to display a warning if something goes afool
+						if (validateAnswer(response.origin, imageHost, imageObject.pageUrl)) {
+							var resultingFilename = nicelyTagIt(response, failOverName, tabId); // tabId is only needed to display a warning if something goes afool
 
-						console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+							console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
 
-						if (firefoxEnviroment) {
-							chrome.downloads.download({
-								url: imageObject.srcUrl,
-								saveAs: !saveSilentlyEnabled,
-								filename: resultingFilename,
-								headers: [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }]
-							}, function reportOnTrying() {
-								if (chrome.runtime.lastError) {
-									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
-										console.log(chrome.runtime.lastError.message);
-									} else {
-										console.warn(chrome.runtime.lastError.message);
+							if (firefoxEnviroment) {
+								chrome.downloads.download({
+									url: imageObject.srcUrl,
+									saveAs: !saveSilentlyEnabled,
+									filename: resultingFilename,
+									headers: [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }]
+								}, function reportOnTrying() {
+									if (chrome.runtime.lastError) {
+										if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+											console.log(chrome.runtime.lastError.message);
+										} else {
+											console.warn(chrome.runtime.lastError.message);
+										};
 									};
-								};
-							});
-						} else if (response.origin === "PX") {
-							sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
-							sir.invokeTagsField(tabId);
-						} else {
-							chrome.downloads.download({
-								url: imageObject.srcUrl,
-								saveAs: !saveSilentlyEnabled,
-								filename: resultingFilename,
-							}, function reportOnTrying() {
-								if (chrome.runtime.lastError) {
-									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
-										console.log(chrome.runtime.lastError.message);
-									} else {
-										console.warn(chrome.runtime.lastError.message);
+								});
+							} else if (response.origin === "PX") {
+								sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+								sir.invokeTagsField(tabId);
+							} else {
+								chrome.downloads.download({
+									url: imageObject.srcUrl,
+									saveAs: !saveSilentlyEnabled,
+									filename: resultingFilename,
+								}, function reportOnTrying() {
+									if (chrome.runtime.lastError) {
+										if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+											console.log(chrome.runtime.lastError.message);
+										} else {
+											console.warn(chrome.runtime.lastError.message);
+										};
 									};
-								};
-							});
+								});
+							};	
 						};
 					}
 				}
@@ -351,21 +296,21 @@ var sir = {
 sir.initialize();
 
 chrome.tabs.onActivated.addListener(
-	function runOnActivated(swappingTab, changeInfo) { // send to fire after Tab Activated procedure
+	function runOnActivated(swappingTab, /*changeInfo*/) { // send to fire after Tab Activated procedure
 		sir.setupConnection(swappingTab.tabId, "Tab activated."); // ! the swappingTab is an object with references to previous Active Tab and current Active Tab 
 	}
 );
 
 chrome.tabs.onUpdated.addListener(
-	function runOnUpdated(tabId, changeInfo) {
+	function runOnUpdated(tabId, /*changeInfo*/) {
 		sir.setupConnection(tabId, "Page loaded."); // ! this TabID is just an integer id of the tab — no consistensy!
 	}
 );
 
 chrome.commands.onCommand.addListener(
 	function hotkey_triggered(command) {
-		if (command == "SIR_it") {
-			var querying = chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
+		if (command === "SIR_it") {
+			chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
 				for (let tab of result) {
 						sir.invokeTagsField(tab.id);
 				}

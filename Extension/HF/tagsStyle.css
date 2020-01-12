@@ -1,6 +1,5 @@
 div.boxbody td a[rel="tag"] {
 	/* Those are called "Keywords" on HF */
-	color: #172b84 !important;
 	border-width: 2px;
 	border-style: dotted;
 	border-color: lightpink;

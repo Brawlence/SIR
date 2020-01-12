@@ -12,7 +12,7 @@ function getImageTags() {
 	resultingTags.push(pictureName.replace(/[ ]/g, '-')); //replacement is not needed
 
 	for (var i = 0; i < tempArray.length; i++) {
-		resultingTags.push(tempArray[i].innerText.replace(/[\#]/g, ''));
+		resultingTags.push(tempArray[i].innerText.replace(/[#]/g, ''));
 	};
 	return resultingTags;
 };

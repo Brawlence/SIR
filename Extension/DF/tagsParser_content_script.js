@@ -2,9 +2,9 @@
 // Drawfriends is a special case because it already HAS a field with all the tags.
 function getImageTags() {
 	var resultingTags = new Array;
-	var resultingTags = document.querySelectorAll('td textarea[id="tags"]')[0].innerHTML.split(' ');
+	resultingTags = document.querySelector('td textarea[id="tags"]').innerHTML.replace(/_\(artist\)/g, '@DF').split(' ');
 
-	var tempString = document.querySelectorAll('div [id="tag_list"]')[0].innerText.trim();
+	var tempString = document.querySelector('div [id="tag_list"]').innerText.trim();
 	resultingTags.unshift("drawfriends_" + tempString.substring(tempString.indexOf('Id: ') + 4, tempString.indexOf('\nPosted: '))); //add the drawfriends_ ID to the tags array
 
 	return resultingTags;
@@ -12,7 +12,7 @@ function getImageTags() {
 
 //this one is different - instead of the popup field like everyone else this uses the existing tags text field on the page
 function createTagsStringField() {
-	if (document.getElementById('sirArea') == null) {
+	if (document.getElementById('sirArea') === null) {
 		document.getElementById('edit_form').style = "display: ";
 		const buttonsParagraph = document.createElement('p');
 		buttonsParagraph.id = "sirArea";

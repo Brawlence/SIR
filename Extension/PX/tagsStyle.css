@@ -1,6 +1,5 @@
 aside section h2 div div a div {
 	/* usually the author's handle */
-	color: #172b84 !important;
 	border-width: 2px;
 	border-style: dotted;
 	border-color: lightpink;
@@ -8,7 +7,6 @@ aside section h2 div div a div {
 
 figcaption div h1 {
 	/* usually the name of the picture */
-	color: #172b84 !important;
 	border-width: 2px;
 	border-style: dotted;
 	border-color: lightpink;
@@ -16,7 +14,6 @@ figcaption div h1 {
 
 figcaption div footer ul li {
 	/* tags - with enlish translation following, no hash*/
-	color: #172b84 !important;
 	border-width: 2px;
 	border-style: dotted;
 	border-color: lightpink;

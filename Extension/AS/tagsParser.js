@@ -3,10 +3,10 @@ var windowDisplacement = 90;
 
 function getImageTags() {
 	var resultingTags = new Array;
-	var profilelink = document.querySelectorAll('aside div.name a')[0].href;
+	var profilelink = document.querySelector('aside div.name a').href;
 	var authorHandle = profilelink.substring(profilelink.lastIndexOf('/')+1);
-	var authorName = document.querySelectorAll('aside div.name a')[0].innerText;
-	var pictureName = document.querySelectorAll('aside div h1.h3')[0].innerText;
+	var authorName = document.querySelector('aside div.name a').innerText;
+	var pictureName = document.querySelector('aside div h1.h3').innerText;
 	var tempArray = document.getElementsByClassName("tags")[0].innerText.substring(7).split('#');
 
 	resultingTags.push(authorHandle + "@" + tagsOrigin);
