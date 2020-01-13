@@ -1,6 +1,7 @@
 {
-	"name": "SIR",
-	"description": "SIR is an Image Renamer.\nProvides meaningful names when saving from Pixiv, Twitter, Deviantart, Tumblr, Artstation, Hentai-Foundry, Drawfriends.",
+	"name": "SIR Image Renamer",
+	"short_name": "SIR",
+	"description": "SIR is an Image Renamer.\nProvides meaningful image names when saving on Pixiv, Deviantart, Artstation, etc.",
 	"icons": {
 		"128": "SIR_128x128.png",
 		"48": "SIR_48x48.png",
@@ -14,14 +15,21 @@
 		},
 		"default_title": "SIR!"
 	},
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
-	"content_scripts": [{
-			"matches": ["*://*.deviantart.com/*", "*://*.deviantart.net/*"],
+	"content_scripts": [
+		{
+			"matches": ["*://*.deviantart.com/*"],
 			"css": ["DA/tagsStyle.css"],
 			"run_at": "document_end",
 			"js": ["DA/tagsParser.js", "Content.js"]
+		},
+		{
+			"matches": ["*://*.artstation.com/*"],
+			"css": ["AS/tagsStyle.css"],
+			"run_at": "document_end",
+			"js": ["AS/tagsParser.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
@@ -42,13 +50,7 @@
 			"js": ["TW/tagsParser.js", "Content.js"]
 		},
 		{
-			"matches": ["*://*.artstation.com/*"],
-			"css": ["AS/tagsStyle.css"],
-			"run_at": "document_end",
-			"js": ["AS/tagsParser.js", "Content.js"]
-		},
-		{
-			"matches": ["*://*.hentai-foundry.com/*", "*://*.hentaifoundry.com/*"],
+			"matches": ["*://*.hentai-foundry.com/*"],
 			"css": ["HF/tagsStyle.css"],
 			"run_at": "document_end",
 			"js": ["HF/tagsParser.js", "Content.js"]
@@ -69,7 +71,7 @@
 				"default": "Ctrl+Shift+1",
 				"mac": "Command+Shift+1"
 			},
-			"description": "Shows the tags string from the image page"
+			"description": "Shows the tags string generated from the image page"
 		}
 	}
 }

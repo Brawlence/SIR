@@ -27,7 +27,7 @@ function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 
 function nicelyTagIt(response, failOverName, tabId) { // gets filename determined by browser, it will be used as a fallback - and also the response from content scripts
 
-	console.log("nicelyTagIt commenced with the following parameters:\n failOverName: " + failOverName + "\n content script result: " + response.origin + " " + response.tags);
+	//console.log("nicelyTagIt commenced with the following parameters:\n failOverName: " + failOverName + "\n content script result: " + response.origin + " " + response.tags);
 
 	var filename = "",
 		ext = "";
@@ -74,7 +74,7 @@ function nicelyTagIt(response, failOverName, tabId) { // gets filename determine
 	filename = filename.replace(/[ ]$/g, '');							// remove trailing whitespaces
 	filename = filename.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '');		// make sure the modified filename in general doesn't contain any illegal characters
 
-	if (response.origin === "TW") {										// ! TWITTER — cleaning the filename from that trailing flag
+	if (response.origin === "TW") {										// ! TWITTER — cleaning the filename from that trailing flag - for old TWITTER (pre Sep 2019)
 		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('large') - 1); }; 
 	};
 
@@ -172,11 +172,13 @@ var sir = {
 		chrome.tabs.sendMessage(tabId, { order: "getTagsString" },
 			function justWaitTillFinished(response) {
 				if (chrome.runtime.lastError) {
-					console.warn(chrome.runtime.lastError.message);
+					//console.warn(chrome.runtime.lastError.message);
 				} else {
+					/*
 					if (typeof response !== 'undefined') {
 						console.log(response);
 					}
+					*/
 				}
 			}
 		);
@@ -189,11 +191,13 @@ var sir = {
 			chrome.tabs.sendMessage(tabId, { order: "displayWarning", warning: message },
 				function justWaitTillFinished(response) {
 					if (chrome.runtime.lastError) {
-					console.warn(chrome.runtime.lastError.message);
+					//console.warn(chrome.runtime.lastError.message);
 					} else {
+						/*
 						if (typeof response !== 'undefined') {
 							console.log(response);
 						}
+						*/
 					}
 				}
 			);
@@ -203,13 +207,13 @@ var sir = {
 	initialize: function () {
 		if (navigator.userAgent.indexOf('Firefox') > -1) {
 			firefoxEnviroment = true;
-			console.log("Firefox enviroment confirmed. Proceeding as usual.");
+			//console.log("Firefox enviroment confirmed. Proceeding as usual.");
 		} else if (navigator.userAgent.indexOf('Chrom') > -1) {
 			firefoxEnviroment = false;
-			console.log("Chromium enviroment discovered. Pixiv saving will require additional work.");
+			//console.log("Chromium enviroment discovered. Pixiv saving will require additional work.");
 		} else {
 			firefoxEnviroment = false;
-			console.warn("Unknown user-agent type. Proceed at your own risk.");
+			//console.warn("Unknown user-agent type. Proceed at your own risk.");
 		};
 		sir.makeMenu();
 	},
@@ -219,12 +223,12 @@ var sir = {
 		chrome.tabs.sendMessage(tabId, { order: "ping" }, // ! tabId is an integer
 			function updateMenu(response) {
 				if(chrome.runtime.lastError) {
-					console.warn(chrome.runtime.lastError.message);
+					//console.warn(chrome.runtime.lastError.message);
 				} else {
 					if (typeof response !== 'undefined') {
 						if (response.message) {
 							sir.enableMenu();
-							console.log( reason + " Connection extablished with " + response.origin);
+							//console.log( reason + " Connection extablished with " + response.origin);
 						}
 					}
 				}
@@ -236,7 +240,7 @@ var sir = {
 		chrome.tabs.sendMessage(tabId, { order: "giffTags" }, // ! tabId is an integer
 			function workWithThis(response) {
 				if (chrome.runtime.lastError) {
-					console.warn(chrome.runtime.lastError.message);
+					//console.warn(chrome.runtime.lastError.message);
 				} else {
 					if (typeof response !== 'undefined') {
 						// get where that image is hosted on by
@@ -246,45 +250,49 @@ var sir = {
 						var imageHost = tempContainer.hostname;
 						var failOverName = imageObject.srcUrl.substring(imageObject.srcUrl.lastIndexOf('/') + 1);
 
-						if (validateAnswer(response.origin, imageHost, imageObject.pageUrl)) {
-							var resultingFilename = nicelyTagIt(response, failOverName, tabId); // tabId is only needed to display a warning if something goes afool
+						if (!validateAnswer(response.origin, imageHost, imageObject.pageUrl)) return;
+						
+						var resultingFilename = nicelyTagIt(response, failOverName, tabId); // tabId is only needed to display a warning if something goes afool
 
-							console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+						//console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
 
-							if (firefoxEnviroment) {
-								chrome.downloads.download({
-									url: imageObject.srcUrl,
-									saveAs: !saveSilentlyEnabled,
-									filename: resultingFilename,
-									headers: [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }]
-								}, function reportOnTrying() {
-									if (chrome.runtime.lastError) {
-										if (chrome.runtime.lastError.message.indexOf('user') > -1) {
-											console.log(chrome.runtime.lastError.message);
-										} else {
-											console.warn(chrome.runtime.lastError.message);
-										};
+						if (firefoxEnviroment) {
+							chrome.downloads.download({
+								url: imageObject.srcUrl,
+								saveAs: !saveSilentlyEnabled,
+								filename: resultingFilename,
+								headers: [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }]
+							}, function reportOnTrying() {
+								if (chrome.runtime.lastError) {
+									/*
+									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+										console.log(chrome.runtime.lastError.message);
+									} else {
+										console.warn(chrome.runtime.lastError.message);
 									};
-								});
-							} else if (response.origin === "PX") {
-								sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
-								sir.invokeTagsField(tabId);
-							} else {
-								chrome.downloads.download({
-									url: imageObject.srcUrl,
-									saveAs: !saveSilentlyEnabled,
-									filename: resultingFilename,
-								}, function reportOnTrying() {
-									if (chrome.runtime.lastError) {
-										if (chrome.runtime.lastError.message.indexOf('user') > -1) {
-											console.log(chrome.runtime.lastError.message);
-										} else {
-											console.warn(chrome.runtime.lastError.message);
-										};
-									};
-								});
-							};	
-						};
+									*/
+								};
+							});
+						} else if (response.origin === "PX") {
+							sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+							sir.invokeTagsField(tabId);
+						} else {
+							chrome.downloads.download({
+								url: imageObject.srcUrl,
+								saveAs: !saveSilentlyEnabled,
+								filename: resultingFilename,
+							}, function reportOnTrying() {
+								if (chrome.runtime.lastError) {
+									/*
+									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+										console.log(chrome.runtime.lastError.message);
+									} else {
+										console.warn(chrome.runtime.lastError.message);
+									}; 
+									*/
+								};
+							});
+						};	
 					}
 				}
 			}
@@ -320,19 +328,18 @@ chrome.commands.onCommand.addListener(
 );
 
 // TODO: make tag highlight toggle-able
-//perform the requested action on menu click
 chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an object which spawned the menu, tab is literally a tab object where the action happened
 	switch (info.menuItemId) {
 	case 'saveSilently':
 		saveSilentlyEnabled = !saveSilentlyEnabled;
 		break;
 	case 'gts':
-		sir.invokeTagsField(tab.id); // ! so tab.id will be passed
+		sir.invokeTagsField(tab.id); 							// ! so tab.id will be passed
 		break;
 	case 'dl':
 		sir.dlWithTags(info, tab.id);
 		break;
 	default:
-		console.error("Strange thing happened in Menu handling. Info state: " + info + "\nTab state: " + tab);
+		//console.error("Strange thing happened in Menu handling. Info state: " + info + "\nTab state: " + tab);
 	}
 });
