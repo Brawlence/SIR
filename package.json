@@ -1,0 +1,40 @@
+{
+    "name": "sir_image_renamer",
+    "version": "1.0.1",
+    "description": "SIR is an Image Renamer.\nProvides meaningful image names when saving on Pixiv, Deviantart, Artstation, etc.",
+    "scripts": {
+        "test": "web-ext lint -s ./Extension",
+        "publish": "web-ext sign -s ./Extension --api-key=$WEB_EXT_API_KEY --api-key=$WEB_EXT_API_SECRET"
+    },
+    "dependencies": {
+        "web-ext": "2.7.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Brawlence/SIR.git"
+    },
+    "keywords": [
+        "image",
+        "picture",
+        "rename-files",
+        "chrome-extension",
+        "firefox-addon",
+        "firefox-extension",
+        "download-manager",
+        "pixiv",
+        "twitter",
+        "deviantart",
+        "tumblr",
+        "hentai-foundry",
+        "artstation",
+        "drawfriends",
+        "firefox",
+        "chrome"
+    ],
+    "author": "Brawlence <Brawlence@pm.me>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Brawlence/SIR/issues"
+    },
+    "homepage": "https://github.com/Brawlence/SIR/"
+}

@@ -1,0 +1,23 @@
+image: node:latest
+
+before_script:
+  - npm install --global web-ext
+
+build_artifacts:
+  stage: build
+  only:
+    - master
+  script:
+    - web-ext sign --source-dir ./Extension/ --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=unlisted
+    - mv ./web-ext-artifacts/sir_image_renamer*-an+fx.xpi ./sir_image_renamer-an+fx.xpi
+  artifacts:
+    paths:
+      - ./sir_image_renamer-an+fx.xpi
+
+submit_amo:
+  stage: build
+  only:
+   - master
+  allow_failure: true
+  script:
+    - web-ext sign --source-dir ./Extension/ --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=listed
