@@ -3,10 +3,15 @@ image: node:latest
 before_script:
   - npm install --global web-ext
 
+verify:
+  stage: build
+  script:
+    - web-ext lint --source-dir=./Extension/
+
 submit_amo:
   stage: build
   only:
    - master
   allow_failure: true
   script:
-    - web-ext sign --source-dir ./Extension/ --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=listed
+    - web-ext sign --source-dir=./Extension/ --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=listed --id="{3846b265-95c4-4371-9853-86df1b8cbaaa}"

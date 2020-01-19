@@ -3,8 +3,8 @@
     "version": "1.0.1",
     "description": "SIR is an Image Renamer.\nProvides meaningful image names when saving on Pixiv, Deviantart, Artstation, etc.",
     "scripts": {
-        "test": "web-ext lint -s ./Extension",
-        "publish": "web-ext sign -s ./Extension --api-key=$WEB_EXT_API_KEY --api-key=$WEB_EXT_API_SECRET"
+        "test": "web-ext lint --source-dir=./Extension/",
+        "publish": "web-ext sign --source-dir=./Extension/ --api-key=$WEB_EXT_API_KEY --api-key=$WEB_EXT_API_SECRET --id=\"{3846b265-95c4-4371-9853-86df1b8cbaaa}\""
     },
     "dependencies": {
         "web-ext": "2.7.0"
