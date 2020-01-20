@@ -15,7 +15,7 @@
 		},
 		"default_title": "SIR!"
 	},
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [

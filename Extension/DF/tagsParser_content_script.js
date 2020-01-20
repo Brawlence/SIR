@@ -1,10 +1,18 @@
 "use strict";
-// Drawfriends is a special case because it already HAS a field with all the tags.
-function getImageTags() {
-	var resultingTags = new Array;
-	resultingTags = document.querySelector('td textarea[id="tags"]').innerHTML.replace(/_\(artist\)/g, '@DF').split(' ');
+var tagsOrigin = "DF";
 
-	var tempString = document.querySelector('div [id="tag_list"]').innerText.trim();
+// Drawfriends is a special case because it already HAS a field with all the tags.
+function getImageTags(template) {
+	var resultingTags = new Array;
+	var	tempString = document.querySelector('td textarea[id="tags"]').innerHTML;
+	if (template.indexOf('@{OR}') > -1) { // TODO: FIX THIS to a proper template renaming
+		tempString = tempString.replace(/_\((art|color)ist\)/g, '@DF');
+	} else {
+		tempString = tempString.replace(/\s[\w]+?_\((art|color)ist\)/g, ' ');
+	};
+	resultingTags = tempString.split(' ');
+	
+	tempString = document.querySelector('div [id="tag_list"]').innerText.trim();
 	resultingTags.unshift("drawfriends_" + tempString.substring(tempString.indexOf('Id: ') + 4, tempString.indexOf('\nPosted: '))); //add the drawfriends_ ID to the tags array
 
 	return resultingTags;
@@ -42,14 +50,24 @@ function createTagsStringField() {
 
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
-		if (request.order === "ping") {
-			sendResponse({message: true, origin: "DF"});
-		} else if (request.order === "giffTags") {
-			sendResponse({ tags: getImageTags(), origin: "DF" });
-		} else if (request.order === "getTagsString") {
-			createTagsStringField();
-		} else if (request.order === "displayWarning") {
-			alert(request.warning);
+		switch (request.order) {
+			case 'ping':
+				sendResponse({message: true, origin: tagsOrigin});
+				break;
+			case 'giffTags':
+				sendResponse({tags: getImageTags(request.template), origin: tagsOrigin});
+				break;
+			case 'getTagsString':
+				createTagsStringField();
+				break;
+			case 'displayWarning':
+				alert(request.warning);
+				break;
+			case 'askForTemplate':
+				sendResponse({newTemplate: prompt("WARNING: currently the booru parser only looks if '@{OR}' is present in the template.\nPlease specify your custom template:", request.stub)});
+				break;
+			default:
+				break;
 		};
 	}
 );

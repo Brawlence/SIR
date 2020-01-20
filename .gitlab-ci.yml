@@ -3,11 +3,6 @@ image: node:latest
 before_script:
   - npm install --global web-ext
 
-verify:
-  stage: build
-  script:
-    - web-ext lint --source-dir=./Extension/
-
 submit_amo:
   stage: build
   only:

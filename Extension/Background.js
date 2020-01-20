@@ -1,7 +1,7 @@
 "use strict";
 
 var invokeSaveAs = true;
-var keepAuthorTags = true;
+var fileNameTemplate = "{handle}@{OR} {name} {caption} {tags}";
 var firefoxEnviroment = false;
 var useIcons = false;
 
@@ -130,22 +130,13 @@ var sir = {
 		sir.makeMenuItem("dl", "Download with tags","Icons/dl.png",  false, useIcons);
 		sir.makeMenuItem("gts","Get tags string",   "Icons/gts.png", false, useIcons);
 
-		chrome.contextMenus.create({type:"separator", id:"separator"});
+		chrome.contextMenus.create({type: "separator", id:"separator1", contexts: ["image"]});
 
-		chrome.contextMenus.create({
-			type: "checkbox",
-			id: "saveSilently",
-			title: "Supress \"Save As\" dialog?",
-			checked: !invokeSaveAs,
-			contexts: ["image"]
-		});
-		chrome.contextMenus.create({
-			type: "checkbox",
-			id: "keepAuthorTag",
-			title: "Keep author tags (author@OR)?",
-			checked: keepAuthorTags,
-			contexts: ["image"]
-		})
+		sir.makeMenuItem("tmpl","Specify custom filename template...", "Icons/no_gts.png", true, useIcons);
+
+		chrome.contextMenus.create({type: "separator", id:"separator2", contexts: ["image"]});
+
+		chrome.contextMenus.create({type: "checkbox",  id: "saveSilently", title: "Supress \"Save As\" dialog?", checked: !invokeSaveAs, contexts: ["image"]});
 	},
 
 	//gets browser info and passes it to makeMenuItems to determine if things like icons are supported
@@ -162,9 +153,11 @@ var sir = {
 		if (useIcons) {
 			chrome.contextMenus.update("dl", {icons: {"16": "Icons/no_dl.png"},	title: "No tags were fetched from this page", enabled: false});
 			chrome.contextMenus.update("gts", {icons: { "16": "Icons/no_gts.png" }, enabled: false});
+			chrome.contextMenus.update("tmpl", {enabled: false});
 		} else {
 			chrome.contextMenus.update("dl", {title: "No tags were fetched from this page", enabled: false});
 			chrome.contextMenus.update("gts", {enabled: false});
+			chrome.contextMenus.update("tmpl", {enabled: false});
 		}
 	},
 
@@ -172,14 +165,16 @@ var sir = {
 		if (useIcons) {
 			chrome.contextMenus.update("dl", {icons: { "16": "Icons/dl.png" }, title: "Download with tags", enabled: true});
 			chrome.contextMenus.update("gts", { icons: { "16": "Icons/gts.png" }, enabled: true});
+			chrome.contextMenus.update("tmpl", {enabled: true});
 		} else {
 			chrome.contextMenus.update("dl", {title: "Download with tags", enabled: true});
 			chrome.contextMenus.update("gts", {enabled: true});
+			chrome.contextMenus.update("tmpl", {enabled: true});
 		}
 	},
 
 	invokeTagsField: function (tabId) {
-		chrome.tabs.sendMessage(tabId, { order: "getTagsString" },
+		chrome.tabs.sendMessage(tabId, { order: "getTagsString", template: fileNameTemplate },
 			function justWaitTillFinished(response) {
 				if (chrome.runtime.lastError) {
 					//console.warn(chrome.runtime.lastError.message);
@@ -212,6 +207,20 @@ var sir = {
 				}
 			);
 		};
+	},
+
+	promptTemplate: function (tabId, stubTemplate) {
+		chrome.tabs.sendMessage(tabId, { order: "askForTemplate", stub: stubTemplate },
+			function updateTemplate(response) {
+				if (chrome.runtime.lastError) {
+				//console.warn(chrome.runtime.lastError.message);
+				} else {
+					if (typeof response !== 'undefined') {
+						if ((response.newTemplate !== "") && ( response.newTemplate !== null)) fileNameTemplate = response.newTemplate;
+					}
+				}
+			}
+		);
 	},
 
 	initialize: function () {
@@ -247,7 +256,7 @@ var sir = {
 	},
 	
 	dlWithTags: function (imageObject, tabId) {
-		chrome.tabs.sendMessage(tabId, { order: "giffTags" }, // ! tabId is an integer
+		chrome.tabs.sendMessage(tabId, { order: "giffTags", template: fileNameTemplate }, // ! tabId is an integer
 			function workWithThis(response) {
 				if (chrome.runtime.lastError) {
 					//console.warn(chrome.runtime.lastError.message);
@@ -342,6 +351,9 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an
 	switch (info.menuItemId) {
 	case 'saveSilently':
 		invokeSaveAs = !invokeSaveAs;
+		break;
+	case 'tmpl':
+		sir.promptTemplate(tab.id, fileNameTemplate);
 		break;
 	case 'gts':
 		sir.invokeTagsField(tab.id); 							// ! so tab.id will be passed

@@ -1,9 +1,9 @@
 // A unified content script for almost ALL the sites, relies on defined getImageTags(); in XX\tagsParser.js
 "use strict";
 
-function createTagsStringField() {
+function createTagsStringField(template) {
 	if (document.getElementById('sirArea') === null) {
-		var arrayOfTags = getImageTags();
+		var arrayOfTags = getImageTags(template);
 		var tagsString = "";
 		for (var i = 0; i < arrayOfTags.length; i++) {
 			tagsString += arrayOfTags[i].replace(/ /g, '_') + " ";
@@ -48,14 +48,24 @@ function createTagsStringField() {
 
 chrome.runtime.onMessage.addListener(
 	function(request, _sender, sendResponse) {
-		if (request.order === "ping") {
-			sendResponse({message: true, origin: tagsOrigin});
-		} else if(request.order === "giffTags") {
-			sendResponse({ tags: getImageTags(), origin: tagsOrigin });
-		} else if (request.order === "getTagsString") {
-			createTagsStringField();
-		} else if (request.order === "displayWarning") {
-			alert(request.warning);
+		switch (request.order) {
+			case 'ping':
+				sendResponse({message: true, origin: tagsOrigin});
+				break;
+			case 'giffTags':
+				sendResponse({tags: getImageTags(request.template), origin: tagsOrigin});
+				break;
+			case 'getTagsString':
+				createTagsStringField(request.template);
+				break;
+			case 'displayWarning':
+				alert(request.warning);
+				break;
+			case 'askForTemplate':
+				sendResponse({newTemplate: prompt("\t\t\t\tCUSTOM TEMPLATE\t\t\t\t\n{handle} - Author Handle (unique for the platform)\n{OR} - Tags Origin (AS, DA, DF, HF, PX, TU, TW)\n{name} - Author name\n{caption} - Picture caption\n{tags} - Tags string\n\nPlease specify your custom template:", request.stub)});
+				break;
+			default:
+				break;
 		};
 	}
 );
