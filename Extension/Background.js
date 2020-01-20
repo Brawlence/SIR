@@ -1,6 +1,7 @@
 "use strict";
 
-var saveSilentlyEnabled = false;
+var invokeSaveAs = true;
+var keepAuthorTags = true;
 var firefoxEnviroment = false;
 var useIcons = false;
 
@@ -129,11 +130,20 @@ var sir = {
 		sir.makeMenuItem("dl", "Download with tags","Icons/dl.png",  false, useIcons);
 		sir.makeMenuItem("gts","Get tags string",   "Icons/gts.png", false, useIcons);
 
+		chrome.contextMenus.create({type:"separator", id:"separator"});
+
 		chrome.contextMenus.create({
 			type: "checkbox",
 			id: "saveSilently",
 			title: "Supress \"Save As\" dialog?",
-			checked: saveSilentlyEnabled,
+			checked: !invokeSaveAs,
+			contexts: ["image"]
+		});
+		chrome.contextMenus.create({
+			type: "checkbox",
+			id: "keepAuthorTag",
+			title: "Keep author tags (author@OR)?",
+			checked: keepAuthorTags,
 			contexts: ["image"]
 		})
 	},
@@ -259,7 +269,7 @@ var sir = {
 						if (firefoxEnviroment) {
 							chrome.downloads.download({
 								url: imageObject.srcUrl,
-								saveAs: !saveSilentlyEnabled,
+								saveAs: invokeSaveAs,
 								filename: resultingFilename,
 								headers: [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }]
 							}, function reportOnTrying() {
@@ -279,7 +289,7 @@ var sir = {
 						} else {
 							chrome.downloads.download({
 								url: imageObject.srcUrl,
-								saveAs: !saveSilentlyEnabled,
+								saveAs: invokeSaveAs,
 								filename: resultingFilename,
 							}, function reportOnTrying() {
 								if (chrome.runtime.lastError) {
@@ -331,7 +341,7 @@ chrome.commands.onCommand.addListener(
 chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an object which spawned the menu, tab is literally a tab object where the action happened
 	switch (info.menuItemId) {
 	case 'saveSilently':
-		saveSilentlyEnabled = !saveSilentlyEnabled;
+		invokeSaveAs = !invokeSaveAs;
 		break;
 	case 'gts':
 		sir.invokeTagsField(tab.id); 							// ! so tab.id will be passed
