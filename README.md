@@ -13,8 +13,9 @@ The result by default looks like:
 
 `uniq_ID Author_handle@OR Author-Name Picture-Title tag another_tag tag_episode-2 tag&replaced_spaces.ext`,
 
-where `OR` (origin) is based on a name of the supported site as follows: **A**rt**S**tation, **D**eviant**A**rt, **D**raw**F**riends, **H**entai-**F**oundry, **P**i**X**iv, **TU**mblr, **TW**itter. The resulting filename is compatible with https://github.com/0xb8/WiseTagger/issues/1 and can be further tweaked by specifying a *custom template* through the extension context menu.
+where `OR` (origin) is based on a name of the supported site as follows: **A**rt**S**tation, **D**eviant**A**rt, **D**raw**F**riends, **H**entai-**F**oundry, **P**i**X**iv, **TU**mblr, **TW**itter.
 
+The resulting filename is compatible with https://github.com/0xb8/WiseTagger/issues/1 and can be further tweaked by specifying a *custom template* through the extension context menu.
 *Please note:*
 - *On some sites some of these identifiers are optional and thus cannot be fetched.*
 - *Currently the only type of tracked Unique picture IDs are `pixiv_(album)_(page)` and `drawfriends_(pictureID)`, as for other sites tracking it is meaningless - I know no ways to get the image based on their respective IDs.*
@@ -22,11 +23,12 @@ where `OR` (origin) is based on a name of the supported site as follows: **A**rt
 ## Inner workings ##
 **SIR** marks fetched info with a red dotted line by injecting custom CSS on sites specified above:
 ![Example of tag highlighting](./Img/tag_highlighting.png)
+
 Along with the CSS, a receiver content script is injected, which listens for incoming messages from the main extension script.
 
 As the user reloads the page or changes the active tab, **SIR** checks if the page includes one of those content scripts. If it does, the context menu items will be enabled.
 
-By user request (`"SIR Image Renamer"` → `"Download with tags"`), content scripts parse the page and pass the tags to renaming procedure. This procedure suggests the file downloader a name to save the file by, in your browser's default download directory. "Save As" dialogue is invoked depending on whether the `Suppress 'Save As'` option was selected or not.
+By user request (`"SIR Image Renamer"` → `"Download with tags"`), content scripts parse the page and pass the tags to renaming procedure. This procedure suggests the file downloader a name to save the file by, in your browser's default download directory. "Save As" dialogue is invoked depending on whether the `Suppress 'Save As'` option was selected.
 
 *In addition, it is possible to manually get the list of discovered tags by pressing `Ctrl+Shift+1` or selecting `"Get tags string"` in the context menu.*
 
@@ -36,7 +38,9 @@ Additionally, if you're on *Pixiv* and are trying to save a thumbnail, **SIR** w
 
 ## Installation ##
 Stable releases are published through the official stores:
+
 Firefox: https://addons.mozilla.org/firefox/addon/sir_image_renamer/
+
 Chromium: https://chrome.google.com/webstore/detail/sir-image-renamer/gmdcgijknjodfhggamchhhejamncbgmc
 
 To install and run the latest (non stable) version of this extension, follow these steps:
