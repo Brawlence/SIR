@@ -132,7 +132,7 @@ var sir = {
 
 		chrome.contextMenus.create({type: "separator", id:"separator1", contexts: ["image"]});
 
-		sir.makeMenuItem("tmpl","Specify custom filename template...", "Icons/no_gts.png", true, useIcons);
+		sir.makeMenuItem("tmpl","Specify custom filename template...", "Icons/no_gts.png", false, useIcons);
 
 		chrome.contextMenus.create({type: "separator", id:"separator2", contexts: ["image"]});
 
