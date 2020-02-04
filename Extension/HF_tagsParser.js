@@ -1,3 +1,4 @@
+"use strict";
 var tagsOrigin = "HF";
 var windowDisplacement = 0;
 
@@ -22,4 +23,22 @@ function getImageTags(template) {
 	
 	resultingTags = template.split(' ');
 	return resultingTags;
+};
+
+function setHighlight(neededState){
+	if (neededState && (document.getElementById('sir-style') === null)) {
+		var styleSir = document.createElement('style');
+			styleSir.type = "text/css";
+			styleSir.id = "sir-style";
+			styleSir.innerHTML = /* Those are called "Keywords" on HF */
+				"div.boxbody td a[rel='tag'] {\
+					border-width: 2px;\
+					border-style: dotted;\
+					border-color: lightpink;\
+				}";
+		document.head.appendChild(styleSir);
+	};
+	if ((!neededState) && document.getElementById('sir-style')) {
+		document.head.removeChild(document.getElementById('sir-style'));
+	}
 };

@@ -1,20 +1,23 @@
 "use strict";
 
-var invokeSaveAs = true;
+var invokeSaveAs = true,
+	useDecoration = false;
+var firefoxEnviroment = false,
+	useIcons = false;
 var fileNameTemplate = "{handle}@{OR} {name} {caption} {tags}";
-var firefoxEnviroment = false;
-var useIcons = false;
 
 function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 	let match = false;
 	const validityMap = [
-		["PX", "pximg", 				"pixiv"],
-		["DF", "drawfriends.booru.org",	"drawfriends"],
-		["DA", "deviantart", 			"deviantart"],
-		["TW", "twimg", 				"twitter"],
-		["AS", "artstation", 			"artstation"],
-		["HF", "hentai-foundry", 		"hentai-foundry"],
-		["TU", "tumblr", 				"tumblr"]
+		["PX", "pximg", 			"pixiv"],
+		["DF", "img.booru.org",		"drawfriends"],
+		["DA", "deviantart", 		"deviantart"],
+		["TW", "twimg", 			"twitter"],
+		["AS", "artstation", 		"artstation"],
+		["HF", "hentai-foundry", 	"hentai-foundry"],
+		["TU", "tumblr", 			"tumblr"],
+		["VA", "img.booru.org",		"vidyart"],
+		["MW", "medicalwhiskey", 	"medicalwhiskey"]
 	];
 
 	for (var i = 0; i < validityMap.length; i++) {
@@ -136,6 +139,7 @@ var sir = {
 
 		chrome.contextMenus.create({type: "separator", id:"separator2", contexts: ["image"]});
 
+		chrome.contextMenus.create({type: "checkbox",  id: "useDecoration", title: "Highlight fetched tags?", checked: useDecoration, contexts: ["image"]});
 		chrome.contextMenus.create({type: "checkbox",  id: "saveSilently", title: "Supress \"Save As\" dialog?", checked: !invokeSaveAs, contexts: ["image"]});
 	},
 
@@ -239,7 +243,7 @@ var sir = {
 	
 	setupConnection: function(tabId, reason) { 
 		sir.disableMenu(); //disable the context menu while we don't know if SIR context scripts are working here
-		chrome.tabs.sendMessage(tabId, { order: "ping" }, // ! tabId is an integer
+		chrome.tabs.sendMessage(tabId, { order: "ping", useDecor: useDecoration }, // ! tabId is an integer
 			function updateMenu(response) {
 				if(chrome.runtime.lastError) {
 					//console.warn(chrome.runtime.lastError.message);
@@ -339,18 +343,28 @@ chrome.commands.onCommand.addListener(
 		if (command === "SIR_it") {
 			chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
 				for (let tab of result) {
-						sir.invokeTagsField(tab.id);
+					sir.invokeTagsField(tab.id);
+				}
+			});
+		} else if (command === "Decorate") {
+			chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
+				for (let tab of result) {
+					useDecoration = !useDecoration;
+					sir.setupConnection(tab.id, "Hightlight toggled.");
 				}
 			});
 		}
 	}
 );
 
-// TODO: make tag highlight toggle-able
 chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an object which spawned the menu, tab is literally a tab object where the action happened
 	switch (info.menuItemId) {
 	case 'saveSilently':
 		invokeSaveAs = !invokeSaveAs;
+		break;
+	case 'useDecoration':
+		useDecoration = !useDecoration;
+		sir.setupConnection(tab.id, "Hightlight toggled.");
 		break;
 	case 'tmpl':
 		sir.promptTemplate(tab.id, fileNameTemplate);

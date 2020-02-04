@@ -15,51 +15,54 @@
 		},
 		"default_title": "SIR!"
 	},
-	"version": "1.1.2",
+	"version": "1.2.0",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [
 		{
 			"matches": ["*://*.deviantart.com/*"],
-			"css": ["DA/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["DA/tagsParser.js", "Content.js"]
+			"js": ["DA_tagsParser.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.artstation.com/*"],
-			"css": ["AS/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["AS/tagsParser.js", "Content.js"]
+			"js": ["AS_tagsParser.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
-			"css": ["PX/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["PX/tagsParser.js", "Content.js"]
+			"js": ["PX_tagsParser.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.tumblr.com/post/*", "*://*.tumblr.com/image/*"],
-			"css": ["TU/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["TU/tagsParser.js", "Content.js"]
+			"js": ["TU_tagsParser.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.twitter.com/*", "*://*.twimg.com/*"],
-			"css": ["TW/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["TW/tagsParser.js", "Content.js"]
+			"js": ["TW_tagsParser.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.hentai-foundry.com/*"],
-			"css": ["HF/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["HF/tagsParser.js", "Content.js"]
+			"js": ["HF_tagsParser.js", "Content.js"]
 		},
 		{
 			"matches": ["*://drawfriends.booru.org/*s=view*"],
-			"css": ["DF/tagsStyle.css"],
 			"run_at": "document_end",
-			"js": ["DF/tagsParser_content_script.js"]
+			"js": ["DF_tagsParser_content_script.js"]
+		},
+		{
+			"matches": ["*://vidyart.booru.org/*s=view*"],
+			"run_at": "document_end",
+			"js": ["VA_tagsParser_content_script.js"]
+		},
+		{
+			"matches": ["*://medicalwhiskey.com/?p=*"],
+			"run_at": "document_end",
+			"js": ["MW_tagsParser.js", "Content.js"]
 		}
 	],
 	"background": {
@@ -72,6 +75,13 @@
 				"mac": "Command+Shift+1"
 			},
 			"description": "Shows the tags string generated from the image page"
+		},
+		"Decorate": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+2",
+				"mac": "Command+Shift+2"
+			},
+			"description": "Decorated discovered tags on the image page"
 		}
 	}
 }

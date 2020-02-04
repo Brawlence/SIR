@@ -6,7 +6,7 @@ function getImageTags(template) {
 	var resultingTags = new Array;
 	var	tempString = document.querySelector('td textarea[id="tags"]').innerHTML;
 	if (template.indexOf('@{OR}') > -1) { // TODO: FIX THIS to a proper template renaming
-		tempString = tempString.replace(/_\((art|color)ist\)/g, '@DF');
+		tempString = tempString.replace(/_\((art|color)ist\)/g, '@' + tagsOrigin);
 	} else {
 		tempString = tempString.replace(/\s[\w]+?_\((art|color)ist\)/g, ' ');
 	};
@@ -48,11 +48,33 @@ function createTagsStringField() {
 	}
 };
 
+function setHighlight(neededState){
+	/* Drawfriends has a pretty easy structure:
+	div class="sidebar" contains a div class="tag_list",
+	containing list in which are separate links which are tags */
+	if (neededState && (document.getElementById('sir-style') === null)) {
+		var styleSir = document.createElement('style');
+			styleSir.type = "text/css";
+			styleSir.id = "sir-style";
+			styleSir.innerHTML = 
+				"div#tag_list li a { \
+					border-width: 2px; \
+					border-style: dotted; \
+					border-color: lightpink; \
+				};"
+		document.head.appendChild(styleSir);
+	};
+	if ((!neededState) && document.getElementById('sir-style')) {
+		document.head.removeChild(document.getElementById('sir-style'));
+	}
+};
+
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
 		switch (request.order) {
 			case 'ping':
 				sendResponse({message: true, origin: tagsOrigin});
+				setHighlight(request.useDecor);
 				break;
 			case 'giffTags':
 				sendResponse({tags: getImageTags(request.template), origin: tagsOrigin});

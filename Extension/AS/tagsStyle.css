@@ -1,6 +1,0 @@
-div.tags a {
-	/* FINALLY - an Artstation tag is a link (a) inside a div with tags class - it's complete with a hash sign */
-	border-width: 2px;
-	border-style: dotted;
-	border-color: lightpink;
-}

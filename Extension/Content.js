@@ -11,7 +11,7 @@ function createTagsStringField(template) {
 
 		const sirDivArea = document.createElement('div');
 			sirDivArea.id = "sirArea";
-			windowDisplacement += 20; // TODO: decide if +20 px per invocation is a bug or a feature
+			windowDisplacement += 20;
 			sirDivArea.style = "top:" + windowDisplacement + "px; left: 20px; position: fixed; z-index: 255;  border-width: 3px; border-style: solid; padding-left: 5px; padding-right: 5px; padding-top: 5px; background-color: lightgray;"
 		document.body.appendChild(sirDivArea);
 
@@ -27,6 +27,7 @@ function createTagsStringField(template) {
 			document.getElementById('sirArea').appendChild(buttonsParagraph);
 			document.getElementById('elderMagicField').focus();
 		} else {
+			windowDisplacement -= 20; //compensate for the previous increment
 			// ! Can't add onclick events to buttons with the usual method, have to use innerHTML instead
 			buttonsParagraph.innerHTML =
 				"<button id=\"c-and-h\" style=\"float:right\" onclick=\"javascript:\
@@ -51,6 +52,7 @@ chrome.runtime.onMessage.addListener(
 		switch (request.order) {
 			case 'ping':
 				sendResponse({message: true, origin: tagsOrigin});
+				setHighlight(request.useDecor);
 				break;
 			case 'giffTags':
 				sendResponse({tags: getImageTags(request.template), origin: tagsOrigin});
