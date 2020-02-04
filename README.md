@@ -13,31 +13,32 @@ The result by default looks like:
 
 `uniq_ID Author_handle@OR Author-Name Picture-Title tag another_tag tag_episode-2 tag&replaced_spaces.ext`,
 
-where `OR` (origin) is based on a name of the supported site as follows: **A**rt**S**tation, **D**eviant**A**rt, **D**raw**F**riends, **H**entai-**F**oundry, **P**i**X**iv, **TU**mblr, **TW**itter.
+where `OR` (origin) is based on a name of the supported site as follows: **A**rt**S**tation, **D**eviant**A**rt, **D**raw**F**riends, **H**entai-**F**oundry, **P**i**X**iv, **TU**mblr, **TW**itter, **M**edical**W**hiskey, **V**idy**A**rt.
 
 The resulting filename is compatible with https://github.com/0xb8/WiseTagger/issues/1 and can be further tweaked by specifying a *custom template* through the extension context menu.
+
 *Please note:*
-- *On some sites some of these identifiers are optional and thus cannot be fetched.*
-- *Currently the only type of tracked Unique picture IDs are `pixiv_(album)_(page)` and `drawfriends_(pictureID)`, as for other sites tracking it is meaningless - I know no ways to get the image based on their respective IDs.*
+- *On some sites any or almost all of identifiers can be lacking (and thus cannot be fetched).*
+- *Currently the only type of tracked Unique picture IDs are `pixiv_(album)_(page)` and `drawfriends_(pictureID)`.*
+- *Medical Whiskey & Vidiyart.booru IDs are in the works.*
 
-## Inner workings ##
-**SIR** marks fetched info with a red dotted line by injecting custom CSS on sites specified above:
+## Technical details ##
+Every time a new page from the listed domains is loaded, **SIR** adds to it a content script, which responds for pings from the extension.
+If the active tab has this script responding, context menu items would be enabled, allowing input.
+
+By user request (`"SIR Image Renamer"` → `"Download with tags"`), content scripts parse the page and pass the info to renaming procedure. This procedure suggests the file downloader a name to save the file by. "Save As" dialogue is invoked depending on whether the `Suppress 'Save As'` option was selected. By default, the image is saved in your browser's default download directory.
+
+*In addition, it is possible to manually get the list of tags by pressing `Ctrl+Shift+1` or selecting `"Get tags string"` in the context menu.*
+
+One can see what info is discovered by **SIR** (`"SIR Image Renamer"` → `"Highlight fetched tags?"`):
 ![Example of tag highlighting](./Img/tag_highlighting.png)
-
-Along with the CSS, a receiver content script is injected, which listens for incoming messages from the main extension script.
-
-As the user reloads the page or changes the active tab, **SIR** checks if the page includes one of those content scripts. If it does, the context menu items will be enabled.
-
-By user request (`"SIR Image Renamer"` → `"Download with tags"`), content scripts parse the page and pass the tags to renaming procedure. This procedure suggests the file downloader a name to save the file by, in your browser's default download directory. "Save As" dialogue is invoked depending on whether the `Suppress 'Save As'` option was selected.
-
-*In addition, it is possible to manually get the list of discovered tags by pressing `Ctrl+Shift+1` or selecting `"Get tags string"` in the context menu.*
 
 Additionally, if you're on *Pixiv* and are trying to save a thumbnail, **SIR** will halt you (but won't restrict your ability to proceed):
 
 ![Example alert](./Img/thumbnail_warning.png)
 
 ## Installation ##
-Stable releases are published through the official stores:
+[Stable releases](https://github.com/Brawlence/SIR/releases) are published through the official stores:
 
 Firefox: https://addons.mozilla.org/firefox/addon/sir_image_renamer/
 
@@ -56,15 +57,12 @@ To install and run the latest (non stable) version of this extension, follow the
 - Overabundant tags can sometimes exceed the filename length limit, thus they are currently trimmed to nearest space symbol below 230 symbols.  
 
 ## Planned features and TODO ##
-- Further refactor the tag parser code, unifying as much as possible
-- Make the highlight toggle-able
-- Add yande.re to the list of supported sites
-- Implement persistent options
-- Add an 'Options' page
+- Implement an 'Options' page (page action) and store persistent user options
+- Add yande.re, danbooru to the list of supported sites
+- Further refactor the tag parser code
 
 ## Known bugs ##
 - *Twitter* - in the timeline, unrelated tags are fetched from the whole page. Please save from individual post page for now.
-- *Chromium 77* (probably others too?) - sometimes the extension fails to fetch tags. Page reload (`F5`) / Tab switch / `Get Tags String` fixes that
-- Every new `Get Tags String` window on the same page is placed 20 px lower than the previous one. Should I keep it as a feature?
+- *Chromium 77* (probably others too?) - sometimes the extension fails to fetch tags. Page reload (`F5`) / Tab switch / `Get Tags String`/`Toggle Highlight` fixes that
  
 If you happen to enconuter an unlisted bug, please submit it through https://github.com/Brawlence/SIR/issues/new
