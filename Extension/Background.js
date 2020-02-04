@@ -33,6 +33,8 @@ function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 	return match;
 };
 
+// TODO: Should probably move unique IDs to its content script. Or maybe, just the PXnumber part of it?
+
 function parseFilename(failOverName, origin, tabId) {
 	var name, ext;
 	// indexOf is the fastest, see https://jsperf.com/substring-test
