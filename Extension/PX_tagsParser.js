@@ -6,7 +6,7 @@ function getImageTags(template) {
 	var resultingTags = new Array;
 
 
-	var authorHandle = document.querySelector('aside section h2 div div a div').innerText;
+	var authorHandle = document.querySelector('aside section h2 div div a').innerText; // TODO: fix later
 	var authorName = "";
 	var pictureName = document.querySelector('figcaption div div h1').innerText;
 	var tempArray = document.querySelectorAll('figcaption div footer ul li a');
@@ -31,7 +31,7 @@ function setHighlight(neededState){
 			styleSir.type = "text/css";
 			styleSir.id = "sir-style";
 			styleSir.innerHTML = /* author's handle, the name of the picture, tags - with enlish translation following, no hash*/
-				"aside section h2 div div a div,\
+				"aside section h2 div div a,\
 				figcaption div h1,\
 				figcaption div footer ul li {\
 					border-width: 2px;\
