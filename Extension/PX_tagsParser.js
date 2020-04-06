@@ -6,7 +6,7 @@ function getImageTags(template) {
 	var resultingTags = new Array;
 
 
-	var authorHandle = document.querySelector('aside section h2 div div a').innerText; // TODO: fix later
+	var authorHandle = document.querySelector('aside section h2 div div a').innerText; // TODO: selectors need a failsafe to not stop in case one of them fail
 	var authorName = "";
 	var pictureName = document.querySelector('figcaption div div h1').innerText;
 	var tempArray = document.querySelectorAll('figcaption div footer ul li a');

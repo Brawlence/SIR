@@ -15,7 +15,7 @@
 		},
 		"default_title": "SIR!"
 	},
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [
@@ -81,7 +81,7 @@
 				"default": "Ctrl+Shift+2",
 				"mac": "Command+Shift+2"
 			},
-			"description": "Decorated discovered tags on the image page"
+			"description": "Decorates discovered tags on the image page"
 		}
 	}
 }

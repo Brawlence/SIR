@@ -11,4 +11,4 @@ var Links_to_test = [
     "https://blurryken.tumblr.com/post/185528821532/do-you-want-to-share-a-bubble-tea-with-me"
 ];
 
-for (let i in Links_to_test) { window.open(Links_to_test[i],"_blank"); };
+for (let link in Links_to_test) { window.open(link,"_blank"); };
