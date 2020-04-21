@@ -1,45 +1,97 @@
-// A unified content script for almost ALL the sites, relies on defined getImageTags(); in XX\tagsParser.js
+// A unified content script for almost ALL the sites
+// relies on defined getImageTags() and constants in XX_tagsParser.js
+
 "use strict";
 
+const lowerParagraph_text = String.raw`
+	<span>
+		Select 'Get Tags String' again to close this window.
+	</span>
+	`;
+
+const lowerParagraph_btns = String.raw`
+	<button id="c-and-h" onclick="javascript:
+		document.getElementById('elderMagicField').select();
+		document.execCommand('copy');
+		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
+	">
+		Copy & Hide
+	</button>
+	<button onclick="javascript:
+		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
+	">
+		Cancel
+	</button>
+	`;
+
+const sirBoxStyle = String.raw`
+	div#sirArea {
+		left: 20px;
+		position: fixed;
+		z-index: 255;
+		border-width: 3px;
+		border-style: solid;
+		padding: 5px;
+		padding-bottom: 0px;
+		background-color: lightgray
+	}
+
+	div#sirArea p span {
+		font-size: small; float: right;
+	}
+
+	button#c-and-h {
+		float:right;
+	}
+
+	textarea#elderMagicField {
+		height: 150px;
+		width: 360px
+	}
+	`;
+
+function pick(element) {
+	return document.getElementById(element);
+};
+
+function fresh(element) {
+	return document.createElement(element);
+};
+
 function createTagsStringField(template) {
-	if (document.getElementById('sirArea') === null) {
+	if (pick('sirArea') === null) {
 		var arrayOfTags = getImageTags(template);
 		var tagsString = "";
 		for (var i = 0; i < arrayOfTags.length; i++) {
 			tagsString += arrayOfTags[i].replace(/ /g, '_') + " ";
 		};
 
-		const sirDivArea = document.body.appendChild(document.createElement('div'));
-			sirDivArea.id = "sirArea";
-			windowDisplacement += 20;
-			sirDivArea.style = "top:" + windowDisplacement + "px; left: 20px; position: fixed; z-index: 255;  border-width: 3px; border-style: solid; padding-left: 5px; padding-right: 5px; padding-top: 5px; background-color: lightgray;"
+		var allTheStyles = document.head.appendChild(fresh('style'));
+			allTheStyles.type = "text/css";
+			allTheStyles.id = "sir-box-style";
+			allTheStyles.innerHTML = sirBoxStyle;
 
-		const elderMagicField = document.getElementById('sirArea').appendChild(document.createElement('textarea'));
+		const sirBox = document.body.appendChild(fresh('div'));
+			sirBox.id = "sirArea";
+			sirBox.style.top = (windowDisplacement + 20) + "px";
+
+		const elderMagicField = pick('sirArea').appendChild(fresh('textarea'));
 			elderMagicField.id = "elderMagicField";
-			elderMagicField.style = "height: 150px; width: 360px;";
 			elderMagicField.value = tagsString;
 
-		const buttonsParagraph = document.getElementById('sirArea').appendChild(document.createElement('p'));
+		const lowerParagraph = pick('sirArea').appendChild(fresh('p'));
 		if ((tagsOrigin==="TU")|(tagsOrigin==="TW")) {
-			buttonsParagraph.innerHTML = "<span style ='font-size: small; float: right;'>Select 'Get Tags String' again to close this window.</p>"
-			document.getElementById('elderMagicField').focus();
+			lowerParagraph.innerHTML = lowerParagraph_text;
+			pick('elderMagicField').focus();
 		} else {
-			windowDisplacement -= 20; //compensate for the previous increment
 			// ! Can't add onclick events to buttons with the usual method, have to use innerHTML instead
-			buttonsParagraph.innerHTML =
-				"<button id=\"c-and-h\" style=\"float:right\" onclick=\"javascript:\
-					document.getElementById('elderMagicField').select();\
-					document.execCommand('copy');\
-					document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));\">\
-				Copy & Hide</button>\
-				<button onclick=\"javascript:\
-					document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));\">\
-				Cancel</button>";
-			document.getElementById('c-and-h').focus();
+			lowerParagraph.innerHTML = lowerParagraph_btns;
+			pick('c-and-h').focus();
 		};
 
 	} else {
-		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
+		pick('sirArea').parentElement.removeChild(pick('sirArea'));
+		document.head.removeChild(pick('sir-box-style'));
 	}
 };
 

@@ -1,13 +1,14 @@
 "use strict";
-var tagsOrigin = "TW";
+const tagsOrigin = "TW";
 var windowDisplacement = 0;
 
-var hastagStyle = String.raw`
+const hastagStyle = String.raw`
 	a[href*="/hashtag/"] {
 		border-width: 2px;
 		border-style: dotted;
 		border-color: lightpink;
-	}`;
+	}
+	`;
 
 function getImageTags(template) {
 	var resultingTags = new Array;
