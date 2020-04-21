@@ -2,6 +2,13 @@
 var tagsOrigin = "TW";
 var windowDisplacement = 0;
 
+var hastagStyle = String.raw`
+	a[href*="/hashtag/"] {
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+	}`;
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 
@@ -27,16 +34,10 @@ function getImageTags(template) {
 
 function setHighlight(neededState){
 	if (neededState && (document.getElementById('sir-style') === null)) {
-		var styleSir = document.createElement('style');
+		var styleSir = document.head.appendChild(document.createElement('style'));
 			styleSir.type = "text/css";
 			styleSir.id = "sir-style";
-			styleSir.innerHTML =
-				"a[href*='/hashtag/'] {\
-					border-width: 2px;\
-					border-style: dotted;\
-					border-color: lightpink;\
-				}";
-		document.head.appendChild(styleSir);
+			styleSir.innerHTML = hastagStyle;
 	};
 	if ((!neededState) && document.getElementById('sir-style')) {
 		document.head.removeChild(document.getElementById('sir-style'));

@@ -9,22 +9,19 @@ function createTagsStringField(template) {
 			tagsString += arrayOfTags[i].replace(/ /g, '_') + " ";
 		};
 
-		const sirDivArea = document.createElement('div');
+		const sirDivArea = document.body.appendChild(document.createElement('div'));
 			sirDivArea.id = "sirArea";
 			windowDisplacement += 20;
 			sirDivArea.style = "top:" + windowDisplacement + "px; left: 20px; position: fixed; z-index: 255;  border-width: 3px; border-style: solid; padding-left: 5px; padding-right: 5px; padding-top: 5px; background-color: lightgray;"
-		document.body.appendChild(sirDivArea);
 
-		const elderMagicField = document.createElement('textarea');
+		const elderMagicField = document.getElementById('sirArea').appendChild(document.createElement('textarea'));
 			elderMagicField.id = "elderMagicField";
 			elderMagicField.style = "height: 150px; width: 360px;";
 			elderMagicField.value = tagsString;
-		document.getElementById('sirArea').appendChild(elderMagicField);
 
-		const buttonsParagraph = document.createElement('p');
+		const buttonsParagraph = document.getElementById('sirArea').appendChild(document.createElement('p'));
 		if ((tagsOrigin==="TU")|(tagsOrigin==="TW")) {
 			buttonsParagraph.innerHTML = "<span style ='font-size: small; float: right;'>Select 'Get Tags String' again to close this window.</p>"
-			document.getElementById('sirArea').appendChild(buttonsParagraph);
 			document.getElementById('elderMagicField').focus();
 		} else {
 			windowDisplacement -= 20; //compensate for the previous increment
@@ -38,7 +35,6 @@ function createTagsStringField(template) {
 				<button onclick=\"javascript:\
 					document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));\">\
 				Cancel</button>";
-			document.getElementById('sirArea').appendChild(buttonsParagraph);
 			document.getElementById('c-and-h').focus();
 		};
 
