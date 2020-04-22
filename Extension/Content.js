@@ -15,12 +15,15 @@ const lowerParagraph_btns = String.raw`
 		document.execCommand('copy');
 		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
 	">
-		Copy & Hide
+	📋
+	</button>
+	<button id="save" onclick="javascript:alert();">
+	💾
 	</button>
 	<button onclick="javascript:
 		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
 	">
-		Cancel
+	🚫
 	</button>
 	`;
 
@@ -37,11 +40,13 @@ const sirBoxStyle = String.raw`
 	}
 
 	div#sirArea p span {
-		font-size: small; float: right;
+		font-size: small;
+		float: right
 	}
 
-	button#c-and-h {
-		float:right;
+	button#c-and-h,
+	button#save {
+		float:right
 	}
 
 	textarea#elderMagicField {
@@ -88,7 +93,6 @@ function createTagsStringField(template) {
 			lowerParagraph.innerHTML = lowerParagraph_btns;
 			pick('c-and-h').focus();
 		};
-
 	} else {
 		pick('sirArea').parentElement.removeChild(pick('sirArea'));
 		document.head.removeChild(pick('sir-box-style'));

@@ -1,7 +1,7 @@
 "use strict";
 
 var invokeSaveAs = true,
-	useDecoration = false;
+	useDecoration = true;
 var firefoxEnviroment = false,
 	useIcons = false;
 var fileNameTemplate = "{handle}@{OR} {name} {caption} {tags}";
@@ -29,75 +29,79 @@ function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 	return match;
 };
 
-function nicelyTagIt(response, failOverName, tabId) { // gets filename determined by browser, it will be used as a fallback - and also the response from content scripts
-
-	//console.log("nicelyTagIt commenced with the following parameters:\n failOverName: " + failOverName + "\n content script result: " + response.origin + " " + response.tags);
-
-	var filename = "",
-		ext = "";
-	var arrayOfTags = response.tags;
-
+function parseFilename(failOverName, origin, tabId) {
+	var name, ext;
 	// indexOf is freakingly fast, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
 		if (failOverName.indexOf('?') > -1) {
-			failOverName = failOverName.substring(0, failOverName.indexOf('?')); 	//prune the access token from the filename if it exists
+			failOverName = failOverName.substring(0, failOverName.indexOf('?')); 	//prune the access token from the name if it exists
 		}
-		filename = failOverName.substring(0, failOverName.lastIndexOf('.'));
-		ext = failOverName.substring(failOverName.lastIndexOf('.') + 1); 			// separate extension from the filename
+		name = failOverName.substring(0, failOverName.lastIndexOf('.'));
+		ext = failOverName.substring(failOverName.lastIndexOf('.') + 1); 			// separate extension from the name
 	} else if (failOverName.indexOf('?format=') > -1) { 							// TWITER HAS SILLY LINKS
-		filename = failOverName.substring(0, failOverName.indexOf('?format='));
+		name = failOverName.substring(0, failOverName.indexOf('?format='));
 		ext = failOverName.substring(failOverName.indexOf('?format=') + 8, failOverName.indexOf('&name='));
 	} else {
-		return failOverName;
+		return ["tagme", "maybe.jpeg"];
 	};
-
-	if (response.origin === "PX") { 									// ! PIXIV — format the name to be WiseTagger-compatible
-		var PXnumber = filename.substring(0, filename.indexOf('_p'));
-		var PXpage = filename.substring(filename.indexOf('_p') + 2);
+	
+	// ! TWITTER — cleaning the name from that trailing flag - for old TWITTER (pre Sep 2019)
+	if (origin === "TW" && ext.indexOf('large') > -1) ext = ext.substring(0, ext.indexOf('large') - 1); 
+	
+	// ! PIXIV — format the name to be WiseTagger-compatible
+	if (origin === "PX") {
+		var PXnumber = name.substring(0, name.indexOf('_p'));
+		var PXpage = name.substring(name.indexOf('_p') + 2);
 		var PXthumb = "";
 
 		if (PXpage.indexOf('master') > -1) {
 			PXpage = PXpage.substring(0, PXpage.indexOf('_master'));
-			PXthumb = " -THUMBNAIL!- "; 								// if user wants to save a rescaled thumbnail, add a tag
+			PXthumb = " -THUMBNAIL!- "; 						// if user wants to save a rescaled thumbnail, add a tag
 			sir.displayWarning(tabId, "You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
 		};
 
-		filename = "pixiv_" + PXnumber + PXthumb + " page_" + PXpage + " ";
+		name = "pixiv_" + PXnumber + PXthumb + " page_" + PXpage + " ";
 	} else {
-		filename = ""; 													// other than PIXIV we don't actually need any info from the filename
+		name = ""; 												// other than PIXIV we don't actually need any info from the name
 	};
+
+	return [name, ext];
+}
+
+function purifiedMerge(name, ext) {
+	name = name.replace(/  /g, ' '); 						// remove double spaces
+	name = name.replace(/[ ]$/g, '');						// remove trailing whitespaces
+	name = name.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '');	// make sure the modified name in general doesn't contain any illegal characters
+
+	if (name === "") name = "tagme"; 						// make sure the name is not left blank
+	if (ext.length > 5 || ext === "") ext = "maybe.jpeg";	// make sure that extention did not magically disappear or go out of bounds
 	
-	for (var i = 0; i < arrayOfTags.length; i++) {
-		filename += arrayOfTags[i].replace(/[ :]/g, '_') + " ";
-	};
-	if ((filename.indexOf(response.origin) === -1) && (filename.indexOf('drawfriends') === -1)) {
-		filename = response.origin + " " + filename;
-	};
-
-	filename = filename.replace(/  /g, ' '); 							// remove double spaces
-	filename = filename.replace(/[ ]$/g, '');							// remove trailing whitespaces
-	filename = filename.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '');		// make sure the modified filename in general doesn't contain any illegal characters
-
-	if (response.origin === "TW") {										// ! TWITTER — cleaning the filename from that trailing flag - for old TWITTER (pre Sep 2019)
-		if (ext.indexOf('large') > -1) { ext = ext.substring(0, ext.indexOf('large') - 1); }; 
-	};
-
-	if (ext.length > 5) { 												//additional check for various madness
-		return failOverName;
+	if (name.length + ext.length + 1 >= 255) {
+		name = name.substr(0, 230); 						// 230 is an arbitary number
+		name = name.substring(0, name.lastIndexOf(' '));	// substr - specified amount, substring - between the specified indices
 	}
 
-	if (filename === "") { 												// make sure the name is not left blank
-		filename = "tagme";
-	} else if (ext === "") { 											// also make sure that extention did not magically disappear
-		ext = "maybe.jpeg";
-	}
+	return (name + "." + ext);
+};
 
-	if (filename.length + ext.length + 1 >= 255) {
-		filename = filename.substr(0, 230); 							// 230 is an arbitary number
-		filename = filename.substring(0, filename.lastIndexOf(' '));	// substr - specified amount, substring - between the specified indices
-	}
+function nicelyTagIt(response, failOverName, tabId) { // gets name determined by browser, it will be used as a fallback - and also the response from content scripts
 
-	return (filename + "." + ext);
+	//console.log("nicelyTagIt commenced with the following parameters:\n failOverName: " + failOverName + "\n content script result: " + response.origin + " " + response.tags);
+	var filenameArray = parseFilename(failOverName, response.origin, tabId); // ! tabID is not used anywhere except here
+	var name = filenameArray[0],
+		ext = filenameArray[1];
+
+	var arrayOfTags = response.tags;
+	
+	for (let tag of arrayOfTags) {
+		name += tag.replace(/[ :]/g, '_') + " ";
+	};
+
+	if ((name.indexOf("@" + response.origin) === -1) && (name.indexOf('drawfriends') === -1)) {
+		name = response.origin + " " + name;
+	};
+
+	return purifiedMerge(name, ext, response.origin);
 };
 
 var sir = {
@@ -258,7 +262,11 @@ var sir = {
 			}
 		);
 	},
-	
+
+	dl: function (url, filename, referer) {
+		
+	},
+
 	dlWithTags: function (imageObject, tabId) {
 		chrome.tabs.sendMessage(tabId, { order: "giffTags", template: fileNameTemplate }, // ! tabId is an integer
 			function workWithThis(response) {
@@ -278,44 +286,30 @@ var sir = {
 						var resultingFilename = nicelyTagIt(response, failOverName, tabId); // tabId is only needed to display a warning if something goes afool
 
 						//console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
-
-						if (firefoxEnviroment) {
-							chrome.downloads.download({
-								url: imageObject.srcUrl,
-								saveAs: invokeSaveAs,
-								filename: resultingFilename,
-								headers: [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }]
-							}, function reportOnTrying() {
-								if (chrome.runtime.lastError) {
-									/*
-									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
-										console.log(chrome.runtime.lastError.message);
-									} else {
-										console.warn(chrome.runtime.lastError.message);
-									};
-									*/
-								};
-							});
-						} else if (response.origin === "PX") {
+						
+						if (!firefoxEnviroment && response.origin === "PX") {
 							sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
 							sir.invokeTagsField(tabId);
-						} else {
-							chrome.downloads.download({
-								url: imageObject.srcUrl,
-								saveAs: invokeSaveAs,
-								filename: resultingFilename,
-							}, function reportOnTrying() {
-								if (chrome.runtime.lastError) {
-									/*
-									if (chrome.runtime.lastError.message.indexOf('user') > -1) {
-										console.log(chrome.runtime.lastError.message);
-									} else {
-										console.warn(chrome.runtime.lastError.message);
-									}; 
-									*/
+							return;
+						};
+
+						chrome.downloads.download({
+							url: imageObject.srcUrl,
+							saveAs: invokeSaveAs,
+							filename: resultingFilename,
+							headers: (firefoxEnviroment ? ( [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }] ) : [])
+						}, function reportOnTrying() {
+							if (chrome.runtime.lastError) {
+								/*
+								if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+									console.log(chrome.runtime.lastError.message);
+								} else {
+									console.warn(chrome.runtime.lastError.message);
 								};
-							});
-						};	
+								*/
+							};
+						});
+
 					}
 				}
 			}
@@ -350,7 +344,7 @@ chrome.commands.onCommand.addListener(
 			chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
 				for (let tab of result) {
 					useDecoration = !useDecoration;
-					sir.setupConnection(tab.id, "Hightlight toggled.");
+					sir.setupConnection(tab.id, "Highlight toggled.");
 				}
 			});
 		}
@@ -361,10 +355,11 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an
 	switch (info.menuItemId) {
 	case 'saveSilently':
 		invokeSaveAs = !invokeSaveAs;
+
 		break;
 	case 'useDecoration':
 		useDecoration = !useDecoration;
-		sir.setupConnection(tab.id, "Hightlight toggled.");
+		sir.setupConnection(tab.id, "Highlight toggled.");
 		break;
 	case 'tmpl':
 		sir.promptTemplate(tab.id, fileNameTemplate);
