@@ -14,14 +14,37 @@ const hastagStyle = String.raw`
 	}
 	`;
 
+// TODO: learn how to do this properly
+function unstoppableQuery(selector) {
+	var trytofail = document.querySelector(selector);
+	if ( (trytofail === undefined || trytofail === null) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "";
+		trytofail = puppet;
+	};
+	return trytofail;
+};
+
+function unstoppableClasser(classSelector) {
+	var trytofail = document.getElementsByClassName(classSelector);
+	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "Tags:  tagme";
+		return [puppet];
+	};
+	return trytofail;
+};
+
 function getImageTags(template) {
 	var resultingTags = new Array;
-	var profilelink = document.querySelector('aside div.name a').href;
+	var profilelink = unstoppableQuery('aside div.name a').href;
 
 	var authorHandle = profilelink.substring(profilelink.lastIndexOf('/')+1);
-	var authorName = document.querySelector('aside div.name a').innerText;
-	var pictureName = document.querySelector('aside div h1.h3').innerText;
-	var tempArray = document.getElementsByClassName("tags")[0].innerText.substring(7).split('#');
+	var authorName = unstoppableQuery('aside div.name a').innerText;
+	var pictureName = unstoppableQuery('aside div h1.h3').innerText;
+	var tempArray = unstoppableClasser("tags")[0].innerText.substring(7).split('#');
 
 	template = template.replace(/\{handle\}/g, authorHandle.replace(/[ \n\t\r\v\f]/g, '-'));
 	template = template.replace(/\{OR\}/g, tagsOrigin);

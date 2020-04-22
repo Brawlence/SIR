@@ -14,14 +14,36 @@ const hastagStyle = String.raw`
 	}
 	`;
 
+function unstoppableQuery(selector) {
+	var trytofail = document.querySelector(selector);
+	if ( (trytofail === undefined || trytofail === null) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "";
+		trytofail = puppet;
+	};
+	return trytofail;
+};
+
+function unstoppableQueryA(selector) {
+	var trytofail = document.querySelectorAll(selector);
+	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "Tags:  tagme";
+		return [puppet];
+	};
+	return trytofail;
+};
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 
 
 	var authorHandle = document.URL.substring(document.URL.lastIndexOf('://')+3,document.URL.lastIndexOf('.tumblr'));
-	var authorName = document.querySelector("header div figcaption, header div h1 a").innerText; //it's either one or the other
+	var authorName = unstoppableQuery("header div figcaption, header div h1 a").innerText; //it's either one or the other
 	var pictureName = "";
-	var tempArray = document.querySelectorAll("[href*='/tagged/']");
+	var tempArray = unstoppableQueryA("[href*='/tagged/']");
 
 	template = template.replace(/\{handle\}/g, authorHandle.replace(/[ \n\t\r\v\f]/g, '-'));
 	template = template.replace(/\{OR\}/g, tagsOrigin);

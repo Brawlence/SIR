@@ -16,14 +16,36 @@ const hastagStyle = String.raw`
 	}
 	`;
 
+function unstoppableQuery(selector) {
+	var trytofail = document.querySelector(selector);
+	if ( (trytofail === undefined || trytofail === null) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "";
+		trytofail = puppet;
+	};
+	return trytofail;
+};
+
+function unstoppableQueryA(selector) {
+	var trytofail = document.querySelectorAll(selector);
+	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "Tags:  tagme";
+		return [puppet];
+	};
+	return trytofail;
+};
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 
 
-	var authorHandle = document.querySelector('aside section h2 div div a').innerText; // TODO: selectors need a failsafe to not stop in case one of them fail
+	var authorHandle = unstoppableQuery('aside section h2 div div a').innerText; // TODO: selectors need a failsafe to not stop in case one of them fail
 	var authorName = "";
-	var pictureName = document.querySelector('figcaption div div h1').innerText;
-	var tempArray = document.querySelectorAll('figcaption div footer ul li a');
+	var pictureName = unstoppableQuery('figcaption div div h1').innerText;
+	var tempArray = unstoppableQueryA('figcaption div footer ul li a');
 
 	template = template.replace(/\{handle\}/g, authorHandle.replace(/[ \n\t\r\v\f]/g, '-'));
 	template = template.replace(/\{OR\}/g, tagsOrigin);

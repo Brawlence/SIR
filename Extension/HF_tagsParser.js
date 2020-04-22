@@ -14,6 +14,17 @@ const hastagStyle = String.raw`
 	}
 	`;
 
+function unstoppableQueryA(selector) {
+	var trytofail = document.querySelectorAll(selector);
+	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "Tags:  tagme";
+		return [puppet];
+	};
+	return trytofail;
+};
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 	var urlDivided = document.URL.substring(document.URL.lastIndexOf('/user/')+6).split('/');	
@@ -21,7 +32,7 @@ function getImageTags(template) {
 	var authorHandle = urlDivided[0];
 	var authorName = "";
 	var pictureName = urlDivided[2];
-	var tempArray = document.querySelectorAll('div.boxbody td a[rel="tag"]');
+	var tempArray = unstoppableQueryA('div.boxbody td a[rel="tag"]');
 
 	template = template.replace(/\{handle\}/g, authorHandle.replace(/[ \n\t\r\v\f]/g, '-'));
 	template = template.replace(/\{OR\}/g, tagsOrigin);

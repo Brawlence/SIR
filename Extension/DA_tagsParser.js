@@ -15,6 +15,18 @@ const hastagStyle = String.raw`
 	}
 	`;
 
+// TODO: learn how to do this properly
+function unstoppableQueryA(selector) {
+	var trytofail = document.querySelectorAll(selector);
+	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "Tags:  tagme";
+		return [puppet];
+	};
+	return trytofail;
+};
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 
@@ -22,7 +34,7 @@ function getImageTags(template) {
 	var authorHandle = document.URL.substring(document.URL.lastIndexOf('.com/')+5,document.URL.lastIndexOf('/art/'));
 	var authorName = "";
 	var pictureName = document.URL.substring(document.URL.lastIndexOf('/art/')+5,document.URL.lastIndexOf('-'));
-	var tempArray = document.querySelectorAll("[href*='/tag/']");
+	var tempArray = unstoppableQueryA("[href*='/tag/']");
 
 	template = template.replace(/\{handle\}/g, authorHandle.replace(/[ \n\t\r\v\f]/g, '-'));
 	template = template.replace(/\{OR\}/g, tagsOrigin);
