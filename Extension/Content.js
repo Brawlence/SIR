@@ -67,8 +67,8 @@ function createTagsStringField(template) {
 	if (pick('sirArea') === null) {
 		var arrayOfTags = getImageTags(template);
 		var tagsString = "";
-		for (var i = 0; i < arrayOfTags.length; i++) {
-			tagsString += arrayOfTags[i].replace(/ /g, '_') + " ";
+		for (let tag of arrayOfTags) {
+			tagsString += tag.replace(/ /g, '_') + " ";
 		};
 
 		var allTheStyles = document.head.appendChild(fresh('style'));

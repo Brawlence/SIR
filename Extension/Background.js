@@ -8,7 +8,7 @@ var fileNameTemplate = "{handle}@{OR} {name} {caption} {tags}";
 
 function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 	let match = false;
-	const validityMap = [
+	const validSiteIDs = [
 		["PX", "pximg", 			"pixiv"],
 		["DF", "img.booru.org",		"drawfriends"],
 		["DA", "deviantart", 		"deviantart"],
@@ -20,8 +20,8 @@ function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 		["MW", "medicalwhiskey", 	"medicalwhiskey"]
 	];
 
-	for (var i = 0; i < validityMap.length; i++) {
-		if ((tagsOrigin.indexOf(validityMap[i][0])>-1) && ((imageHost.indexOf(validityMap[i][1])>-1) || (requesterPage.indexOf(validityMap[i][2])>-1))) {
+	for (let fingerprint of validSiteIDs) {
+		if ((tagsOrigin.indexOf(fingerprint[0])>-1) && ((imageHost.indexOf(fingerprint[1])>-1) || (requesterPage.indexOf(fingerprint[2])>-1))) {
 			match = true;
 			break;
 		}
@@ -84,13 +84,7 @@ function purifiedMerge(name, ext) {
 	return (name + "." + ext);
 };
 
-function nicelyTagIt(response, failOverName, tabId) { // gets name determined by browser, it will be used as a fallback - and also the response from content scripts
-
-	//console.log("nicelyTagIt commenced with the following parameters:\n failOverName: " + failOverName + "\n content script result: " + response.origin + " " + response.tags);
-	var filenameArray = parseFilename(failOverName, response.origin, tabId); // ! tabID is not used anywhere except here
-	var name = filenameArray[0],
-		ext = filenameArray[1];
-
+function addTags(response, name) {
 	var arrayOfTags = response.tags;
 	
 	for (let tag of arrayOfTags) {
@@ -101,7 +95,7 @@ function nicelyTagIt(response, failOverName, tabId) { // gets name determined by
 		name = response.origin + " " + name;
 	};
 
-	return purifiedMerge(name, ext, response.origin);
+	return name;
 };
 
 var sir = {
@@ -283,8 +277,10 @@ var sir = {
 
 						if (!validateAnswer(response.origin, imageHost, imageObject.pageUrl)) return;
 						
-						var resultingFilename = nicelyTagIt(response, failOverName, tabId); // tabId is only needed to display a warning if something goes afool
-
+						var filenameArray = parseFilename(failOverName, response.origin, tabId);
+						var name = addTags(response, filenameArray[0]),
+							ext = filenameArray[1];
+						var resultingFilename = purifiedMerge(name, ext, response.origin);
 						//console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
 						
 						if (!firefoxEnviroment && response.origin === "PX") {

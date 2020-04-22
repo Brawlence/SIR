@@ -16,8 +16,8 @@ function getImageTags(template) {
 	template = template.replace(/\{name\}/g, authorName.replace(/[ \n\t\r\v\f]/g, '-'));
 	template = template.replace(/\{caption\}/g, pictureName.replace(/[ \n\t\r\v\f]/g, '-'))
 
-	for (var i = 0; i < tempArray.length; i++) {
-		template = template.replace(/\{tags\}/g, tempArray[i] + ' {tags}');
+	for (let tag of tempArray) {
+		template = template.replace(/\{tags\}/g, tag + ' {tags}');
 	};
 	template = template.replace(/ \{tags\}/g, '');
 	
