@@ -7,15 +7,7 @@
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
-	"page_action": {
-		"default_icon": {
-			"16": "SIR_16x16.png",
-			"48": "SIR_48x48.png",
-			"128": "SIR_128x128.png"
-		},
-		"default_title": "SIR!"
-	},
-	"version": "1.2.1",
+	"version": "1.3.0",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [

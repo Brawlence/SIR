@@ -4,7 +4,7 @@
 "use strict";
 
 const lowerParagraph_text = String.raw`
-	<span>
+	<span class="dragable">
 		Select 'Get Tags String' again to close this window.
 	</span>
 	`;
@@ -17,9 +17,11 @@ const lowerParagraph_btns = String.raw`
 	">
 	📋
 	</button>
+	<!--
 	<button id="save" onclick="javascript:alert();">
 	💾
 	</button>
+	-->
 	<button onclick="javascript:
 		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
 	">
@@ -36,7 +38,20 @@ const sirBoxStyle = String.raw`
 		border-style: solid;
 		padding: 5px;
 		padding-bottom: 0px;
-		background-color: lightgray
+		background-color: lightgray;
+
+		touch-action: none;
+		user-select: none
+	}
+
+	div#sirArea:hover {
+		cursor: grab;
+		border-color: #506070
+	}
+
+	div#sirArea:active {
+		cursor: grabbing;
+		border-style: dashed
 	}
 
 	div#sirArea p span {
@@ -61,6 +76,78 @@ function pick(element) {
 
 function fresh(element) {
 	return document.createElement(element);
+};
+
+// dragging
+
+var active = false;
+var currentX, currentY, initialX, initialY;
+var xOffset = 0,
+	yOffset = 0;
+
+function setTranslate(xPos, yPos, el) {
+	el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+};
+
+function dragStart(e) {
+	if (e.type === "touchstart") {
+		initialX = e.touches[0].clientX - xOffset;
+		initialY = e.touches[0].clientY - yOffset;
+	} else {
+		initialX = e.clientX - xOffset;
+		initialY = e.clientY - yOffset;
+	};
+
+	if (e.target.className === "dragable") active = true;
+};
+
+function dragEnd(e) {
+	initialX = currentX;
+	initialY = currentY;
+	active = false;
+};
+
+function drag(e) {
+	if (active) {
+		e.preventDefault();
+		
+		if (e.type === "touchmove") {
+			currentX = e.touches[0].clientX - initialX;
+			currentY = e.touches[0].clientY - initialY;
+		} else {
+			currentX = e.clientX - initialX;
+			currentY = e.clientY - initialY;
+		}
+
+		xOffset = currentX;
+		yOffset = currentY;
+
+		setTranslate(currentX, currentY, pick('sirArea'));
+	}
+};
+
+function toggleDragable(state) {
+	switch (state) {
+		case true:
+			document.body.addEventListener("touchstart", dragStart, false);
+			document.body.addEventListener("touchend", dragEnd, false);
+			document.body.addEventListener("touchmove", drag, false);
+
+			document.body.addEventListener("mousedown", dragStart, false);
+			document.body.addEventListener("mouseup", dragEnd, false);
+			document.body.addEventListener("mousemove", drag, false);
+			break;
+	
+		default:
+			document.body.removeEventListener("touchstart", dragStart, false);
+			document.body.removeEventListener("touchend", dragEnd, false);
+			document.body.removeEventListener("touchmove", drag, false);
+
+			document.body.removeEventListener("mousedown", dragStart, false);
+			document.body.removeEventListener("mouseup", dragEnd, false);
+			document.body.removeEventListener("mousemove", drag, false);
+			break;
+	}
 };
 
 function setHighlight(neededState){
@@ -91,12 +178,14 @@ function createTagsStringField(template) {
 		const sirBox = document.body.appendChild(fresh('div'));
 			sirBox.id = "sirArea";
 			sirBox.style.top = (windowDisplacement + 20) + "px";
+			sirBox.className = "dragable";
 
 		const elderMagicField = pick('sirArea').appendChild(fresh('textarea'));
 			elderMagicField.id = "elderMagicField";
 			elderMagicField.value = tagsString;
 
 		const lowerParagraph = pick('sirArea').appendChild(fresh('p'));
+			lowerParagraph.className = "dragable";
 		if ((tagsOrigin==="TU")|(tagsOrigin==="TW")) {
 			lowerParagraph.innerHTML = lowerParagraph_text;
 			pick('elderMagicField').focus();
@@ -105,9 +194,11 @@ function createTagsStringField(template) {
 			lowerParagraph.innerHTML = lowerParagraph_btns;
 			pick('c-and-h').focus();
 		};
+		toggleDragable(true);
 	} else {
 		pick('sirArea').parentElement.removeChild(pick('sirArea'));
 		document.head.removeChild(pick('sir-box-style'));
+		toggleDragable(false);
 	}
 };
 
