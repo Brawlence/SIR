@@ -2,6 +2,18 @@
 var tagsOrigin = "TU";
 var windowDisplacement = 0;
 
+/* Sad tumblr noises */
+const hastagStyle = String.raw`
+	a[href*='/tagged/'] {
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.5,.1,.7,.5);
+		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
+	}
+	`;
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 
@@ -23,22 +35,4 @@ function getImageTags(template) {
 	
 	resultingTags = template.split(' ');
 	return resultingTags;
-};
-
-function setHighlight(neededState){
-	if (neededState && (document.getElementById('sir-style') === null)) {
-		var styleSir = document.createElement('style');
-			styleSir.type = "text/css";
-			styleSir.id = "sir-style";
-			styleSir.innerHTML =
-				"a[href*='/tagged/'] {\
-					border-width: 2px;\
-					border-style: dotted;\
-					border-color: lightpink;\
-				}";
-		document.head.appendChild(styleSir);
-	};
-	if ((!neededState) && document.getElementById('sir-style')) {
-		document.head.removeChild(document.getElementById('sir-style'));
-	}
 };

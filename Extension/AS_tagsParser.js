@@ -2,6 +2,18 @@
 var tagsOrigin = "AS";
 var windowDisplacement = 90;
 
+/* FINALLY - an Artstation tag is a link (a) inside a div with tags class - it's complete with a hash sign */
+const hastagStyle = String.raw`
+	div.tags a {
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.5,.1,.7,.5);
+		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
+	}
+	`;
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 	var profilelink = document.querySelector('aside div.name a').href;
@@ -23,22 +35,4 @@ function getImageTags(template) {
 	
 	resultingTags = template.split(' ');
 	return resultingTags;
-};
-
-function setHighlight(neededState){
-	if (neededState && (document.getElementById('sir-style') === null)) {
-		var styleSir = document.createElement('style');
-			styleSir.type = "text/css";
-			styleSir.id = "sir-style";
-			styleSir.innerHTML = /* FINALLY - an Artstation tag is a link (a) inside a div with tags class - it's complete with a hash sign */
-				"div.tags a {\
-					border-width: 2px;\
-					border-style: dotted;\
-					border-color: lightpink;\
-				}";
-		document.head.appendChild(styleSir);
-	};
-	if ((!neededState) && document.getElementById('sir-style')) {
-		document.head.removeChild(document.getElementById('sir-style'));
-	}
 };

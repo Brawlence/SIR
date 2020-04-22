@@ -2,6 +2,20 @@
 var tagsOrigin = "PX";
 var windowDisplacement = 0;
 
+/* author's handle, the name of the picture, tags - with enlish translation following, no hash*/
+const hastagStyle = String.raw`
+	aside section h2 div div a,
+	figcaption div h1,
+	figcaption div footer ul li {
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.5,.1,.7,.5);
+		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
+	}
+	`;
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 
@@ -23,24 +37,4 @@ function getImageTags(template) {
 
 	resultingTags = template.split(' ');
 	return resultingTags;
-};
-
-function setHighlight(neededState){
-	if (neededState && (document.getElementById('sir-style') === null)) {
-		var styleSir = document.createElement('style');
-			styleSir.type = "text/css";
-			styleSir.id = "sir-style";
-			styleSir.innerHTML = /* author's handle, the name of the picture, tags - with enlish translation following, no hash*/
-				"aside section h2 div div a,\
-				figcaption div h1,\
-				figcaption div footer ul li {\
-					border-width: 2px;\
-					border-style: dotted;\
-					border-color: lightpink;\
-				}";
-		document.head.appendChild(styleSir);
-	};
-	if ((!neededState) && document.getElementById('sir-style')) {
-		document.head.removeChild(document.getElementById('sir-style'));
-	}
 };

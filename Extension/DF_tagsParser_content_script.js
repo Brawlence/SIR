@@ -1,6 +1,20 @@
 "use strict";
 var tagsOrigin = "DF";
 
+/* Drawfriends has a pretty easy structure:
+	div class="sidebar" contains a div class="tag_list",
+	containing list in which are separate links which are tags */
+const hastagStyle = String.raw`
+	div#tag_list li a {
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.5,.1,.7,.5);
+		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
+	}
+	`;
+
 // Drawfriends is a special case because it already HAS a field with all the tags.
 function getImageTags(template) {
 	var resultingTags = new Array;
@@ -49,19 +63,11 @@ function createTagsStringField() {
 };
 
 function setHighlight(neededState){
-	/* Drawfriends has a pretty easy structure:
-	div class="sidebar" contains a div class="tag_list",
-	containing list in which are separate links which are tags */
-	if (neededState && (document.getElementById('sir-style') === null)) {
+		if (neededState && (document.getElementById('sir-style') === null)) {
 		var styleSir = document.createElement('style');
 			styleSir.type = "text/css";
 			styleSir.id = "sir-style";
-			styleSir.innerHTML = 
-				"div#tag_list li a { \
-					border-width: 2px; \
-					border-style: dotted; \
-					border-color: lightpink; \
-				};"
+			styleSir.innerHTML = hastagStyle;
 		document.head.appendChild(styleSir);
 	};
 	if ((!neededState) && document.getElementById('sir-style')) {

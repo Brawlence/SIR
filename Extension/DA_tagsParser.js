@@ -2,6 +2,19 @@
 var tagsOrigin = "DA";
 var windowDisplacement = 0;
 
+/* Deviantart tag - usual is prefixed by a hashsign + with Eclipse on, no hashsign */
+const hastagStyle = String.raw`
+	div.dev-title-container a.discoverytag,
+	a[href*='/tag/'] {
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.5,.1,.7,.5);
+		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
+	}
+	`;
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 
@@ -23,23 +36,4 @@ function getImageTags(template) {
 	
 	resultingTags = template.split(' ');
 	return resultingTags;
-};
-
-function setHighlight(neededState){
-	if (neededState && (document.getElementById('sir-style') === null)) {
-		var styleSir = document.createElement('style');
-			styleSir.type = "text/css";
-			styleSir.id = "sir-style";
-			styleSir.innerHTML = /* Deviantart tag - usual is prefixed by a hashsign + with Eclipse on, no hashsign */
-				"div.dev-title-container a.discoverytag,\
-				a[href*='/tag/'] {\
-					border-width: 2px;\
-					border-style: dotted;\
-					border-color: lightpink;\
-				}";
-		document.head.appendChild(styleSir);
-	};
-	if ((!neededState) && document.getElementById('sir-style')) {
-		document.head.removeChild(document.getElementById('sir-style'));
-	}
 };

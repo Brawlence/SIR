@@ -1,6 +1,21 @@
 "use strict";
 var tagsOrigin = "VA";
 
+
+/* Vidiyaart is a clone of drawfriends:
+div class="sidebar" contains a div class="tag_list",
+containing list in which are separate links which are tags */
+const hastagStyle = String.raw`
+	div#tag_list li a {
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.5,.1,.7,.5);
+		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
+	}
+	`;
+
 // Vidiyart already HAS a field with all the tags.
 function getImageTags(template) {
 	var resultingTags = new Array;
@@ -49,19 +64,11 @@ function createTagsStringField() {
 };
 
 function setHighlight(neededState){
-	/* Vidiyaart is a clone of drawfriends:
-	div class="sidebar" contains a div class="tag_list",
-	containing list in which are separate links which are tags */
 	if (neededState && (document.getElementById('sir-style') === null)) {
 		var styleSir = document.createElement('style');
 			styleSir.type = "text/css";
 			styleSir.id = "sir-style";
-			styleSir.innerHTML = 
-				"div#tag_list li a { \
-					border-width: 2px; \
-					border-style: dotted; \
-					border-color: lightpink; \
-				};"
+			styleSir.innerHTML = hastagStyle;
 		document.head.appendChild(styleSir);
 	};
 	if ((!neededState) && document.getElementById('sir-style')) {

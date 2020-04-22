@@ -7,6 +7,9 @@ const hastagStyle = String.raw`
 		border-width: 2px;
 		border-style: dotted;
 		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.55,.085,.68,.53);
+		-webkit-transition:all .2s cubic-bezier(.55,.085,.68,.53)
 	}
 	`;
 
@@ -31,16 +34,4 @@ function getImageTags(template) {
 	
 	resultingTags = template.split(' ');
 	return resultingTags;
-};
-
-function setHighlight(neededState){
-	if (neededState && (document.getElementById('sir-style') === null)) {
-		var styleSir = document.head.appendChild(document.createElement('style'));
-			styleSir.type = "text/css";
-			styleSir.id = "sir-style";
-			styleSir.innerHTML = hastagStyle;
-	};
-	if ((!neededState) && document.getElementById('sir-style')) {
-		document.head.removeChild(document.getElementById('sir-style'));
-	}
 };

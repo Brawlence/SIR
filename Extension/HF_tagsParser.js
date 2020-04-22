@@ -2,6 +2,18 @@
 var tagsOrigin = "HF";
 var windowDisplacement = 0;
 
+/* Those are called "Keywords" on HF */
+const hastagStyle = String.raw`
+	div.boxbody td a[rel='tag'] {
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.5,.1,.7,.5);
+		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
+	}
+	`;
+
 function getImageTags(template) {
 	var resultingTags = new Array;
 	var urlDivided = document.URL.substring(document.URL.lastIndexOf('/user/')+6).split('/');	
@@ -23,22 +35,4 @@ function getImageTags(template) {
 	
 	resultingTags = template.split(' ');
 	return resultingTags;
-};
-
-function setHighlight(neededState){
-	if (neededState && (document.getElementById('sir-style') === null)) {
-		var styleSir = document.createElement('style');
-			styleSir.type = "text/css";
-			styleSir.id = "sir-style";
-			styleSir.innerHTML = /* Those are called "Keywords" on HF */
-				"div.boxbody td a[rel='tag'] {\
-					border-width: 2px;\
-					border-style: dotted;\
-					border-color: lightpink;\
-				}";
-		document.head.appendChild(styleSir);
-	};
-	if ((!neededState) && document.getElementById('sir-style')) {
-		document.head.removeChild(document.getElementById('sir-style'));
-	}
 };

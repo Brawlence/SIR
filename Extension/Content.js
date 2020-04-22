@@ -63,6 +63,18 @@ function fresh(element) {
 	return document.createElement(element);
 };
 
+function setHighlight(neededState){
+	if (neededState && (pick('sir-style') === null)) {
+		var styleSir = document.head.appendChild(fresh('style'));
+			styleSir.type = "text/css";
+			styleSir.id = "sir-style";
+			styleSir.innerHTML = hastagStyle;
+	};
+	if ((!neededState) && pick('sir-style')) {
+		document.head.removeChild(pick('sir-style'));
+	}
+};
+
 function createTagsStringField(template) {
 	if (pick('sirArea') === null) {
 		var arrayOfTags = getImageTags(template);
