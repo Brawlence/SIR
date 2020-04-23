@@ -9,15 +9,16 @@ var fileNameTemplate = "{handle}@{OR} {name} {caption} {tags}";
 function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 	let match = false;
 	const validSiteIDs = [
-		["PX", "pximg", 			"pixiv"],
-		["DF", "img.booru.org",		"drawfriends"],
-		["DA", "deviantart", 		"deviantart"],
-		["TW", "twimg", 			"twitter"],
-		["AS", "artstation", 		"artstation"],
-		["HF", "hentai-foundry", 	"hentai-foundry"],
-		["TU", "tumblr", 			"tumblr"],
-		["VA", "img.booru.org",		"vidyart"],
-		["MW", "medicalwhiskey", 	"medicalwhiskey"]
+		["PX", "pximg",			"pixiv"],
+		["DF", "img.booru.org",	"drawfriends"],
+		["DA", "deviantart",	"deviantart"],
+		["TW", "twimg",			"twitter"],
+		["AS", "artstation",	"artstation"],
+		["HF", "hentai-foundry","hentai-foundry"],
+		["TU", "tumblr", 		"tumblr"],
+		["VA", "img.booru.org",	"vidyart"],
+		["MW", "medicalwhiskey","medicalwhiskey"],
+		["DB", "danbooru",		"danbooru"]
 	];
 
 	for (let fingerprint of validSiteIDs) {

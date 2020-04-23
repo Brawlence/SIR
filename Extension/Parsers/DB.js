@@ -1,8 +1,8 @@
 "use strict";
-var tagsOrigin = "VA";
+var tagsOrigin = "DB";
 var windowDisplacement = 0;
 
-const styleTargets = "div#tag_list li a";
+const styleTargets = "aside section a.search-tag";
 
 function getAuthorHandle() {
 	return safeQuery('aside section ul.artist-tag-list a.search-tag').innerText;

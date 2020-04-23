@@ -8,7 +8,8 @@ var Links_to_test = [
     "http://medicalwhiskey.com/?p=12513",
     "https://www.pixiv.net/artworks/79196939",
     "https://twitter.com/ToyNewsInterna1/status/1222547463002681344",
-    "https://blurryken.tumblr.com/post/185528821532/do-you-want-to-share-a-bubble-tea-with-me"
+    "https://blurryken.tumblr.com/post/185528821532/do-you-want-to-share-a-bubble-tea-with-me",
+    "https://danbooru.donmai.us/posts/3278046,json"
 ];
 
-for (let link in Links_to_test) { window.open(link,"_blank"); };
+for (let link of Links_to_test) { window.open(link,"_blank"); };

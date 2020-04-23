@@ -17,7 +17,7 @@ function getAuthorName() {
 	return "";
 };
 
-// FIXME: hack, returning drawfriendID in the pictureName category
+// FIXME: hack, returning ID in the pictureName category
 function getPictureName() {
 	var lefter = safeQuery('div [id="tag_list"]').innerText.trim();
 	return 	"drawfriends_" + lefter.substring(lefter.indexOf('Id: ') + 4, lefter.indexOf('\nPosted: ')); //add the drawfriends_ ID to the tags array

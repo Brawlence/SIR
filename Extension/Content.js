@@ -95,6 +95,7 @@ function safeQuery(selector) {
 		var puppet = new Object;
 		puppet.href = "";
 		puppet.innerText = "";
+		puppet.innerHTML = "";
 		trytofail = puppet;
 	};
 	return trytofail;
@@ -106,6 +107,7 @@ function safeQueryA(selector) {
 		var puppet = new Object;
 		puppet.href = "";
 		puppet.innerText = "tagme";
+		puppet.innerHTML = "";
 		return [puppet];
 	};
 	return trytofail;
@@ -117,6 +119,7 @@ function safeGetByClass(classSelector) {
 		var puppet = new Object;
 		puppet.href = "";
 		puppet.innerText = "       tagme";
+		puppet.innerHTML = "";
 		return [puppet];
 	};
 	return trytofail;

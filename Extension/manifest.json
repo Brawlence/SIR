@@ -14,52 +14,52 @@
 		{
 			"matches": ["*://*.deviantart.com/*"],
 			"run_at": "document_end",
-			"js": ["DA_tagsParser.js", "Content.js"]
+			"js": ["Parsers/DA.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.artstation.com/*"],
 			"run_at": "document_end",
-			"js": ["AS_tagsParser.js", "Content.js"]
+			"js": ["Parsers/AS.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
 			"run_at": "document_end",
-			"js": ["PX_tagsParser.js", "Content.js"]
+			"js": ["Parsers/PX.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.tumblr.com/post/*", "*://*.tumblr.com/image/*"],
 			"run_at": "document_end",
-			"js": ["TU_tagsParser.js", "Content.js"]
+			"js": ["Parsers/TU.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.twitter.com/*", "*://*.twimg.com/*"],
 			"run_at": "document_end",
-			"js": ["TW_tagsParser.js", "Content.js"]
+			"js": ["Parsers/TW.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.hentai-foundry.com/*"],
 			"run_at": "document_end",
-			"js": ["HF_tagsParser.js", "Content.js"]
+			"js": ["Parsers/HF.js", "Content.js"]
 		},
 		{
 			"matches": ["*://drawfriends.booru.org/*s=view*"],
 			"run_at": "document_end",
-			"js": ["DF_tagsParser.js", "Content.js"]
+			"js": ["Parsers/DF.js", "Content.js"]
 		},
 		{
 			"matches": ["*://vidyart.booru.org/*s=view*"],
 			"run_at": "document_end",
-			"js": ["VA_tagsParser.js", "Content.js"]
+			"js": ["Parsers/VA.js", "Content.js"]
 		},
 		{
 			"matches": ["*://danbooru.donmai.us/posts/*"],
 			"run_at": "document_end",
-			"js": ["DB_tagsParser.js", "Content.js"]
+			"js": ["Parsers/DB.js", "Content.js"]
 		},
 		{
 			"matches": ["*://medicalwhiskey.com/?p=*"],
 			"run_at": "document_end",
-			"js": ["MW_tagsParser.js", "Content.js"]
+			"js": ["Parsers/MW.js", "Content.js"]
 		}
 	],
 	"background": {
