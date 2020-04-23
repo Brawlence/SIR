@@ -13,7 +13,7 @@ The result by default looks like:
 
 `uniq_ID Author_handle@OR Author-Name Picture-Title tag another_tag tag_episode-2 tag&replaced_spaces.ext`,
 
-where `OR` (origin) is based on a name of the supported site as follows: **A**rt**S**tation, **D**eviant**A**rt, **D**raw**F**riends, **H**entai-**F**oundry, **P**i**X**iv, **TU**mblr, **TW**itter, **M**edical**W**hiskey, **V**idy**A**rt.
+where `OR` (origin) is based on a name of the supported site as follows: **A**rt**S**tation, **D**eviant**A**rt, **D**raw**F**riends, **H**entai-**F**oundry, **P**i**X**iv, **TU**mblr, **TW**itter, **M**edical**W**hiskey, **V**idy**A**rt, **D**an**B**ooru.
 
 The resulting filename is compatible with https://github.com/0xb8/WiseTagger/issues/1 and can be further tweaked by specifying a *custom template* through the extension context menu.
 
@@ -58,8 +58,7 @@ To install and run the latest (non stable) version of this extension, follow the
 
 ## Planned features and TODO ##
 - Implement an 'Options' page (page action) and store persistent user options
-- Add yande.re, danbooru to the list of supported sites
-- Further refactor the tag parser code
+- Add yande.re to the list of supported sites
 
 ## Known bugs ##
 - *Twitter* - in the timeline, unrelated tags are fetched from the whole page. Please save from individual post page for now.

@@ -49,7 +49,12 @@
 		{
 			"matches": ["*://vidyart.booru.org/*s=view*"],
 			"run_at": "document_end",
-			"js": ["VA_tagsParser_content_script.js"]
+			"js": ["VA_tagsParser.js", "Content.js"]
+		},
+		{
+			"matches": ["*://danbooru.donmai.us/posts/*"],
+			"run_at": "document_end",
+			"js": ["DB_tagsParser.js", "Content.js"]
 		},
 		{
 			"matches": ["*://medicalwhiskey.com/?p=*"],

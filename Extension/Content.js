@@ -1,7 +1,8 @@
-// A unified content script for almost ALL the sites
+// A unified content script for ALL the sites
+//debugger;
 "use strict";
 
-const highlightStyle = String.raw`
+const sirHighlightStyle = String.raw`
 	{
 		border-width: 2px;
 		border-style: dotted;
@@ -129,7 +130,9 @@ function getNameBy(template) {
 	template = template.replace(/\{name\}/g, getAuthorName());
 	template = template.replace(/\{caption\}/g, getPictureName());
 	template = template.replace(/\{tags\}/g, getTags());
-	
+
+	template = template.replace(/[ ]{1,4}/g, ' ');
+
 	return template;
 };
 
@@ -214,7 +217,7 @@ function setHighlight(neededState){
 		var styleSir = document.head.appendChild(fresh('style'));
 			styleSir.type = "text/css";
 			styleSir.id = "sir-style";
-			styleSir.innerHTML = styleTargets + highlightStyle;
+			styleSir.innerHTML = styleTargets + sirHighlightStyle;
 	};
 	if ((!neededState) && pick('sir-style')) {
 		document.head.removeChild(pick('sir-style'));
@@ -257,14 +260,14 @@ function createTagsStringField(template) {
 };
 
 chrome.runtime.onMessage.addListener(
-	function(request, sender, sendResponse) {
+	function(request, _sender, sendResponse) {
 		switch (request.order) {
 			case 'ping':
 				sendResponse({message: true, origin: tagsOrigin});
 				setHighlight(request.useDecor);
 				break;
 			case 'giffTags':
-				sendResponse({tags: getNameBy(request.template), origin: tagsOrigin});
+				sendResponse({tagString: getNameBy(request.template), origin: tagsOrigin});
 				break;
 			case 'getTagsString':
 				createTagsStringField(request.template);

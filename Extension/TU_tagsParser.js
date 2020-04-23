@@ -17,9 +17,9 @@ function getPictureName() {
 };
 
 function getTags() {
-	var tagArray = [];
+	var tagString = " ";
 	for (let tag of safeQueryA("[href*='/tagged/']")) {
-		tagArray.push(tag.innerText.replace(/[#]/g, ''));
+		tagString += tag.innerText.replace(/[#]/g, '') + " ";
 	};
-	return tagArray;
+	return tagString.replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');
 };

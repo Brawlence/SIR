@@ -81,6 +81,8 @@ function purifiedMerge(name, ext) {
 		name = name.substring(0, name.lastIndexOf(' '));	// substr - specified amount, substring - between the specified indices
 	}
 
+	name = name.trim();
+
 	return (name + "." + ext);
 };
 

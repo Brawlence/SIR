@@ -1,14 +1,14 @@
 "use strict";
-var tagsOrigin = "DF";
+var tagsOrigin = "VA";
 var windowDisplacement = 0;
 
 const styleTargets = "div#tag_list li a";
 
 function getAuthorHandle() {
-	// all the tags are inside a hidden text field
+	// Vidiyart already HAS a field with all the tags.
 	var	tempString = safeQuery('td textarea[id="tags"]').innerHTML;
 	if (tempString.indexOf('artist') > -1 || tempString.indexOf('colorist') > -1 ) {
-		return tempString.match(/\w+?_\((art|color)ist\)/g).join('+').replace(/_\((art|color)ist\)/g, '');
+		return tempString.match(/(art|color)ist\:([^\s\n\r]+)/g).join('+').replace(/(art|color)ist\:/g, '');
 	};
 	return "";
 };
@@ -23,7 +23,7 @@ function getPictureName() {
 	return 	"drawfriends_" + lefter.substring(lefter.indexOf('Id: ') + 4, lefter.indexOf('\nPosted: ')); //add the drawfriends_ ID to the tags array
 };
 
-/* Drawfriends has a pretty easy structure: div class="sidebar" contains a div class="tag_list", 	containing list in which are separate links which are tags */
+/* Vidiyaart is a clone of drawfriends: div class="sidebar" contains a div class="tag_list", containing list in which are separate links which are tags */
 function getTags() {
 	var	tempString = safeQuery('td textarea[id="tags"]').innerHTML;
 	return tempString.replace(/\s?(\w+?)_\((art|color)ist\)/g, '').replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');

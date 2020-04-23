@@ -19,9 +19,9 @@ function getPictureName() {
 
 // with enlish translation following, no hash
 function getTags() {
-	var tagArray = [];
+	var tagString = " ";
 	for (let tag of safeQueryA('figcaption div footer ul li a')) {
-		tagArray.push(tag.innerText.replace(/ /g, '_'));
+		tagString += tag.innerText.replace(/[ ]/g, '_') + " ";
 	};
-	return tagArray;
+	return tagString.replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');
 };
