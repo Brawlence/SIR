@@ -2,48 +2,26 @@
 var tagsOrigin = "HF";
 var windowDisplacement = 0;
 
-/* Those are called "Keywords" on HF */
-const hastagStyle = String.raw`
-	div.boxbody td a[rel='tag'] {
-		border-width: 2px;
-		border-style: dotted;
-		border-color: lightpink;
+const styleTargets = "div.boxbody td a[rel='tag']";
 
-		transition:all .2s cubic-bezier(.5,.1,.7,.5);
-		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
-	}
-	`;
-
-function unstoppableQueryA(selector) {
-	var trytofail = document.querySelectorAll(selector);
-	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
-		var puppet = new Object;
-		puppet.href = "";
-		puppet.innerText = "Tags:  tagme";
-		return [puppet];
-	};
-	return trytofail;
+var urlDivided = document.URL.substring(document.URL.lastIndexOf('/user/')+6).split('/');
+function getAuthorHandle() {
+	return urlDivided[0].replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
 };
 
-function getImageTags(template) {
-	var resultingTags = new Array;
-	var urlDivided = document.URL.substring(document.URL.lastIndexOf('/user/')+6).split('/');	
-	
-	var authorHandle = urlDivided[0];
-	var authorName = "";
-	var pictureName = urlDivided[2];
-	var tempArray = unstoppableQueryA('div.boxbody td a[rel="tag"]');
+function getAuthorName() {
+	return "";
+};
 
-	template = template.replace(/\{handle\}/g, authorHandle.replace(/[ \n\t\r\v\f]/g, '-'));
-	template = template.replace(/\{OR\}/g, tagsOrigin);
-	template = template.replace(/\{name\}/g, authorName.replace(/[ \n\t\r\v\f]/g, '-'));
-	template = template.replace(/\{caption\}/g, pictureName.replace(/[ \n\t\r\v\f]/g, '-'))
+function getPictureName() {
+	return urlDivided[2].replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
+};
 
-	for (let tag of tempArray) {
-		template = template.replace(/\{tags\}/g, tag.innerText.replace(/[#]/g, '') + ' {tags}');
+/* Those are called "Keywords" on HF */
+function getTags() {
+	var tagArray = [];
+	for (let tag of safeQueryA('div.boxbody td a[rel="tag"]')) {
+		tagArray.push(tag.innerText.replace(/[#]/g, ''));
 	};
-	template = template.replace(/ \{tags\}/g, '');
-	
-	resultingTags = template.split(' ');
-	return resultingTags;
+	return tagArray;
 };

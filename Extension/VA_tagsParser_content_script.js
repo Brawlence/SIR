@@ -5,7 +5,7 @@ var tagsOrigin = "VA";
 /* Vidiyaart is a clone of drawfriends:
 div class="sidebar" contains a div class="tag_list",
 containing list in which are separate links which are tags */
-const hastagStyle = String.raw`
+const highlightStyle = String.raw`
 	div#tag_list li a {
 		border-width: 2px;
 		border-style: dotted;
@@ -17,7 +17,7 @@ const hastagStyle = String.raw`
 	`;
 
 // Vidiyart already HAS a field with all the tags.
-function getImageTags(template) {
+function getFormattedTags(template) {
 	var resultingTags = new Array;
 	var	tempString = document.querySelector('td textarea[id="tags"]').innerHTML;
 	if (template.indexOf('@{OR}') > -1) { // TODO: FIX THIS to a proper template renaming
@@ -68,7 +68,7 @@ function setHighlight(neededState){
 		var styleSir = document.createElement('style');
 			styleSir.type = "text/css";
 			styleSir.id = "sir-style";
-			styleSir.innerHTML = hastagStyle;
+			styleSir.innerHTML = highlightStyle;
 		document.head.appendChild(styleSir);
 	};
 	if ((!neededState) && document.getElementById('sir-style')) {
@@ -84,7 +84,7 @@ chrome.runtime.onMessage.addListener(
 				setHighlight(request.useDecor);
 				break;
 			case 'giffTags':
-				sendResponse({tags: getImageTags(request.template), origin: tagsOrigin});
+				sendResponse({tags: getFormattedTags(request.template), origin: tagsOrigin});
 				break;
 			case 'getTagsString':
 				createTagsStringField();

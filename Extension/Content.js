@@ -1,35 +1,18 @@
 // A unified content script for almost ALL the sites
-// relies on defined getImageTags() and constants in XX_tagsParser.js
-
 "use strict";
 
-const lowerParagraph_text = String.raw`
-	<span class="dragable">
-		Select 'Get Tags String' again to close this window.
-	</span>
+const highlightStyle = String.raw`
+	{
+		border-width: 2px;
+		border-style: dotted;
+		border-color: lightpink;
+
+		transition:all .2s cubic-bezier(.5,.1,.7,.5);
+		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
+	}
 	`;
 
-const lowerParagraph_btns = String.raw`
-	<button id="c-and-h" onclick="javascript:
-		document.getElementById('elderMagicField').select();
-		document.execCommand('copy');
-		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
-	">
-	📋
-	</button>
-	<!--
-	<button id="save" onclick="javascript:alert();">
-	💾
-	</button>
-	-->
-	<button onclick="javascript:
-		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
-	">
-	🚫
-	</button>
-	`;
-
-const sirBoxStyle = String.raw`
+	const sirBoxStyle = String.raw`
 	div#sirArea {
 		left: 20px;
 		position: fixed;
@@ -70,6 +53,32 @@ const sirBoxStyle = String.raw`
 	}
 	`;
 
+const lowerParagraph_text = String.raw`
+	<span class="dragable">
+		Select 'Get Tags String' again to close this window.
+	</span>
+	`;
+
+const lowerParagraph_btns = String.raw`
+	<button id="c-and-h" onclick="javascript:
+		document.getElementById('elderMagicField').select();
+		document.execCommand('copy');
+		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
+	">
+	📋
+	</button>
+	<!--
+	<button id="save" onclick="javascript:alert();">
+	💾
+	</button>
+	-->
+	<button onclick="javascript:
+		document.getElementById('sirArea').parentElement.removeChild(document.getElementById('sirArea'));
+	">
+	🚫
+	</button>
+	`;
+
 function pick(element) {
 	return document.getElementById(element);
 };
@@ -78,9 +87,54 @@ function fresh(element) {
 	return document.createElement(element);
 };
 
-// dragging
+// TODO: learn how to do this properly
+function safeQuery(selector) {
+	var trytofail = document.querySelector(selector);
+	if ( (trytofail === undefined || trytofail === null) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "";
+		trytofail = puppet;
+	};
+	return trytofail;
+};
 
-var active = false;
+function safeQueryA(selector) {
+	var trytofail = document.querySelectorAll(selector);
+	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "tagme";
+		return [puppet];
+	};
+	return trytofail;
+};
+
+function safeGetByClass(classSelector) {
+	var trytofail = document.getElementsByClassName(classSelector);
+	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
+		var puppet = new Object;
+		puppet.href = "";
+		puppet.innerText = "       tagme";
+		return [puppet];
+	};
+	return trytofail;
+};
+
+// relies on defined get...() functions in XX_tagsParser.js
+function getNameBy(template) {
+
+	template = template.replace(/\{handle\}/g, getAuthorHandle());
+	template = template.replace(/\{OR\}/g, tagsOrigin);
+	template = template.replace(/\{name\}/g, getAuthorName());
+	template = template.replace(/\{caption\}/g, getPictureName());
+	template = template.replace(/\{tags\}/g, getTags());
+	
+	return template;
+};
+
+// ! Drag-able elderMagicField 
+var dragging = false;
 var currentX, currentY, initialX, initialY;
 var xOffset = 0,
 	yOffset = 0;
@@ -98,17 +152,17 @@ function dragStart(e) {
 		initialY = e.clientY - yOffset;
 	};
 
-	if (e.target.className === "dragable") active = true;
+	if (e.target.className === "dragable") dragging = true;
 };
 
 function dragEnd(e) {
 	initialX = currentX;
 	initialY = currentY;
-	active = false;
+	dragging = false;
 };
 
 function drag(e) {
-	if (active) {
+	if (dragging) {
 		e.preventDefault();
 		
 		if (e.type === "touchmove") {
@@ -146,16 +200,21 @@ function toggleDragable(state) {
 			document.body.removeEventListener("mousedown", dragStart, false);
 			document.body.removeEventListener("mouseup", dragEnd, false);
 			document.body.removeEventListener("mousemove", drag, false);
+			xOffset = 0;
+			yOffset = 0;
+			dragging = false;
 			break;
 	}
 };
+
+// Drag-able end 
 
 function setHighlight(neededState){
 	if (neededState && (pick('sir-style') === null)) {
 		var styleSir = document.head.appendChild(fresh('style'));
 			styleSir.type = "text/css";
 			styleSir.id = "sir-style";
-			styleSir.innerHTML = hastagStyle;
+			styleSir.innerHTML = styleTargets + highlightStyle;
 	};
 	if ((!neededState) && pick('sir-style')) {
 		document.head.removeChild(pick('sir-style'));
@@ -164,11 +223,6 @@ function setHighlight(neededState){
 
 function createTagsStringField(template) {
 	if (pick('sirArea') === null) {
-		var arrayOfTags = getImageTags(template);
-		var tagsString = "";
-		for (let tag of arrayOfTags) {
-			tagsString += tag.replace(/ /g, '_') + " ";
-		};
 
 		var allTheStyles = document.head.appendChild(fresh('style'));
 			allTheStyles.type = "text/css";
@@ -182,7 +236,7 @@ function createTagsStringField(template) {
 
 		const elderMagicField = pick('sirArea').appendChild(fresh('textarea'));
 			elderMagicField.id = "elderMagicField";
-			elderMagicField.value = tagsString;
+			elderMagicField.value = getNameBy(template);
 
 		const lowerParagraph = pick('sirArea').appendChild(fresh('p'));
 			lowerParagraph.className = "dragable";
@@ -203,14 +257,14 @@ function createTagsStringField(template) {
 };
 
 chrome.runtime.onMessage.addListener(
-	function(request, _sender, sendResponse) {
+	function(request, sender, sendResponse) {
 		switch (request.order) {
 			case 'ping':
 				sendResponse({message: true, origin: tagsOrigin});
 				setHighlight(request.useDecor);
 				break;
 			case 'giffTags':
-				sendResponse({tags: getImageTags(request.template), origin: tagsOrigin});
+				sendResponse({tags: getNameBy(request.template), origin: tagsOrigin});
 				break;
 			case 'getTagsString':
 				createTagsStringField(request.template);

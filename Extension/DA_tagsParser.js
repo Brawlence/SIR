@@ -2,50 +2,25 @@
 var tagsOrigin = "DA";
 var windowDisplacement = 0;
 
-/* Deviantart tag - usual is prefixed by a hashsign + with Eclipse on, no hashsign */
-const hastagStyle = String.raw`
-	div.dev-title-container a.discoverytag,
-	a[href*='/tag/'] {
-		border-width: 2px;
-		border-style: dotted;
-		border-color: lightpink;
+const styleTargets = "div.dev-title-container a.discoverytag, a[href*='/tag/'], aside div h1.h3";
 
-		transition:all .2s cubic-bezier(.5,.1,.7,.5);
-		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
-	}
-	`;
-
-// TODO: learn how to do this properly
-function unstoppableQueryA(selector) {
-	var trytofail = document.querySelectorAll(selector);
-	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
-		var puppet = new Object;
-		puppet.href = "";
-		puppet.innerText = "Tags:  tagme";
-		return [puppet];
-	};
-	return trytofail;
+function getAuthorHandle() {
+	return document.URL.substring(document.URL.lastIndexOf('.com/')+5,document.URL.lastIndexOf('/art/')).replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
 };
 
-function getImageTags(template) {
-	var resultingTags = new Array;
+function getAuthorName() {
+	return "";
+};
 
+function getPictureName() {
+	return document.URL.substring(document.URL.lastIndexOf('/art/')+5,document.URL.lastIndexOf('-')).replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
+};
 
-	var authorHandle = document.URL.substring(document.URL.lastIndexOf('.com/')+5,document.URL.lastIndexOf('/art/'));
-	var authorName = "";
-	var pictureName = document.URL.substring(document.URL.lastIndexOf('/art/')+5,document.URL.lastIndexOf('-'));
-	var tempArray = unstoppableQueryA("[href*='/tag/']");
-
-	template = template.replace(/\{handle\}/g, authorHandle.replace(/[ \n\t\r\v\f]/g, '-'));
-	template = template.replace(/\{OR\}/g, tagsOrigin);
-	template = template.replace(/\{name\}/g, authorName.replace(/[ \n\t\r\v\f]/g, '-'));
-	template = template.replace(/\{caption\}/g, pictureName.replace(/[ \n\t\r\v\f]/g, '-'))
-	
-	for (let tag of tempArray) {
-		template = template.replace(/\{tags\}/g, tag.innerText.replace(/[#]/g, '') + ' {tags}'); // Eclipse design has no hash here #, old site has hash
+/* Deviantart tag - usual is prefixed by a hashsign, with Eclipse on - no hashsign */
+function getTags() {
+	var tagString = " ";
+	for (let tag of safeQueryA("[href*='/tag/']")) {
+		tagString += tag.innerText.replace(/[#]/g, '') + " ";
 	};
-	template = template.replace(/ \{tags\}/g, '');
-	
-	resultingTags = template.split(' ');
-	return resultingTags;
+	return tagString.replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');
 };

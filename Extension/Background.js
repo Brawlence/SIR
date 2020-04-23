@@ -84,20 +84,6 @@ function purifiedMerge(name, ext) {
 	return (name + "." + ext);
 };
 
-function addTags(response, name) {
-	var arrayOfTags = response.tags;
-	
-	for (let tag of arrayOfTags) {
-		name += tag.replace(/[ :]/g, '_') + " ";
-	};
-
-	if ((name.indexOf("@" + response.origin) === -1) && (name.indexOf('drawfriends') === -1)) {
-		name = response.origin + " " + name;
-	};
-
-	return name;
-};
-
 var sir = {
 	//adds an individual item to the context menu and gives it the id passed into the function
 	makeMenuItem: function (id, item, icon, clickable, useIcon) {
@@ -257,9 +243,11 @@ var sir = {
 		);
 	},
 
+	/* A stub for a planned feature
 	dl: function (url, filename, referer) {
 		
 	},
+	*/
 
 	dlWithTags: function (imageObject, tabId) {
 		chrome.tabs.sendMessage(tabId, { order: "giffTags", template: fileNameTemplate }, // ! tabId is an integer
@@ -278,7 +266,7 @@ var sir = {
 						if (!validateAnswer(response.origin, imageHost, imageObject.pageUrl)) return;
 						
 						var filenameArray = parseFilename(failOverName, response.origin, tabId);
-						var name = addTags(response, filenameArray[0]),
+						var name = filenameArray[0] + " " + response.tagString,
 							ext = filenameArray[1];
 						var resultingFilename = purifiedMerge(name, ext, response.origin);
 						//console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");

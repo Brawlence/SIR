@@ -2,61 +2,26 @@
 var tagsOrigin = "PX";
 var windowDisplacement = 0;
 
-/* author's handle, the name of the picture, tags - with enlish translation following, no hash*/
-const hastagStyle = String.raw`
-	aside section h2 div div a,
-	figcaption div h1,
-	figcaption div footer ul li {
-		border-width: 2px;
-		border-style: dotted;
-		border-color: lightpink;
+const styleTargets = "aside section h2 div div a,	figcaption div h1, figcaption div footer ul li";
 
-		transition:all .2s cubic-bezier(.5,.1,.7,.5);
-		-webkit-transition:all .2s cubic-bezier(.5,.1,.7,.5)
-	}
-	`;
-
-function unstoppableQuery(selector) {
-	var trytofail = document.querySelector(selector);
-	if ( (trytofail === undefined || trytofail === null) ) {
-		var puppet = new Object;
-		puppet.href = "";
-		puppet.innerText = "";
-		trytofail = puppet;
-	};
-	return trytofail;
+function getAuthorHandle() {
+	return safeQuery('aside section h2 div div a').innerText.replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
 };
 
-function unstoppableQueryA(selector) {
-	var trytofail = document.querySelectorAll(selector);
-	if ( (trytofail === undefined || trytofail === null || trytofail.length === 0) ) {
-		var puppet = new Object;
-		puppet.href = "";
-		puppet.innerText = "Tags:  tagme";
-		return [puppet];
-	};
-	return trytofail;
+function getAuthorName() {
+	return "";
 };
 
-function getImageTags(template) {
-	var resultingTags = new Array;
+function getPictureName() {
+	return safeQuery('figcaption div div h1').innerText.replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
 
+};
 
-	var authorHandle = unstoppableQuery('aside section h2 div div a').innerText; // TODO: selectors need a failsafe to not stop in case one of them fail
-	var authorName = "";
-	var pictureName = unstoppableQuery('figcaption div div h1').innerText;
-	var tempArray = unstoppableQueryA('figcaption div footer ul li a');
-
-	template = template.replace(/\{handle\}/g, authorHandle.replace(/[ \n\t\r\v\f]/g, '-'));
-	template = template.replace(/\{OR\}/g, tagsOrigin);
-	template = template.replace(/\{name\}/g, authorName.replace(/[ \n\t\r\v\f]/g, '-'));
-	template = template.replace(/\{caption\}/g, pictureName.replace(/[ \n\t\r\v\f]/g, '-'))
-	
-	for (let tag of tempArray) {
-		template = template.replace(/\{tags\}/g, tag.innerText.replace(/ /g, '_') + ' {tags}');
+// with enlish translation following, no hash
+function getTags() {
+	var tagArray = [];
+	for (let tag of safeQueryA('figcaption div footer ul li a')) {
+		tagArray.push(tag.innerText.replace(/ /g, '_'));
 	};
-	template = template.replace(/ \{tags\}/g, '');
-
-	resultingTags = template.split(' ');
-	return resultingTags;
+	return tagArray;
 };
