@@ -13,7 +13,7 @@ const sirHighlightStyle = String.raw`
 	}
 	`;
 
-	const sirBoxStyle = String.raw`
+const sirBoxStyle = String.raw`
 	div#sirArea {
 		left: 20px;
 		position: fixed;
@@ -79,6 +79,16 @@ const lowerParagraph_btns = String.raw`
 	🚫
 	</button>
 	`;
+
+const templateUpdateText = String.raw`
+            SPECIFY YOUR CUSTOM TEMPLATE
+
+{handle} - Author Handle (unique for the platform)
+{OR} - Tags Origin (2-symbols long platform ID)
+{name} - Author name
+{caption} - Picture caption
+{tags} - Tags string
+`;
 
 function pick(element) {
 	return document.getElementById(element);
@@ -215,7 +225,7 @@ function toggleDragable(state) {
 
 // Drag-able end 
 
-function setHighlight(neededState){
+function setHighlight(neededState) {
 	if (neededState && (pick('sir-style') === null)) {
 		var styleSir = document.head.appendChild(fresh('style'));
 			styleSir.type = "text/css";
@@ -279,7 +289,7 @@ chrome.runtime.onMessage.addListener(
 				alert(request.warning);
 				break;
 			case 'askForTemplate':
-				sendResponse({newTemplate: prompt("\t\t\t\tCUSTOM TEMPLATE\t\t\t\t\n{handle} - Author Handle (unique for the platform)\n{OR} - Tags Origin (AS, DA, DF, HF, PX, TU, TW)\n{name} - Author name\n{caption} - Picture caption\n{tags} - Tags string\n\nPlease specify your custom template:", request.stub)});
+				sendResponse({newTemplate: prompt(templateUpdateText, request.stub)});
 				break;
 			default:
 				break;

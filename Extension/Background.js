@@ -1,5 +1,7 @@
 "use strict";
 
+const FILENAME_LENGTH_CUTOFF = 230; // 230 is an arbitary number
+
 var invokeSaveAs = true,
 	useDecoration = true;
 var firefoxEnviroment = false,
@@ -22,7 +24,8 @@ function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 	];
 
 	for (let fingerprint of validSiteIDs) {
-		if ((tagsOrigin.indexOf(fingerprint[0])>-1) && ((imageHost.indexOf(fingerprint[1])>-1) || (requesterPage.indexOf(fingerprint[2])>-1))) {
+		if ((tagsOrigin.indexOf(fingerprint[0])>-1) &&
+			((imageHost.indexOf(fingerprint[1])>-1) || (requesterPage.indexOf(fingerprint[2])>-1))) {
 			match = true;
 			break;
 		}
@@ -32,7 +35,7 @@ function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 
 function parseFilename(failOverName, origin, tabId) {
 	var name, ext;
-	// indexOf is freakingly fast, see https://jsperf.com/substring-test
+	// indexOf is the fastest, see https://jsperf.com/substring-test
 	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
 		if (failOverName.indexOf('?') > -1) {
 			failOverName = failOverName.substring(0, failOverName.indexOf('?')); 	//prune the access token from the name if it exists
@@ -78,8 +81,8 @@ function purifiedMerge(name, ext) {
 	if (ext.length > 5 || ext === "") ext = "maybe.jpeg";	// make sure that extention did not magically disappear or go out of bounds
 	
 	if (name.length + ext.length + 1 >= 255) {
-		name = name.substr(0, 230); 						// 230 is an arbitary number
-		name = name.substring(0, name.lastIndexOf(' '));	// substr - specified amount, substring - between the specified indices
+		name = name.substr(0, FILENAME_LENGTH_CUTOFF);		// substr - specified amount,
+		name = name.substring(0, name.lastIndexOf(' '));	// substring - between the specified indices
 	}
 
 	name = name.trim();
@@ -90,23 +93,14 @@ function purifiedMerge(name, ext) {
 var sir = {
 	//adds an individual item to the context menu and gives it the id passed into the function
 	makeMenuItem: function (id, item, icon, clickable, useIcon) {
-		if (useIcon) {
-			chrome.contextMenus.create({
-				id: id.toString(),
-				title: item.toString(),
-				enabled: clickable,
-				contexts: ["image"],
-				icons: { "16": icon.toString() },
-			})
-		} else {
-			//icons not supported, leave them out
-			chrome.contextMenus.create({
-				id: id.toString(),
-				title: item.toString(),
-				enabled: clickable,
-				contexts: ["image"]
-			})
-		}
+		chrome.contextMenus.create({
+			id: id.toString(),
+			title: item.toString(),
+			enabled: clickable,
+			contexts: ["image"]
+		})
+		//if icons are supported, add them
+		if (useIcon) chrome.contextMenus.update(id.toString(), {icons: { "16": icon.toString() }});
 	},
 
 	makeMenuItems: function (browserInfo) {
@@ -141,32 +135,28 @@ var sir = {
 	},
 
 	disableMenu: function () {
+		chrome.contextMenus.update("dl", {title: "No tags were fetched from this page", enabled: false});
+		chrome.contextMenus.update("gts", {enabled: false});
+		chrome.contextMenus.update("tmpl", {enabled: false});
 		if (useIcons) {
-			chrome.contextMenus.update("dl", {icons: {"16": "Icons/no_dl.png"},	title: "No tags were fetched from this page", enabled: false});
-			chrome.contextMenus.update("gts", {icons: { "16": "Icons/no_gts.png" }, enabled: false});
-			chrome.contextMenus.update("tmpl", {enabled: false});
-		} else {
-			chrome.contextMenus.update("dl", {title: "No tags were fetched from this page", enabled: false});
-			chrome.contextMenus.update("gts", {enabled: false});
-			chrome.contextMenus.update("tmpl", {enabled: false});
-		}
+			chrome.contextMenus.update("dl", {icons: {"16": "Icons/no_dl.png"}});
+			chrome.contextMenus.update("gts", {icons: { "16": "Icons/no_gts.png" }});
+		};
 	},
 
 	enableMenu: function () {
+		chrome.contextMenus.update("dl", {title: "Download with tags", enabled: true});
+		chrome.contextMenus.update("gts", {enabled: true});
+		chrome.contextMenus.update("tmpl", {enabled: true});
 		if (useIcons) {
-			chrome.contextMenus.update("dl", {icons: { "16": "Icons/dl.png" }, title: "Download with tags", enabled: true});
-			chrome.contextMenus.update("gts", { icons: { "16": "Icons/gts.png" }, enabled: true});
-			chrome.contextMenus.update("tmpl", {enabled: true});
-		} else {
-			chrome.contextMenus.update("dl", {title: "Download with tags", enabled: true});
-			chrome.contextMenus.update("gts", {enabled: true});
-			chrome.contextMenus.update("tmpl", {enabled: true});
-		}
+			chrome.contextMenus.update("dl", {icons: { "16": "Icons/dl.png" }});
+			chrome.contextMenus.update("gts", { icons: { "16": "Icons/gts.png" }});
+		};
 	},
 
 	invokeTagsField: function (tabId) {
 		chrome.tabs.sendMessage(tabId, { order: "getTagsString", template: fileNameTemplate },
-			function justWaitTillFinished(response) {
+			function waitAndLog(response) {
 				if (chrome.runtime.lastError) {
 					//console.warn(chrome.runtime.lastError.message);
 				} else {
@@ -185,7 +175,7 @@ var sir = {
 			alert(message);
 		} else {
 			chrome.tabs.sendMessage(tabId, { order: "displayWarning", warning: message },
-				function justWaitTillFinished(response) {
+				function waitAndLog(response) {
 					if (chrome.runtime.lastError) {
 					//console.warn(chrome.runtime.lastError.message);
 					} else {
@@ -258,46 +248,44 @@ var sir = {
 				if (chrome.runtime.lastError) {
 					//console.warn(chrome.runtime.lastError.message);
 				} else {
-					if (typeof response !== 'undefined') {
-						// get where that image is hosted on by
-						var tempContainer = document.createElement('a'); // creating an link-type (a) object
-						tempContainer.href = imageObject.srcUrl; // linking to the item we are about to sav
+					if (typeof response === 'undefined') return;
+					// get where that image is hosted on by
+					var tempContainer = document.createElement('a'); // creating an link-type (a) object
+					tempContainer.href = imageObject.srcUrl; // linking to the item we are about to sav
 
-						var imageHost = tempContainer.hostname;
-						var failOverName = imageObject.srcUrl.substring(imageObject.srcUrl.lastIndexOf('/') + 1);
+					var imageHost = tempContainer.hostname;
+					var failOverName = imageObject.srcUrl.substring(imageObject.srcUrl.lastIndexOf('/') + 1);
 
-						if (!validateAnswer(response.origin, imageHost, imageObject.pageUrl)) return;
-						
-						var filenameArray = parseFilename(failOverName, response.origin, tabId);
-						var name = filenameArray[0] + " " + response.tagString,
-							ext = filenameArray[1];
-						var resultingFilename = purifiedMerge(name, ext, response.origin);
-						//console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
-						
-						if (!firefoxEnviroment && response.origin === "PX") {
-							sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
-							sir.invokeTagsField(tabId);
-							return;
-						};
+					if (!validateAnswer(response.origin, imageHost, imageObject.pageUrl)) return;
+					
+					var filenameArray = parseFilename(failOverName, response.origin, tabId);
+					var name = filenameArray[0] + " " + response.tagString,
+						ext = filenameArray[1];
+					var resultingFilename = purifiedMerge(name, ext);
+					//console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+					
+					if (!firefoxEnviroment && response.origin === "PX") {
+						sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+						sir.invokeTagsField(tabId);
+						return;
+					};
 
-						chrome.downloads.download({
-							url: imageObject.srcUrl,
-							saveAs: invokeSaveAs,
-							filename: resultingFilename,
-							headers: (firefoxEnviroment ? ( [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }] ) : [])
-						}, function reportOnTrying() {
-							if (chrome.runtime.lastError) {
-								/*
-								if (chrome.runtime.lastError.message.indexOf('user') > -1) {
-									console.log(chrome.runtime.lastError.message);
-								} else {
-									console.warn(chrome.runtime.lastError.message);
-								};
-								*/
+					chrome.downloads.download({
+						url: imageObject.srcUrl,
+						saveAs: invokeSaveAs,
+						filename: resultingFilename,
+						headers: (firefoxEnviroment ? ( [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }] ) : [])
+					}, function reportOnTrying() {
+						if (chrome.runtime.lastError) {
+							/*
+							if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+								console.log(chrome.runtime.lastError.message);
+							} else {
+								console.warn(chrome.runtime.lastError.message);
 							};
-						});
-
-					}
+							*/
+						};
+					});		
 				}
 			}
 		)
@@ -342,7 +330,6 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an
 	switch (info.menuItemId) {
 	case 'saveSilently':
 		invokeSaveAs = !invokeSaveAs;
-
 		break;
 	case 'useDecoration':
 		useDecoration = !useDecoration;
