@@ -1,5 +1,5 @@
 // A unified content script for ALL the sites
-//debugger;
+
 "use strict";
 
 const sirHighlightStyle = String.raw`

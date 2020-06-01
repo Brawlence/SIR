@@ -7,7 +7,7 @@ const styleTargets = "div#tag_list li a";
 function getAuthorHandle() {
 	// all the tags are inside a hidden text field
 	var	tempString = safeQuery('td textarea[id="tags"]').innerHTML;
-	if (tempString.indexOf('artist') > -1 || tempString.indexOf('colorist') > -1 ) {
+	if (tempString.indexOf('_(artist)') > -1 || tempString.indexOf('_(colorist)') > -1 ) {
 		return tempString.match(/\w+?_\((art|color)ist\)/g).join('+').replace(/_\((art|color)ist\)/g, '');
 	};
 	return "";
