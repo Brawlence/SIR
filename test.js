@@ -1,15 +1,15 @@
 // TODO: Plan & implement proper testing suite
 var Links_to_test = [
-    "https://www.artstation.com/artwork/zARRXD",
-    "https://www.deviantart.com/chrissiezullo/art/Nejire-Hadou-787225844",
-    "https://danbooru.donmai.us/posts/3278046,json",
-    "https://drawfriends.booru.org/index.php?page=post&s=view&id=99115",
-    "https://www.hentai-foundry.com/pictures/user/BBC-Chan/774805/Elyzabeth-1",
-    "http://medicalwhiskey.com/?p=12513",
-    "https://www.pixiv.net/artworks/79196939",
-    "https://blurryken.tumblr.com/post/185528821532/do-you-want-to-share-a-bubble-tea-with-me",
-    "https://twitter.com/ToyNewsInterna1/status/1222547463002681344",
-    "https://vidyart.booru.org/index.php?page=post&s=view&id=377421"
+    "https://www.artstation.com/artwork/zARRXD",                                                //Not surprisingly, zARRXD is an ID
+    "https://deviantart.com/view/787225844",                                                    //Original was "https://www.deviantart.com/chrissiezullo/art/Nejire-Hadou-787225844"
+    "https://danbooru.donmai.us/posts/3278046",                                                 //ID tracking implemented
+    "https://drawfriends.booru.org/index.php?page=post&s=view&id=99115",                        //ID tracking implemented
+    "https://www.hentai-foundry.com/pictures/774805",                                           //Original was "https://www.hentai-foundry.com/pictures/user/BBC-Chan/774805/Elyzabeth-1"
+    "http://medicalwhiskey.com/?p=12513",                                                       //ID tracking implemented
+    "https://www.pixiv.net/artworks/79196939",                                                  //ID tracking implemented
+    "https://blurryken.tumblr.com/post/185528821532/do-you-want-to-share-a-bubble-tea-with-me", //IDK how to
+    "https://twitter.com/ToyNewsInterna1/status/1222547463002681344",                           //IDK if it has
+    "https://vidyart.booru.org/index.php?page=post&s=view&id=377421"                            //ID tracking implemented, but bugged
 ];
 
 for (let link of Links_to_test) { window.open(link,"_blank"); };

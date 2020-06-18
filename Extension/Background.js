@@ -1,6 +1,6 @@
 "use strict";
 
-const FILENAME_LENGTH_CUTOFF = 230; // 230 is an arbitary number
+const FILENAME_LENGTH_CUTOFF = 230; // 230 is an arbitary number, on most systems the full filename shouldn't exceed 255 symbols
 
 var invokeSaveAs = true,
 	useDecoration = true;

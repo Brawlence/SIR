@@ -21,3 +21,7 @@ function getPictureName() {
 function getTags() {
 	return safeGetByClass("tags")[0].innerText.substring(7).replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '_').replace(/#/g, ' ');
 };
+
+function getPictureID() {
+	return "";
+}

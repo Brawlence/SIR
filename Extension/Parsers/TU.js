@@ -23,3 +23,7 @@ function getTags() {
 	};
 	return tagString.replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');
 };
+
+function getPictureID() {
+	return "";
+}

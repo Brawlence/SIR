@@ -23,3 +23,7 @@ function getTags() {
 	tempString = tempString.replace(/\n/g,'');
 	return tempString.replace(/\s?(\w+?)_\((art|color)ist\)/g, '').replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');
 };
+
+function getPictureID() {
+	return "";
+}

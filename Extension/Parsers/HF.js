@@ -25,3 +25,8 @@ function getTags() {
 	};
 	return tagString.replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');
 };
+
+//https://www.hentai-foundry.com/pictures/1234
+function getPictureID() {
+	return "";
+}

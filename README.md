@@ -19,8 +19,7 @@ The resulting filename is compatible with https://github.com/0xb8/WiseTagger/iss
 
 *Please note:*
 - *On some sites any or almost all of identifiers can be lacking (and thus cannot be fetched).*
-- *Currently the only type of tracked Unique picture IDs are `pixiv_(album)_(page)` and `drawfriends_(pictureID)`.*
-- *Medical Whiskey & Vidiyart.booru IDs are in the works.*
+- *Currently, Unique IDs are implemented for `pixiv_(album)_(page)`, `drawfriends_(ID)`, `medicalwhiskey_(ID)`, `vidyart_(ID)`.*
 
 ## Technical details ##
 Every time a new page from the listed domains is loaded, **SIR** adds to it a content script, which responds for pings from the extension.
