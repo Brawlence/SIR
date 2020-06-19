@@ -6,7 +6,7 @@ var invokeSaveAs = true,
 	useDecoration = true;
 var firefoxEnviroment = false,
 	useIcons = false;
-var fileNameTemplate = "{handle}@{OR} {name} {caption} {tags}";
+var fileNameTemplate = "{handle}@{OR} {ID} {name} {caption} {tags}";
 
 function validateAnswer(tagsOrigin, imageHost, requesterPage) {
 	let match = false;

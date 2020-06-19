@@ -12,10 +12,8 @@ function getAuthorName() {
 	return "";
 };
 
-// FIXME: hack, returning ID in the pictureName category
 function getPictureName() {
-	var lefter = pick("post-information").innerText.trim();
-	return 	"danbooru_" + lefter.substring(lefter.indexOf('ID: ') + 4, lefter.indexOf('\nDate: ')); //add the danboroo_ ID to the tags array
+	return "";
 };
 
 function getTags() {
@@ -25,5 +23,6 @@ function getTags() {
 };
 
 function getPictureID() {
-	return "";
+	var lefter = pick("post-information").innerText.trim();
+	return 	"danbooru_" + lefter.substring(lefter.indexOf('ID: ') + 4, lefter.indexOf('\nDate: ')); //add the danboroo_ ID to the tags array
 }

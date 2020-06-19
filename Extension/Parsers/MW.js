@@ -12,10 +12,8 @@ function getAuthorHandle() {
 	return safeQuery('div#content li.entry-author a').innerText.replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
 };
 
-// FIXME: hack, returning ID in the AuthorName category
 function getAuthorName() {
-	let pic_ID = document.URL.substring(MW_ID_DISPLACEMENT).replace(/[\D]/g, '');
-	return (pic_ID)?"medicalwhiskey_"+pic_ID:"";
+	return "";
 };
 
 function getPictureName() {
@@ -31,5 +29,6 @@ function getTags() {
 };
 
 function getPictureID() {
-	return "";
+	let pic_ID = document.URL.substring(MW_ID_DISPLACEMENT).replace(/[\D]/g, '');
+	return (pic_ID)?"medicalwhiskey_"+pic_ID:"";
 }

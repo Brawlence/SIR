@@ -140,6 +140,7 @@ function getNameBy(template) {
 
 	template = template.replace(/\{handle\}/g, getAuthorHandle());
 	template = template.replace(/\{OR\}/g, tagsOrigin);
+	template = template.replace(/\{ID\}/g, getPictureID());
 	template = template.replace(/\{name\}/g, getAuthorName());
 	template = template.replace(/\{caption\}/g, getPictureName());
 	template = template.replace(/\{tags\}/g, getTags());

@@ -17,10 +17,8 @@ function getAuthorName() {
 	return "";
 };
 
-// FIXME: hack, returning drawfriendID in the pictureName category
 function getPictureName() {
-	var lefter = safeQuery('div [id="tag_list"]').innerText.trim();
-	return 	"drawfriends_" + lefter.substring(lefter.indexOf('Id: ') + 4, lefter.indexOf('\nPosted: ')); //add the drawfriends_ ID to the tags array
+	return "";
 };
 
 /* Drawfriends has a pretty easy structure: div class="sidebar" contains a div class="tag_list", 	containing list in which are separate links which are tags */
@@ -30,5 +28,6 @@ function getTags() {
 };
 
 function getPictureID() {
-	return "";
+	var lefter = safeQuery('div [id="tag_list"]').innerText.trim();
+	return 	"drawfriends_" + lefter.substring(lefter.indexOf('Id: ') + 4, lefter.indexOf('\nPosted: ')); //add the drawfriends_ ID to the tags array
 }
