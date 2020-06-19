@@ -28,5 +28,7 @@ function getTags() {
 
 //https://www.hentai-foundry.com/pictures/1234
 function getPictureID() {
-	return "";
+	let URLwithNoName = document.URL.substring(0,document.URL.lastIndexOf('/'));
+	let pic_ID = URLwithNoName.substring(URLwithNoName.lastIndexOf('/')).replace(/[\D]/g, '');
+	return (pic_ID)?"hfoundry_"+pic_ID:"";
 }

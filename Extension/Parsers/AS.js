@@ -2,6 +2,10 @@
 var tagsOrigin = "AS";
 var windowDisplacement = 90;
 
+//For somewhat more robust anchoring instead of pre-calculated 35 one can use 
+//const AS_ID_DISPLACEMENT = document.URL.lastIndexOf('work/')+5;
+const AS_ID_DISPLACEMENT = 35;
+
 const styleTargets = "div.tags a, aside div.name a, aside div h1.h3";
 
 function getAuthorHandle() {
@@ -23,5 +27,6 @@ function getTags() {
 };
 
 function getPictureID() {
-	return "";
+	let pic_ID = document.URL.substring(AS_ID_DISPLACEMENT).replace(/[\W]/g, ''); //Artstation IDs contain A-z 0-9
+	return (pic_ID)?"artstation_"+pic_ID:"";
 }

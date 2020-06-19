@@ -27,5 +27,6 @@ function getTags() {
 };
 
 function getPictureID() {
-	return "";
+	let pic_ID = document.URL.substring(document.URL.lastIndexOf('/')).replace(/[\D]/g, '');
+	return (pic_ID)?"pixiv_"+pic_ID:"";
 }

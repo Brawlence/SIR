@@ -26,5 +26,6 @@ function getTags() {
 };
 
 function getPictureID() {
-	return "";
+	let pic_ID = document.URL.substring(document.URL.lastIndexOf('-')).replace(/[\D]/g, ''); //Deviantart IDs are numbers after last dash
+	return (pic_ID)?"deviantart_"+pic_ID:"";
 }

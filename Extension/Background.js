@@ -54,21 +54,20 @@ function parseFilename(failOverName, origin, tabId) {
 	// ! TWITTER — cleaning the name from that trailing flag - for old TWITTER (pre Sep 2019)
 	if (origin === "TW" && ext.indexOf('large') > -1) ext = ext.substring(0, ext.indexOf('large') - 1); 
 	
-	// ! PIXIV — format the name to be WiseTagger-compatible
+	// ! PIXIV — get the page number (since pixiv_xxxx can hold many images)
 	if (origin === "PX") {
-		var PXnumber = name.substring(0, name.indexOf('_p'));
 		var PXpage = name.substring(name.indexOf('_p') + 2);
 		var PXthumb = "";
-
+		
 		if (PXpage.indexOf('master') > -1) {
 			PXpage = PXpage.substring(0, PXpage.indexOf('_master'));
-			PXthumb = " -THUMBNAIL!- "; 						// if user wants to save a rescaled thumbnail, add a tag
+			PXthumb = "-THUMBNAIL!-";	 					// if user wants to save a rescaled thumbnail, add a tag
 			sir.displayWarning(tabId, "You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
 		};
 
-		name = "pixiv_" + PXnumber + PXthumb + " page_" + PXpage + " ";
+		name = "page_" + PXpage + PXthumb;
 	} else {
-		name = ""; 												// other than PIXIV we don't actually need any info from the name
+		name = ""; 											// other than PIXIV we don't actually need any info from the name
 	};
 
 	return [name, ext];
@@ -253,7 +252,7 @@ var sir = {
 					if (typeof response === 'undefined') return;
 					// get where that image is hosted on by
 					var tempContainer = document.createElement('a'); // creating an link-type (a) object
-					tempContainer.href = imageObject.srcUrl; // linking to the item we are about to sav
+					tempContainer.href = imageObject.srcUrl; // linking to the item we are about to save
 
 					var imageHost = tempContainer.hostname;
 					var failOverName = imageObject.srcUrl.substring(imageObject.srcUrl.lastIndexOf('/') + 1);
@@ -261,7 +260,7 @@ var sir = {
 					if (!validateAnswer(response.origin, imageHost, imageObject.pageUrl)) return;
 					
 					var filenameArray = parseFilename(failOverName, response.origin, tabId);
-					var name = filenameArray[0] + " " + response.tagString,
+					var name = response.tagString + " " + filenameArray[0],
 						ext = filenameArray[1];
 					var resultingFilename = purifiedMerge(name, ext);
 					//console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");

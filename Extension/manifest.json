@@ -22,7 +22,7 @@
 			"js": ["Parsers/AS.js", "Content.js"]
 		},
 		{
-			"matches": ["*://*.pixiv.net/art*", "*://*.pximg.net/*"],
+			"matches": ["*://*.pixiv.net/*work*", "*://*.pximg.net/*"],
 			"run_at": "document_end",
 			"js": ["Parsers/PX.js", "Content.js"]
 		},
