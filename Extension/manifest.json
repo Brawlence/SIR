@@ -7,22 +7,22 @@
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
-	"version": "1.3.3",
+	"version": "1.4.0",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [
 		{
-			"matches": ["*://*.deviantart.com/*"],
+			"matches": ["*://*.deviantart.com/*/art/*"],
 			"run_at": "document_end",
 			"js": ["Parsers/DA.js", "Content.js"]
 		},
 		{
-			"matches": ["*://*.artstation.com/*"],
+			"matches": ["*://*.artstation.com/artwork/*"],
 			"run_at": "document_end",
 			"js": ["Parsers/AS.js", "Content.js"]
 		},
 		{
-			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
+			"matches": ["*://*.pixiv.net/art*", "*://*.pximg.net/*"],
 			"run_at": "document_end",
 			"js": ["Parsers/PX.js", "Content.js"]
 		},
@@ -37,7 +37,7 @@
 			"js": ["Parsers/TW.js", "Content.js"]
 		},
 		{
-			"matches": ["*://*.hentai-foundry.com/*"],
+			"matches": ["*://*.hentai-foundry.com/pictures*"],
 			"run_at": "document_end",
 			"js": ["Parsers/HF.js", "Content.js"]
 		},

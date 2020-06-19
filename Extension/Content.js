@@ -69,6 +69,9 @@ const lowerParagraph_btns = String.raw`
 	📋
 	</button>
 	<!--
+	<button id="options" onclick="javascript:alert();">
+	🛠️
+	</button>
 	<button id="save" onclick="javascript:alert();">
 	💾
 	</button>
@@ -84,6 +87,7 @@ const templateUpdateText = String.raw`
             SPECIFY YOUR CUSTOM TEMPLATE
 
 {handle} - Author Handle (unique for the platform)
+{ID} - ID of the picture (platform-unique)
 {OR} - Tags Origin (2-symbols long platform ID)
 {name} - Author name
 {caption} - Picture caption
@@ -224,7 +228,7 @@ function toggleDragable(state) {
 	}
 };
 
-// Drag-able end 
+// Drag-able elderMagicField - end of block
 
 function setHighlight(neededState) {
 	if (neededState && (pick('sir-style') === null)) {
@@ -257,14 +261,14 @@ function createTagsStringField(template) {
 
 		const lowerParagraph = pick('sirArea').appendChild(fresh('p'));
 			lowerParagraph.className = "dragable";
-		if ((tagsOrigin==="TU")|(tagsOrigin==="TW")) {
-			lowerParagraph.innerHTML = lowerParagraph_text;
-			pick('elderMagicField').focus();
-		} else {
 			// ! Can't add onclick events to buttons with the usual method, have to use innerHTML instead
-			lowerParagraph.innerHTML = lowerParagraph_btns;
-			pick('c-and-h').focus();
-		};
+			if ((tagsOrigin==="TU")|(tagsOrigin==="TW")) {
+				lowerParagraph.innerHTML = lowerParagraph_text;
+				pick('elderMagicField').focus();
+			} else {
+				lowerParagraph.innerHTML = lowerParagraph_btns;
+				pick('c-and-h').focus();
+			};
 		toggleDragable(true);
 	} else {
 		pick('sirArea').parentElement.removeChild(pick('sirArea'));

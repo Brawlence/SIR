@@ -2,7 +2,7 @@
 var tagsOrigin = "PX";
 var windowDisplacement = 0;
 
-const styleTargets = "aside section h2 div div a,	figcaption div h1, figcaption div footer ul li";
+const styleTargets = "aside section h2 div div a, figcaption div h1, figcaption div footer ul li";
 
 function getAuthorHandle() {
 	return safeQuery('aside section h2 div div a').innerText.replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
