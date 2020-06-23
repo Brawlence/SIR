@@ -7,19 +7,36 @@
 [![coverage report](https://gitlab.com/Brawlence/SIR/badges/master/coverage.svg)](https://gitlab.com/Brawlence/SIR/commits/master)
 
 ## Description ##
-**SIR** fetches data from popular image galleries, suggesting informative file names through the usual save file dialog.
+**SIR** fetches data from popular image galleries, suggesting informative file names through the usual 'save file' dialog. 
 
-The result by default looks like:
+The naming template is customizable; by default it's set to:
 
-`uniq_ID Author_handle@OR Author-Name Picture-Title tag another_tag tag_episode-2 tag&replaced_spaces.ext`,
+`{handle}@{OR} {name} {caption} {tags}.ext`,  
 
-where `OR` (origin) is based on a name of the supported site as follows: **A**rt**S**tation, **D**eviant**A**rt, **D**raw**F**riends, **H**entai-**F**oundry, **P**i**X**iv, **TU**mblr, **TW**itter, **M**edical**W**hiskey, **V**idy**A**rt, **D**an**B**ooru.
+_{handle}_ represents author's nickname (usually it's a part of the gallery link),
+_{OR}_ is site abbrevation as follows below,
+_{name}_ is author's human-readable name (often it's not the same as handle!),
+_{caption}_ is the image title as specified by the creator,
+_{tags}_ is a string of tags, separated by spaces (in-tag spaces are replaced by underscores).
+
+Supported site | OR ('origin')
+--------------- | --------------- 
+Artstation | **AS**
+Deviantart | **DA**
+Drawfriends | **DF**
+Hentai-Foundry | **HF**
+Pixiv | **PX**
+Tumblr | **TU**
+Twitter | **TW**
+MedicalWhiskey | **MW**
+VidyArt | **VA**
+Danbooru. | **DB**
 
 The resulting filename is compatible with https://github.com/0xb8/WiseTagger/issues/1 and can be further tweaked by specifying a *custom template* through the extension context menu.
 
 *Please note:*
-- *On some sites any or almost all of identifiers can be lacking (and thus cannot be fetched).*
-- *Currently, Unique IDs are implemented for `pixiv_(album)_(page)`, `drawfriends_(ID)`, `medicalwhiskey_(ID)`, `vidyart_(ID)`.*
+- *On some sites many or all identifiers could be missing (and thus cannot be fetched).*
+- *Unique IDs are not present on Twitter and Tumblr.*
 
 ## Technical details ##
 Every time a new page from the listed domains is loaded, **SIR** adds to it a content script, which responds for pings from the extension.
@@ -57,10 +74,11 @@ To install and run the latest (non stable) version of this extension, follow the
 
 ## Planned features and TODO ##
 - Implement an 'Options' page (page action) and store persistent user options
-- Add yande.re to the list of supported sites
+- Make Twitter links to be full-sized (-orig; -4096x4096) when saving
 
 ## Known bugs ##
-- *Twitter* - in the timeline, unrelated tags are fetched from the whole page. Please save from individual post page for now.
+- *Twitter* - when scrolling through the infinite view, unrelated tags are fetched (since **SIR** fetches tags from the whole visible area). Please save images from individual post page for now.
 - *Chromium 77* (probably others too?) - sometimes the extension fails to fetch tags. Page reload (`F5`) / Tab switch / `Get Tags String`/`Toggle Highlight` fixes that
+- *Chrome*/*Chromium*-based browsers do not allow setting 'referer' header; thus, on **Pixiv**, it's not possible to download the image through context menu. Please use `Get Tags String` → `Save As…` in the meantime.
  
 If you happen to enconuter an unlisted bug, please submit it through https://github.com/Brawlence/SIR/issues/new

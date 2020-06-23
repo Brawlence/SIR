@@ -7,8 +7,8 @@ var Links_to_test = [
     "https://www.hentai-foundry.com/pictures/774805",                                           //ID tracking implemented Original was "https://www.hentai-foundry.com/pictures/user/BBC-Chan/774805/Elyzabeth-1"
     "http://medicalwhiskey.com/?p=12513",                                                       //ID tracking implemented
     "https://www.pixiv.net/artworks/79196939",                                                  //ID tracking implemented
-    "https://blurryken.tumblr.com/post/185528821532/do-you-want-to-share-a-bubble-tea-with-me", //IDK how to
-    "https://twitter.com/ToyNewsInterna1/status/1222547463002681344",                           //IDK if it has
+    "https://blurryken.tumblr.com/post/185528821532/do-you-want-to-share-a-bubble-tea-with-me", //NO IDS KNOWN
+    "https://twitter.com/ToyNewsInterna1/status/1222547463002681344",                           //NO IDS KNOWN
     "https://vidyart.booru.org/index.php?page=post&s=view&id=377421"                            //ID tracking implemented, but bugged
 ];
 
