@@ -1,6 +1,31 @@
 "use strict";
 
-const FILENAME_LENGTH_CUTOFF = 230; // 230 is an arbitary number, on most systems the full filename shouldn't exceed 255 symbols
+const FILENAME_LENGTH_CUTOFF = 230;		// 230 is an arbitary number, on most systems the full filename shouldn't exceed 255 symbols
+
+const loc_dlWithTags = "Download with tags",
+	  loc_noTagsFetched = "No tags were fetched from this page",
+	  loc_getTagsString = "Get tags string",
+	  loc_specifyTemplate = "Specify custom filename template...",
+	  loc_highlightTags = "Highlight fetched tags?",
+	  loc_supressSaveAs = "Supress 'Save As' dialog?",
+	  loc_thumnailWarning = "You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n"+
+								"- click on it to enlarge before saving\n"+
+								"- use the 'Save link as...' context menu option.",
+	  loc_pixivOnChrome = "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it."+
+	  						"Tags window is invoked.\n Copy the tags and use the default 'Save As...' dialogue.";
+
+const validComboSets = [				// valid combinations of tags origin, image hoster, image user
+	["PX", "pximg",			"pixiv"],
+	["DF", "img.booru.org",	"drawfriends"],
+	["DA", "deviantart",	"deviantart"],
+	["TW", "twimg",			"twitter"],
+	["AS", "artstation",	"artstation"],
+	["HF", "hentai-foundry","hentai-foundry"],
+	["TU", "tumblr", 		"tumblr"],
+	["VA", "img.booru.org",	"vidyart"],
+	["MW", "medicalwhiskey","medicalwhiskey"],
+	["DB", "danbooru",		"danbooru"]
+];
 
 var invokeSaveAs = true,
 	useDecoration = true;
@@ -8,90 +33,76 @@ var firefoxEnviroment = false,
 	useIcons = false;
 var fileNameTemplate = "{handle}@{OR} {ID} {name} {caption} {tags}";
 
-function validateAnswer(tagsOrigin, imageHost, requesterPage) {
-	let match = false;
-	const validSiteIDs = [
-		["PX", "pximg",			"pixiv"],
-		["DF", "img.booru.org",	"drawfriends"],
-		["DA", "deviantart",	"deviantart"],
-		["TW", "twimg",			"twitter"],
-		["AS", "artstation",	"artstation"],
-		["HF", "hentai-foundry","hentai-foundry"],
-		["TU", "tumblr", 		"tumblr"],
-		["VA", "img.booru.org",	"vidyart"],
-		["MW", "medicalwhiskey","medicalwhiskey"],
-		["DB", "danbooru",		"danbooru"]
-	];
-
-	for (let fingerprint of validSiteIDs) {
-		if ((tagsOrigin.indexOf(fingerprint[0])>-1) &&
-			((imageHost.indexOf(fingerprint[1])>-1) || (requesterPage.indexOf(fingerprint[2])>-1))) {
-			match = true;
-			break;
+function validateAnswer(tagsOrigin, hosterUrl, requesterUrl) {
+	for (let comboSet of validComboSets) {
+		if ((tagsOrigin.indexOf(comboSet[0])>-1) &&
+			((hosterUrl.indexOf(comboSet[1])>-1) || (requesterUrl.indexOf(comboSet[2])>-1))) {
+			return true;
 		}
 	}
-	return match;
+	return false;
 };
 
-function parseFilename(failOverName, origin, tabId) {
-	var name, ext;
-	// indexOf is the fastest, see https://jsperf.com/substring-test
-	if (failOverName.indexOf('.') > -1) { //checks for mistakenly queued download
-		if (failOverName.indexOf('?') > -1) {
-			failOverName = failOverName.substring(0, failOverName.indexOf('?')); 	//prune the access token from the name if it exists
+function processURL( /* object */ image, tabId) { 
+/* Cleans the URL of image object, shifts some information to name if needed */
+	let url = image.url,
+		ext = image.ext,
+		filename = url.substring(url.lastIndexOf('/') + 1);
+
+	// substring search with indexOf is the fastest, see https://jsperf.com/substring-test
+	if (filename.indexOf('.') > -1) {
+		if (filename.indexOf('?') > -1) {
+			filename = filename.substring(0, filename.indexOf('?')); 	//prune the access token from the name if it exists
 		}
-		name = failOverName.substring(0, failOverName.lastIndexOf('.'));
-		ext = failOverName.substring(failOverName.lastIndexOf('.') + 1); 			// separate extension from the name
-	} else if (failOverName.indexOf('?format=') > -1) { 							// TWITER HAS SILLY LINKS
-		name = failOverName.substring(0, failOverName.indexOf('?format='));
-		ext = failOverName.substring(failOverName.indexOf('?format=') + 8, failOverName.indexOf('&name='));
-	} else {
-		return ["tagme", "maybe.jpeg"];
+		ext = filename.substring(filename.lastIndexOf('.') + 1); 		// extract extension
 	};
 	
-	// ! TWITTER — cleaning the name from that trailing flag - for old TWITTER (pre Sep 2019)
-	if (origin === "TW" && ext.indexOf('large') > -1) ext = ext.substring(0, ext.indexOf('large') - 1); 
+	if (image.origin === "TW") {			 							// TWITTER
+		if (filename.indexOf('?') > -1) {
+			ext = url.substr( url.indexOf('format=')+7, 3 );			// as far as I know, Twitter uses only png, jpg or svg - all ext are 3-lettered
+			url = url.replace(/(name=[\w\d]+)/g,'name=orig'); 			// force Twitter to serve us with original image
+		} else {
+			ext = ext.substring(0, (ext.indexOf(':')>0)?ext.indexOf(':'):ext.length);
+			url = url.substring(0, (url.indexOf(':')>0)?url.lastIndexOf(':'):url.length) + ":orig";
+		};
+	}; 
 	
-	// ! PIXIV — get the page number (since pixiv_xxxx can hold many images)
-	if (origin === "PX") {
-		var PXpage = name.substring(name.indexOf('_p') + 2);
-		var PXthumb = "";
+	if (image.origin === "PX") {										// PIXIV — get the page number (since pixiv_xxxx can hold many images)
+		let PXpage = filename.substring(filename.indexOf('_p') + 2, filename.indexOf('.'));
+		let PXthumb = "";
 		
 		if (PXpage.indexOf('master') > -1) {
 			PXpage = PXpage.substring(0, PXpage.indexOf('_master'));
-			PXthumb = "-THUMBNAIL!-";	 					// if user wants to save a rescaled thumbnail, add a tag
-			sir.displayWarning(tabId, "You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n- click on it to enlarge before saving\n- use the \"Save link as...\" context menu option.");
+			PXthumb = "-THUMBNAIL!-";	 								// if user wants to save a rescaled thumbnail, add a tag
+			sir.displayWarning(tabId, loc_thumnailWarning);
 		};
 
-		name = "page_" + PXpage + PXthumb;
-	} else {
-		name = ""; 											// other than PIXIV we don't actually need any info from the name
+		image.tags = image.tags + " page_" + PXpage + PXthumb;
 	};
 
-	return [name, ext];
+	image.url = url;
+	image.ext = ext;
 }
 
-function purifiedMerge(name, ext) {
-	name = name.replace(/  /g, ' '); 						// remove double spaces
-	name = name.replace(/[ ]$/g, '');						// remove trailing whitespaces
-	name = name.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '');	// make sure the modified name in general doesn't contain any illegal characters
+function generateFilename(image) {
+	if (image.ext.length > 5) image.ext = "maybe.jpeg";					// make sure that extention did not go out of bounds
+	if (image.tags === "") image.tags = "tagme"; 						// make sure the name is not left blank
 
-	if (name === "") name = "tagme"; 						// make sure the name is not left blank
-	if (ext.length > 5 || ext === "") ext = "maybe.jpeg";	// make sure that extention did not magically disappear or go out of bounds
+	image.tags = image.tags.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '')		// make sure the name in general doesn't contain any illegal characters
+						   .replace(/[ ]{2, }/g, ' ') 					// collapse multiple spaces
+	 					   .trim();
 	
-	if (name.length + ext.length + 1 >= 255) {
-		name = name.substr(0, FILENAME_LENGTH_CUTOFF);		// substr - specified amount,
-		name = name.substring(0, name.lastIndexOf(' '));	// substring - between the specified indices
+	if (image.tags.length + image.ext.length + 1 >= 255) {
+		image.tags = image.tags.substr(0, FILENAME_LENGTH_CUTOFF)		// substr - specified amount,
+							   .substring(0, name.lastIndexOf(' '));	// substring - between the specified indices
 	}
-
-	name = name.trim();
-
-	return (name + "." + ext);
+	
+	image.filename = image.tags + "." + image.ext;
 };
 
 var sir = {
-	//adds an individual item to the context menu and gives it the id passed into the function
 	makeMenuItem: function (id, item, icon, clickable, useIcon) {
+	/* adds an individual item to the context menu and gives it the id passed into the function */
 		chrome.contextMenus.create({
 			id: id.toString(),
 			title: item.toString(),
@@ -110,21 +121,21 @@ var sir = {
 			}
 		}
 
-		sir.makeMenuItem("dl", "Download with tags","Icons/dl.png",  false, useIcons);
-		sir.makeMenuItem("gts","Get tags string",   "Icons/gts.png", false, useIcons);
+		sir.makeMenuItem("dl",  loc_dlWithTags,    "Icons/dl.png",  false, useIcons);
+		sir.makeMenuItem("gts", loc_getTagsString, "Icons/gts.png", false, useIcons);
 
 		chrome.contextMenus.create({type: "separator", id:"separator1", contexts: ["image"]});
 
-		sir.makeMenuItem("tmpl","Specify custom filename template...", "Icons/no_gts.png", false, useIcons);
+		sir.makeMenuItem("tmpl", loc_specifyTemplate, "Icons/no_gts.png", false, useIcons);
 
 		chrome.contextMenus.create({type: "separator", id:"separator2", contexts: ["image"]});
 
-		chrome.contextMenus.create({type: "checkbox",  id: "useDecoration", title: "Highlight fetched tags?", checked: useDecoration, contexts: ["image"]});
-		chrome.contextMenus.create({type: "checkbox",  id: "saveSilently", title: "Supress \"Save As\" dialog?", checked: !invokeSaveAs, contexts: ["image"]});
+		chrome.contextMenus.create({type: "checkbox",  id: "useDecoration", title: loc_highlightTags, checked: useDecoration, contexts: ["image"]});
+		chrome.contextMenus.create({type: "checkbox",  id: "saveSilently",  title: loc_supressSaveAs, checked: !invokeSaveAs, contexts: ["image"]});
 	},
 
-	//gets browser info and passes it to makeMenuItems to determine if things like icons are supported
 	makeMenu: function () {
+	/* gets browser info and passes it to makeMenuItems to determine if things like icons are supported */
 		if (firefoxEnviroment) {
 			var gettingBrowserInfo = browser.runtime.getBrowserInfo();
 			gettingBrowserInfo.then(sir.makeMenuItems);
@@ -134,7 +145,7 @@ var sir = {
 	},
 
 	disableMenu: function () {
-		chrome.contextMenus.update("dl", {title: "No tags were fetched from this page", enabled: false});
+		chrome.contextMenus.update("dl", {title: loc_noTagsFetched, enabled: false});
 		chrome.contextMenus.update("gts", {enabled: false});
 		chrome.contextMenus.update("tmpl", {enabled: false});
 		if (useIcons) {
@@ -144,7 +155,7 @@ var sir = {
 	},
 
 	enableMenu: function () {
-		chrome.contextMenus.update("dl", {title: "Download with tags", enabled: true});
+		chrome.contextMenus.update("dl", {title: loc_dlWithTags, enabled: true});
 		chrome.contextMenus.update("gts", {enabled: true});
 		chrome.contextMenus.update("tmpl", {enabled: true});
 		if (useIcons) {
@@ -247,34 +258,34 @@ var sir = {
 				if (chrome.runtime.lastError) {
 					//console.warn(chrome.runtime.lastError.message);
 				} else {
-					if (typeof response === 'undefined') return;
-					// get where that image is hosted on by
-					var tempContainer = document.createElement('a'); // creating an link-type (a) object
-					tempContainer.href = imageObject.srcUrl; // linking to the item we are about to save
-
-					var imageHost = tempContainer.hostname;
-					var failOverName = imageObject.srcUrl.substring(imageObject.srcUrl.lastIndexOf('/') + 1);
-
-					if (!validateAnswer(response.origin, imageHost, imageObject.pageUrl)) return;
+					if ( (typeof response === 'undefined') ||
+					     (!validateAnswer(response.origin, imageObject.srcUrl, imageObject.pageUrl)) ) return;
 					
-					var filenameArray = parseFilename(failOverName, response.origin, tabId);
-					var name = response.tagString + " " + filenameArray[0],
-						ext = filenameArray[1];
-					var resultingFilename = purifiedMerge(name, ext);
-					//console.log("Attempting to download:\n url: " + imageObject.srcUrl + "\n resultingFilename: " + resultingFilename + "\n (length: " + resultingFilename.length + ")");
+					let image = {
+							origin: response.origin, 
+							url: imageObject.srcUrl,
+							tags: response.tagString,
+							ext: "unknown",
+							filename: "tagme.jpg" 
+						};
+					
+					processURL(image, tabId);
+					generateFilename(image);
 					
 					if (!firefoxEnviroment && response.origin === "PX") {
-						sir.displayWarning(tabId, "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it. Tags window is invoked.\n Copy the tags and use the default \"Save As...\" dialogue.");
+						sir.displayWarning(tabId, loc_pixivOnChrome);
 						sir.invokeTagsField(tabId);
 						return;
 					};
+					
+					//console.log("Attempting to download:\n url: " + image.url + "\n Filename: " + image.filename + "\n (length: " + image.filename.length + ")");
 
 					chrome.downloads.download({
-						url: imageObject.srcUrl,
+						url: image.url,
+						filename: image.filename,
 						saveAs: invokeSaveAs,
-						filename: resultingFilename,
 						headers: (firefoxEnviroment ? ( [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }] ) : [])
-					}, function reportOnTrying() {
+					}, function reportOnDownloading() {
 						if (chrome.runtime.lastError) {
 							/*
 							if (chrome.runtime.lastError.message.indexOf('user') > -1) {

@@ -83,7 +83,7 @@ const lowerParagraph_btns = String.raw`
 	</button>
 	`;
 
-const templateUpdateText = String.raw`
+const loc_templateUpdatePrompt = String.raw`
             SPECIFY YOUR CUSTOM TEMPLATE
 
 {handle} - Author Handle (unique for the platform)
@@ -294,7 +294,7 @@ chrome.runtime.onMessage.addListener(
 				alert(request.warning);
 				break;
 			case 'askForTemplate':
-				sendResponse({newTemplate: prompt(templateUpdateText, request.stub)});
+				sendResponse({newTemplate: prompt(loc_templateUpdatePrompt, request.stub)});
 				break;
 			default:
 				break;
