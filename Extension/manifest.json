@@ -7,22 +7,22 @@
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [
 		{
-			"matches": ["*://*.deviantart.com/*/art/*"],
+			"matches": ["*://*.deviantart.com/*"],
 			"run_at": "document_end",
 			"js": ["Parsers/DA.js", "Content.js"]
 		},
 		{
-			"matches": ["*://*.artstation.com/artwork/*"],
+			"matches": ["*://*.artstation.com/*"],
 			"run_at": "document_end",
 			"js": ["Parsers/AS.js", "Content.js"]
 		},
 		{
-			"matches": ["*://*.pixiv.net/*work*", "*://*.pximg.net/*"],
+			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
 			"run_at": "document_end",
 			"js": ["Parsers/PX.js", "Content.js"]
 		},
