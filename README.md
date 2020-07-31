@@ -74,11 +74,9 @@ To install and run the latest (non stable) version of this extension, follow the
 
 ## Planned features and TODO ##
 - Implement an 'Options' page (page action) and store persistent user options
-- Make Twitter links to be full-sized (-orig; -4096x4096) when saving
 
 ## Known bugs ##
 - *Twitter* - when scrolling through the infinite view, unrelated tags are fetched (since **SIR** fetches tags from the whole visible area). Please save images from individual post page for now.
-- *Chromium 77* (probably others too?) - sometimes the extension fails to fetch tags. Page reload (`F5`) / Tab switch / `Get Tags String`/`Toggle Highlight` fixes that
 - *Chrome*/*Chromium*-based browsers do not allow setting 'referer' header; thus, on **Pixiv**, it's not possible to download the image through context menu. Please use `Get Tags String` → `Save As…` in the meantime.
  
 If you happen to enconuter an unlisted bug, please submit it through https://github.com/Brawlence/SIR/issues/new
