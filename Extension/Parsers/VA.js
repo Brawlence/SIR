@@ -29,5 +29,9 @@ function getTags() {
 
 function getPictureID() {
 	var lefter = safeQuery('div [id="tag_list"]').innerText.trim();
-	return 	"vidyart_" + lefter.substring(lefter.indexOf('Id: ') + 4, lefter.indexOf('\nPosted: ')); //add the vidyart_ID to the tags array
+	let id_string = lefter.match(/Id: [\d]+$/gim)[0];
+	if (id_string) {
+		return "vidyart_" + id_string.substring(4); //add the vidyart_ID to the tags array
+	}
+	return "";
 }

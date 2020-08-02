@@ -28,7 +28,7 @@ const validComboSets = [				// valid combinations of tags origin, image hoster, 
 ];
 
 var invokeSaveAs = true,
-	useDecoration = true;
+	useDecoration = false;
 var firefoxEnviroment = false,
 	useIcons = false;
 var fileNameTemplate = "{handle}@{OR} {ID} {name} {caption} {tags}";
@@ -50,14 +50,14 @@ function processURL( /* object */ image, tabId) {
 		filename = url.substring(url.lastIndexOf('/') + 1);
 
 	// substring search with indexOf is the fastest, see https://jsperf.com/substring-test
-	if (filename.indexOf('.') > -1) {
+	if (filename.indexOf('.') > -1) {									// ! GENERAL CASE - dot is present
 		if (filename.indexOf('?') > -1) {
 			filename = filename.substring(0, filename.indexOf('?')); 	//prune the access token from the name if it exists
 		}
 		ext = filename.substring(filename.lastIndexOf('.') + 1); 		// extract extension
 	};
 	
-	if (image.origin === "TW") {			 							// TWITTER
+	if (image.origin === "TW") {			 							// ! TWITTER - special case: extracting EXT
 		if (filename.indexOf('?') > -1) {
 			ext = url.substr( url.indexOf('format=')+7, 3 );			// as far as I know, Twitter uses only png, jpg or svg - all ext are 3-lettered
 			url = url.replace(/(name=[\w\d]+)/g,'name=orig'); 			// force Twitter to serve us with original image
@@ -67,7 +67,7 @@ function processURL( /* object */ image, tabId) {
 		};
 	}; 
 	
-	if (image.origin === "PX") {										// PIXIV — get the page number (since pixiv_xxxx can hold many images)
+	if (image.origin === "PX") {										// ! PIXIV — special case: additional tag 'page_' (since pixiv_xxxx can hold many images)
 		let PXpage = filename.substring(filename.indexOf('_p') + 2, filename.indexOf('.'));
 		let PXthumb = "";
 		
@@ -85,16 +85,16 @@ function processURL( /* object */ image, tabId) {
 }
 
 function generateFilename(image) {
-	if (image.ext.length > 5) image.ext = "maybe.jpeg";					// make sure that extention did not go out of bounds
-	if (image.tags === "") image.tags = "tagme"; 						// make sure the name is not left blank
+	if (image.ext.length > 5) image.ext = "maybe.jpeg";						// make sure that extention did not go out of bounds
+	if (image.tags === "") image.tags = "tagme"; 							// make sure the name is not left blank
 
-	image.tags = image.tags.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '')		// make sure the name in general doesn't contain any illegal characters
-						   .replace(/[ ]{2, }/g, ' ') 					// collapse multiple spaces
+	image.tags = image.tags.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '')			// make sure the name in general doesn't contain any illegal characters
+						   .replace(/\s{2,}/g, ' ') 						// collapse multiple spaces
 	 					   .trim();
 	
 	if (image.tags.length + image.ext.length + 1 >= 255) {
-		image.tags = image.tags.substr(0, FILENAME_LENGTH_CUTOFF)		// substr - specified amount,
-							   .substring(0, name.lastIndexOf(' '));	// substring - between the specified indices
+		image.tags = image.tags.substr(0, FILENAME_LENGTH_CUTOFF);			// substr - specified amount,
+		image.tags = image.tags.substring(0, image.tags.lastIndexOf(' '));	// substring - between the specified indices
 	}
 	
 	image.filename = image.tags + "." + image.ext;

@@ -19,10 +19,15 @@ function getPictureName() {
 function getTags() {
 	var	tempString = safeQuery('textarea[id="post_tag_string"]').innerHTML;
 	tempString = tempString.replace(/\n/g,'');
-	return tempString.replace(/\s?(\w+?)_\((art|color)ist\)/g, '').replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');
+	let failover_noLogin = safeQuery('section[id="tag-list"]').innerText.replace(/(Copyrights|Characters|Artists|Tags|Meta)\n/g, '').replace(/\? ([\w\:\_\- ]+) [\d\.]+k?$/gmi,'$1').replace(/ /g, '_').replace(/[,\\/:?<>\t\n\v\f\r]/g, ' ');
+	return tempString.replace(/\s?(\w+?)_\((art|color)ist\)/g, '').replace(/[,\\/:?<>\t\n\v\f\r]/g, '_') || failover_noLogin;
 };
 
 function getPictureID() {
-	var lefter = pick("post-information").innerText.trim();
-	return 	"danbooru_" + lefter.substring(lefter.indexOf('ID: ') + 4, lefter.indexOf('\nDate: ')); //add the danboroo_ ID to the tags array
+	let lefter = pick("post-information").innerText.trim();
+	let id_string = lefter.match(/Id: [\d]+$/gim)[0];
+	if (id_string) {
+		return "danbooru_" + id_string.substring(4); //add the danboroo_ ID to the tags array 	
+	}
+	return "";
 }

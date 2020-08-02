@@ -2,6 +2,8 @@
 
 "use strict";
 
+const AUTHOR_HANDLE_LENGTH_CUTOFF = 100;
+
 const sirHighlightStyle = String.raw`
 	{
 		border-width: 2px;
@@ -141,15 +143,23 @@ function safeGetByClass(classSelector) {
 
 // relies on defined get...() functions in XX_tagsParser.js
 function getNameBy(template) {
+	let authorHandle = getAuthorHandle(),
+		pictureID = getPictureID();
 
-	template = template.replace(/\{handle\}/g, getAuthorHandle());
+	if ( (!authorHandle) && pictureID) template = template.replace(/@\{OR\}/g, ''); // if there is no authorHandle and we have an ID, ignore '@XX' in the template
+	if (authorHandle.length > AUTHOR_HANDLE_LENGTH_CUTOFF) {						// if authorHandle is too big (multiple artists?), trim it
+		authorHandle = authorHandle.substr(0, AUTHOR_HANDLE_LENGTH_CUTOFF);
+		authorHandle = authorHandle.substring(0, authorHandle.lastIndexOf('+') + 1) + "…";
+	}
+
+	template = template.replace(/\{handle\}/g, authorHandle);
 	template = template.replace(/\{OR\}/g, tagsOrigin);
-	template = template.replace(/\{ID\}/g, getPictureID());
+	template = template.replace(/\{ID\}/g, pictureID);
 	template = template.replace(/\{name\}/g, getAuthorName());
 	template = template.replace(/\{caption\}/g, getPictureName());
 	template = template.replace(/\{tags\}/g, getTags());
 
-	template = template.replace(/[ ]{1,4}/g, ' ');
+	template = template.replace(/\s{2,}/g, ' ').trim();
 
 	return template;
 };

@@ -5,38 +5,48 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/3565/badge)](https://bestpractices.coreinfrastructure.org/projects/3565)
 [![pipeline status](https://gitlab.com/Brawlence/SIR/badges/master/pipeline.svg)](https://gitlab.com/Brawlence/SIR/commits/master)
 [![coverage report](https://gitlab.com/Brawlence/SIR/badges/master/coverage.svg)](https://gitlab.com/Brawlence/SIR/commits/master)
+[![GitHub Releases](https://img.shields.io/github/v/release/Brawlence/SIR.svg)](https://github.com/Brawlence/SIR/releases)
+
+## Features ##
+* Customizable naming template
+* Option to bypass 'Save As…' dialog
+* Fetched Tags String preview & copy _(with hotkeys!)_
+* Pixiv thumbnail warning on save request
+* Twitter max quality promoter & navigation prompt on 'View Image…'
+* Automatic handling of long names & multiple artists collaboration
 
 ## Description ##
-**SIR** fetches data from popular image galleries, suggesting informative file names through the usual 'save file' dialog. 
+**SIR** fetches data from popular image galleries, suggesting informative file names through the usual 'Save As…' dialog. 
 
 The naming template is customizable; by default it's set to:
 
-`{handle}@{OR} {name} {caption} {tags}.ext`,  
+`{handle}@{OR} {ID} {name} {caption} {tags}`,  
 
 _{handle}_ represents author's nickname (usually it's a part of the gallery link),
-_{OR}_ is site abbrevation as follows below,
+_{OR}_ is site abbreviation as follows below,
+_{ID}_ is a platform-unique ID of the picture (if present),
 _{name}_ is author's human-readable name (often it's not the same as handle!),
 _{caption}_ is the image title as specified by the creator,
 _{tags}_ is a string of tags, separated by spaces (in-tag spaces are replaced by underscores).
 
-Supported site | OR ('origin')
---------------- | --------------- 
-Artstation | **AS**
-Deviantart | **DA**
-Drawfriends | **DF**
-Hentai-Foundry | **HF**
-Pixiv | **PX**
-Tumblr | **TU**
-Twitter | **TW**
-MedicalWhiskey | **MW**
-VidyArt | **VA**
-Danbooru. | **DB**
+Supported site | OR ('origin') | ID type
+--------------- | --------------- |  --------------- 
+Artstation | **AS** | case-sensitive alphanumeric
+Deviantart | **DA** | numeric
+Drawfriends | **DF** | numeric
+Hentai-Foundry | **HF** | numeric
+Pixiv | **PX** | numeric
+Tumblr | **TU** | none
+Twitter | **TW** | none
+MedicalWhiskey | **MW** | numeric
+VidyArt | **VA** | numeric
+Danbooru. | **DB** | numeric
 
 The resulting filename is compatible with https://github.com/0xb8/WiseTagger/issues/1 and can be further tweaked by specifying a *custom template* through the extension context menu.
 
 *Please note:*
 - *On some sites many or all identifiers could be missing (and thus cannot be fetched).*
-- *Unique IDs are not present on Twitter and Tumblr.*
+- *No Unique IDs are known for Twitter and Tumblr. If you do happen to know how to decipher ids for these platforms, please contact me.*
 
 ## Technical details ##
 Every time a new page from the listed domains is loaded, **SIR** adds to it a content script, which responds for pings from the extension.
@@ -49,6 +59,7 @@ By user request (`"SIR Image Renamer"` → `"Download with tags"`), content scri
 One can see what info is discovered by **SIR** (`"SIR Image Renamer"` → `"Highlight fetched tags?"`):
 ![Example of tag highlighting](./Img/tag_highlighting.png)
 
+When opening single images from `twimg.com` domain (*Twitter* hosting server), **SIR** will prompt you for navigation to their full-sized original counterparts.
 Additionally, if you're on *Pixiv* and are trying to save a thumbnail, **SIR** will halt you (but won't restrict your ability to proceed):
 
 ![Example alert](./Img/thumbnail_warning.png)
@@ -68,12 +79,15 @@ To install and run the latest (non stable) version of this extension, follow the
 
 ## Recommendations ##
 - **SIR** is a self-sufficient extension, yet it works wonders in conjunction with ![WiseTagger](https://github.com/0xb8/WiseTagger).
-- Although a handy tool, it's **not** a batch downloader. You still have to manually save each file.
+- Although a handy tool, it's **not** _(yet?)_ a batch downloader. You still have to manually save each file.
 - Some authors include no tags whatsoever, others fill way too much useless general-sounding clutter, so if you're aiming for maximum resolution, please check and tweak the name before saving.
-- Overabundant tags can sometimes exceed the filename length limit, thus they are currently trimmed to nearest space symbol below 230 symbols.  
+- Overabundant tags can sometimes exceed the filename length limit, thus they will be trimmed to nearest space below 230 symbols.  
 
-## Planned features and TODO ##
-- Implement an 'Options' page (page action) and store persistent user options
+## Planned features (TODO) ##
+- 'Options' page (as page action) to tweak and store persistent user options
+- Localisation _(…s?)_
+- Integration with Hydrus Network for stealing tags _(maybe?)_
+- Batch downloads _(maybe?)_
 
 ## Known bugs ##
 - *Twitter* - when scrolling through the infinite view, unrelated tags are fetched (since **SIR** fetches tags from the whole visible area). Please save images from individual post page for now.
