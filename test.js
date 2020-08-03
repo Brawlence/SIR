@@ -1,4 +1,4 @@
-// TODO: Plan & implement proper testing suite
+// TODO: Implement proper testing suite
 var Links_to_test = [
     "https://www.artstation.com/artwork/zARRXD",                                                // ID is alphanumeric
     "https://deviantart.com/view/787225844",                                                    // Original was "https://www.deviantart.com/chrissiezullo/art/Nejire-Hadou-787225844"

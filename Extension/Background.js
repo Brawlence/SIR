@@ -246,12 +246,6 @@ var sir = {
 		);
 	},
 
-	/* A stub for a planned feature
-	dl: function (url, filename, referer) {
-		
-	},
-	*/
-
 	dlWithTags: function (imageObject, tabId) {
 		chrome.tabs.sendMessage(tabId, { order: "giffTags", template: fileNameTemplate }, // ! tabId is an integer
 			function workWithThis(response) {
