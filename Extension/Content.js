@@ -253,7 +253,7 @@ function setHighlight(neededState) {
 		var styleSir = document.head.appendChild(fresh('style'));
 			styleSir.type = "text/css";
 			styleSir.id = "sir-style";
-			styleSir.innerHTML = styleTargets + sirHighlightStyle;
+			styleSir.innerHTML = styleTargets + sirHighlightStyle; // linter says it's unsafe
 	};
 	if ((!neededState) && pick('sir-style')) {
 		document.head.removeChild(pick('sir-style'));
@@ -266,7 +266,7 @@ function createTagsStringField(template) {
 		var allTheStyles = document.head.appendChild(fresh('style'));
 			allTheStyles.type = "text/css";
 			allTheStyles.id = "sir-box-style";
-			allTheStyles.innerHTML = sirBoxStyle;
+			allTheStyles.innerHTML = sirBoxStyle; // linter says it's unsafe
 
 		const sirBox = document.body.appendChild(fresh('div'));
 			sirBox.id = "sirArea";
@@ -281,10 +281,10 @@ function createTagsStringField(template) {
 			lowerParagraph.className = "dragable";
 			// ! Can't add onclick events to buttons with the usual method, have to use innerHTML instead
 			if ((tagsOrigin==="TU")|(tagsOrigin==="TW")) {
-				lowerParagraph.innerHTML = lowerParagraph_text;
+				lowerParagraph.innerHTML = lowerParagraph_text; // linter says it's unsafe
 				pick('elderMagicField').focus();
 			} else {
-				lowerParagraph.innerHTML = lowerParagraph_btns;
+				lowerParagraph.innerHTML = lowerParagraph_btns; // linter says it's unsafe
 				pick('c-and-h').focus();
 			};
 		toggleDragable(true);
