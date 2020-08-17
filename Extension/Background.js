@@ -43,6 +43,7 @@ function validateAnswer(tagsOrigin, hosterUrl, requesterUrl) {
 	return false;
 };
 
+//TODO: maybe add DB & PIXIV expanding to maximum resolution availible?
 function processURL( /* object */ image, tabId) { 
 /* Cleans the URL of image object, shifts some information to name if needed */
 	let url = image.url,

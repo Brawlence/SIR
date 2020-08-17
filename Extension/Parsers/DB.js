@@ -5,7 +5,7 @@ var windowDisplacement = 0;
 const styleTargets = "aside section a.search-tag";
 
 function getAuthorHandle() {
-	return safeQuery('aside section ul.artist-tag-list a.search-tag').innerText;
+	return safeQuery('aside section ul.artist-tag-list a.search-tag').innerText.replace(/\s/g, '_');
 };
 
 function getAuthorName() {
