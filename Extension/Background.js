@@ -24,7 +24,8 @@ const validComboSets = [				// valid combinations of tags origin, image hoster, 
 	["TU", "tumblr", 		"tumblr"],
 	["VA", "img.booru.org",	"vidyart"],
 	["MW", "medicalwhiskey","medicalwhiskey"],
-	["DB", "danbooru",		"danbooru"]
+	["DB", "danbooru",		"danbooru"],
+	["IG", "fbcdn",			"instagram"]
 ];
 
 var invokeSaveAs = true,

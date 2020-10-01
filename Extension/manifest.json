@@ -7,7 +7,7 @@
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
-	"version": "1.5.1",
+	"version": "1.6.0",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [
@@ -60,6 +60,11 @@
 			"matches": ["*://medicalwhiskey.com/?p=*"],
 			"run_at": "document_end",
 			"js": ["Parsers/MW.js", "Content.js"]
+		},
+		{
+			"matches": ["*://www.instagram.com/*"],
+			"run_at": "document_end",
+			"js": ["Parsers/IG.js", "Content.js"]
 		}
 	],
 	"background": {

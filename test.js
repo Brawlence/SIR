@@ -9,7 +9,8 @@ var Links_to_test = [
     "https://www.pixiv.net/artworks/79196939",                                                  // Special case: thumbnail detection
     "https://blurryken.tumblr.com/post/185528821532/do-you-want-to-share-a-bubble-tea-with-me", // NO IDS KNOWN - ID tracking not implemented
     "https://twitter.com/RGVaerialphotos/status/1280334509863579648",                           // NO IDS KNOWN - ID tracking not implemented Special case: image must be ORIG
-    "https://vidyart.booru.org/index.php?page=post&s=view&id=375444"                            // Special cases: >6 artists; very long tags string
+    "https://vidyart.booru.org/index.php?page=post&s=view&id=375444",                           // Special cases: >6 artists; very long tags string
+    "https://www.instagram.com/p/CFBa7UUM7ue/"                                                  // ID is alphanumeric, Special case: video
 ];
 
 for (let link of Links_to_test) { window.open(link,"_blank"); };
