@@ -35,12 +35,13 @@ Artstation | **AS** | case-sensitive alphanumeric
 Deviantart | **DA** | numeric
 Drawfriends | **DF** | numeric
 Hentai-Foundry | **HF** | numeric
+Instagram | **IG** | case-sensitive alphanumeric with underscore
 Pixiv | **PX** | numeric
 Tumblr | **TU** | none
 Twitter | **TW** | none
 MedicalWhiskey | **MW** | numeric
 VidyArt | **VA** | numeric
-Danbooru. | **DB** | numeric
+Danbooru | **DB** | numeric
 
 The resulting filename is compatible with https://github.com/0xb8/WiseTagger/issues/1 and can be further tweaked by specifying a *custom template* through the extension context menu.
 
@@ -58,6 +59,8 @@ By user request (`"SIR Image Renamer"` → `"Download with tags"`), content scri
 
 One can see what info is discovered by **SIR** (`"SIR Image Renamer"` → `"Highlight fetched tags?"`):
 ![Example of tag highlighting](./Img/tag_highlighting.png)
+
+For currently shown image or video on *Instagram*, the extension first promotes it to maximum available quality and then removes (right-click preventing) obstructions. This enables proper behavior not only for **SIR**, but for all the regular context menu options too (including third-party extensions depending on context menus, ex. `Image Search Options`!).
 
 When opening single images from `twimg.com` domain (*Twitter* hosting server), **SIR** will prompt you for navigation to their full-sized original counterparts.
 Additionally, if you're on *Pixiv* and are trying to save a thumbnail, **SIR** will halt you (but won't restrict your ability to proceed):
