@@ -87,10 +87,12 @@ To install and run the latest (non stable) version of this extension, follow the
 - Overabundant tags can sometimes exceed the filename length limit, thus they will be trimmed to nearest space below 230 symbols.  
 
 ## Planned features (TODO) ##
-- 'Options' page (as page action) to tweak and store persistent user options
-- Localisation _(…s?)_
-- Integration with Hydrus Network for stealing tags _(maybe?)_
-- Batch downloads _(maybe?)_
+- [x] Customizable template
+- [ ] 'Options' page (as page action) to tweak and store persistent user options
+- [ ] Download subfolder customization
+- [ ] Localisation _(…s?)_
+- [ ] Integration with ![Hydrus Network](https://github.com/hydrusnetwork/hydrus) for stealing tags _(maybe?)_
+- [ ] Batch downloads _(maybe?)_
 
 ## Known bugs ##
 - *Twitter* - when scrolling through the infinite view, unrelated tags are fetched (since **SIR** fetches tags from the whole visible area). Please save images from individual post page for now.
