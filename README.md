@@ -7,6 +7,8 @@
 [![coverage report](https://gitlab.com/Brawlence/SIR/badges/master/coverage.svg)](https://gitlab.com/Brawlence/SIR/commits/master)
 [![GitHub Releases](https://img.shields.io/github/v/release/Brawlence/SIR.svg)](https://github.com/Brawlence/SIR/releases)
 
+*Get it from the official stores here: [🦊 Firefox](https://addons.mozilla.org/firefox/addon/sir_image_renamer/), [🏐 Chrome](https://chrome.google.com/webstore/detail/sir-image-renamer/gmdcgijknjodfhggamchhhejamncbgmc)*  
+
 ## Features ##
 * Customizable naming template
 * Option to bypass 'Save As…' dialog
@@ -68,17 +70,18 @@ Additionally, if you're on *Pixiv* and are trying to save a thumbnail, **SIR** w
 ![Example alert](./Img/thumbnail_warning.png)
 
 ## Installation ##
-[Stable releases](https://github.com/Brawlence/SIR/releases) are published through the official stores:
-
-Firefox: https://addons.mozilla.org/firefox/addon/sir_image_renamer/
-
-Chromium: https://chrome.google.com/webstore/detail/sir-image-renamer/gmdcgijknjodfhggamchhhejamncbgmc
 
 To install and run the latest (non stable) version of this extension, follow these steps:
 - clone (or download the repository and unpack the archive) and place `Extension` folder in known location
 - for Firefox, navigate to Debug Addons menu (`about:debugging#/runtime/this-firefox` or Menu→Addons→'Gear' Dropdown→Debug Addons) and click on `Load Temporary Add-on…`
 - for Chrome, navigate to Extensions menu (`chrome://extensions/` or Menu→More tools→Extensions), enable the "Developer Mode" and click on `Load Unpacked`
 - proceed to the `Extension` folder, select either the folder itself (for Chrome) or the `manifest.json` file (for Firefox)
+
+[Stable releases](https://github.com/Brawlence/SIR/releases) are published through the official stores and can be found here:
+
+Firefox: https://addons.mozilla.org/firefox/addon/sir_image_renamer/
+
+Chromium: https://chrome.google.com/webstore/detail/sir-image-renamer/gmdcgijknjodfhggamchhhejamncbgmc
 
 ## Recommendations ##
 - **SIR** is a self-sufficient extension, yet it works wonders in conjunction with ![WiseTagger](https://github.com/0xb8/WiseTagger).
