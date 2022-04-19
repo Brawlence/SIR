@@ -7,10 +7,8 @@ const loc_dlWithTags = "Download with tags",
 	  loc_getTagsString = "Get tags string",
 	  loc_specifyTemplate = "Specify custom filename template...",
 	  loc_highlightTags = "Highlight fetched tags?",
+	  loc_clampUnicode  = "Allow Unicode >05FF in tags?",
 	  loc_supressSaveAs = "Supress 'Save As' dialog?",
-	  loc_thumnailWarning = "You have requested to save a thumbnail. If you want a full-sized picture instead, either:\n"+
-								"- click on it to enlarge before saving\n"+
-								"- use the 'Save link as...' context menu option.",
 	  loc_pixivOnChrome = "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it."+
 	  						"Tags window is invoked.\n Copy the tags and use the default 'Save As...' dialogue.";
 
@@ -29,7 +27,8 @@ const validComboSets = [				// valid combinations of tags origin, image hoster, 
 ];
 
 var invokeSaveAs = true,
-	useDecoration = false;
+	useDecoration = false,
+	clampUnicode = false;
 var firefoxEnviroment = false,
 	useIcons = false;
 var fileNameTemplate = "{handle}@{OR} {ID} {name} {caption} {tags}";
@@ -44,7 +43,7 @@ function validateAnswer(tagsOrigin, hosterUrl, requesterUrl) {
 	return false;
 };
 
-//TODO: maybe add DB & PIXIV expanding to maximum resolution availible?
+//TODO: maybe add DB expanding to maximum resolution availible?
 function processURL( /* object */ image, tabId) { 
 /* Cleans the URL of image object, shifts some information to name if needed */
 	let url = image.url,
@@ -71,15 +70,14 @@ function processURL( /* object */ image, tabId) {
 	
 	if (image.origin === "PX") {										// ! PIXIV — special case: additional tag 'page_' (since pixiv_xxxx can hold many images)
 		let PXpage = filename.substring(filename.indexOf('_p') + 2, filename.indexOf('.'));
-		let PXthumb = "";
 		
-		if (PXpage.indexOf('master') > -1) {
-			PXpage = PXpage.substring(0, PXpage.indexOf('_master'));
-			PXthumb = "-THUMBNAIL!-";	 								// if user wants to save a rescaled thumbnail, add a tag
-			sir.displayWarning(tabId, loc_thumnailWarning);
+		if (PXpage.indexOf('master') > -1) {							    // if a re-mastered image is selected, try to download the best availible one
+			PXpage = PXpage.replace(/\_master[\d]+/g,'');			    // url ex.: https://i.pximg.net/img-master/img/1970/01/01/11/59/59/12345678_p0_master1200.jpg
+			url = url.replace(/\/img-master\//g,'/img-original/');		// first part of the url
+			url = url.replace(/_master[\d]+\./g,'.');					// the file name
 		};
 
-		image.tags = image.tags + " page_" + PXpage + PXthumb;
+		image.tags = image.tags.replace(/(pixiv_[\d]+)/g,'$1 page_'+PXpage);
 	};
 
 	image.url = url;
@@ -89,6 +87,14 @@ function processURL( /* object */ image, tabId) {
 function generateFilename(image) {
 	if (image.ext.length > 5) image.ext = "maybe.jpeg";						// make sure that extention did not go out of bounds
 	if (image.tags === "") image.tags = "tagme"; 							// make sure the name is not left blank
+
+	if (clampUnicode) {														// if the Unicode limiter is set, clean the characters higher than Hebrew
+		let author_protection = "";											// but try to avoid the author tag during the processing
+		let handleEstimate = image.tags.match(/[^\s]*@[A-Za-z]{2}\s/g)[0];	// handle@XX format with trailing space
+		if (handleEstimate) author_protection = handleEstimate;
+		image.tags = image.tags.substring(handleEstimate.length);
+		image.tags = author_protection + " " + image.tags.replace(/[^\u0000-\u05ff]+/g,'');			
+	} 
 
 	image.tags = image.tags.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '')			// make sure the name in general doesn't contain any illegal characters
 						   .replace(/\s{2,}/g, ' ') 						// collapse multiple spaces
@@ -102,6 +108,7 @@ function generateFilename(image) {
 	image.filename = image.tags + "." + image.ext;
 };
 
+// singleton
 var sir = {
 	makeMenuItem: function (id, item, icon, clickable, useIcon) {
 	/* adds an individual item to the context menu and gives it the id passed into the function */
@@ -133,13 +140,14 @@ var sir = {
 		chrome.contextMenus.create({type: "separator", id:"separator2", contexts: ["image"]});
 
 		chrome.contextMenus.create({type: "checkbox",  id: "useDecoration", title: loc_highlightTags, checked: useDecoration, contexts: ["image"]});
+		chrome.contextMenus.create({type: "checkbox",  id: "clampUnicode",  title: loc_clampUnicode,  checked: !clampUnicode, contexts: ["image"]});
 		chrome.contextMenus.create({type: "checkbox",  id: "saveSilently",  title: loc_supressSaveAs, checked: !invokeSaveAs, contexts: ["image"]});
 	},
 
 	makeMenu: function () {
 	/* gets browser info and passes it to makeMenuItems to determine if things like icons are supported */
 		if (firefoxEnviroment) {
-			var gettingBrowserInfo = browser.runtime.getBrowserInfo();
+			let gettingBrowserInfo = browser.runtime.getBrowserInfo();
 			gettingBrowserInfo.then(sir.makeMenuItems);
 		} else {
 			sir.makeMenuItems();
@@ -340,6 +348,9 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an
 	case 'useDecoration':
 		useDecoration = !useDecoration;
 		sir.setupConnection(tab.id, "Highlight toggled.");
+		break;
+	case 'clampUnicode':
+		clampUnicode = !clampUnicode;
 		break;
 	case 'tmpl':
 		sir.promptTemplate(tab.id, fileNameTemplate);

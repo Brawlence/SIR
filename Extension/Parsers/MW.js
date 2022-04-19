@@ -1,5 +1,6 @@
 "use strict";
 var tagsOrigin = "MW";
+var ID_prefix  = "medicalwhiskey_";
 var windowDisplacement = 0;
 
 //For somewhat more robust anchoring instead of pre-calculated 29 one can use 
@@ -30,5 +31,5 @@ function getTags() {
 
 function getPictureID() {
 	let pic_ID = document.URL.substring(MW_ID_DISPLACEMENT).replace(/[\D]/g, '');
-	return (pic_ID)?"medicalwhiskey_"+pic_ID:"";
+	return (pic_ID)?ID_prefix+pic_ID:"";
 }

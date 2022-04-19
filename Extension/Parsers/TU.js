@@ -1,5 +1,6 @@
 "use strict";
 var tagsOrigin = "TU";
+var ID_prefix  = "";
 var windowDisplacement = 0;
 
 const styleTargets = "a[href*='/tagged/'], header div figcaption, header div h1 a";

@@ -1,5 +1,6 @@
 "use strict";
 var tagsOrigin = "DB";
+var ID_prefix  = "danbooru_";
 var windowDisplacement = 0;
 
 const styleTargets = "aside section a.search-tag";
@@ -27,7 +28,7 @@ function getPictureID() {
 	let lefter = pick("post-information").innerText.trim();
 	let id_string = lefter.match(/Id: [\d]+$/gim)[0];
 	if (id_string) {
-		return "danbooru_" + id_string.substring(4); //add the danboroo_ ID to the tags array 	
+		return ID_prefix + id_string.substring(4); //add the danboroo_ ID to the tags array 	
 	}
 	return "";
 }

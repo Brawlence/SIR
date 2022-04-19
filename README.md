@@ -14,7 +14,7 @@
 * Option to bypass 'Save As…' dialog
 * Fetched Tags String preview & copy _(with hotkeys!)_
 * Pixiv thumbnail warning on save request
-* Twitter max quality promoter & navigation prompt on 'View Image…'
+* Twitter, Pixiv max quality promoter & navigation prompt on 'View Image…'
 * Automatic handling of long names & multiple artists collaboration
 
 ## Description ##
@@ -57,7 +57,7 @@ If the active tab has this script responding, context menu items would be enable
 
 By user request (`"SIR Image Renamer"` → `"Download with tags"`), content scripts parse the page and pass the info to renaming procedure. This procedure suggests the file downloader a name to save the file by. "Save As" dialogue is invoked depending on whether the `Suppress 'Save As'` option was selected. By default, the image is saved in your browser's default download directory.
 
-*In addition, it is possible to manually get the list of tags by pressing `Ctrl+Shift+1` or selecting `"Get tags string"` in the context menu.*
+*In addition, it is possible to manually get the list of parsed tags by pressing `Ctrl+Shift+1` or selecting `"Get tags string"` in the context menu.*
 
 One can see what info is discovered by **SIR** (`"SIR Image Renamer"` → `"Highlight fetched tags?"`):
 ![Example of tag highlighting](./Img/tag_highlighting.png)
@@ -65,9 +65,7 @@ One can see what info is discovered by **SIR** (`"SIR Image Renamer"` → `"High
 For currently shown image or video on *Instagram*, the extension first promotes it to maximum available quality and then removes (right-click preventing) obstructions. This enables proper behavior not only for **SIR**, but for all the regular context menu options too (including third-party extensions depending on context menus, ex. `Image Search Options`!).
 
 When opening single images from `twimg.com` domain (*Twitter* hosting server), **SIR** will prompt you for navigation to their full-sized original counterparts.
-Additionally, if you're on *Pixiv* and are trying to save a thumbnail, **SIR** will halt you (but won't restrict your ability to proceed):
-
-![Example alert](./Img/thumbnail_warning.png)
+Additionally, on *Pixiv* invoking a menu from a thumbnail, queues the download of the full-resolution picture.
 
 ## Installation ##
 

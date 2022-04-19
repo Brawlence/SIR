@@ -1,5 +1,6 @@
 "use strict";
 var tagsOrigin = "HF";
+var ID_prefix  = "hfoundry_";
 var windowDisplacement = 0;
 
 const styleTargets = "div.boxbody td a[rel='tag']";
@@ -30,5 +31,5 @@ function getTags() {
 function getPictureID() {
 	let URLwithNoName = document.URL.substring(0,document.URL.lastIndexOf('/'));
 	let pic_ID = URLwithNoName.substring(URLwithNoName.lastIndexOf('/')).replace(/[\D]/g, '');
-	return (pic_ID)?"hfoundry_"+pic_ID:"";
+	return (pic_ID)?ID_prefix+pic_ID:"";
 }

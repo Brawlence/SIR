@@ -1,5 +1,6 @@
 "use strict";
 var tagsOrigin = "DF";
+var ID_prefix  = "drawfriends_";
 var windowDisplacement = 0;
 
 const styleTargets = "div#tag_list li a";
@@ -31,7 +32,7 @@ function getPictureID() {
 	var lefter = safeQuery('div [id="tag_list"]').innerText.trim();
 	let id_string = lefter.match(/Id: [\d]+$/gim)[0];
 	if (id_string) {
-		return "drawfriends_" + id_string.substring(4); //add the drawfriends_ ID to the tags array 	
+		return ID_prefix + id_string.substring(4); //add the drawfriends_ ID to the tags array 	
 	}
 	return "";
 }

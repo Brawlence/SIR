@@ -1,5 +1,6 @@
 "use strict";
 var tagsOrigin = "DA";
+var ID_prefix  = "deviantart_";
 var windowDisplacement = 0;
 
 const styleTargets = "div.dev-title-container a.discoverytag, a[href*='/tag/'], aside div h1.h3";
@@ -27,5 +28,5 @@ function getTags() {
 
 function getPictureID() {
 	let pic_ID = document.URL.substring(document.URL.lastIndexOf('-')).replace(/[\D]/g, ''); //Deviantart IDs are numbers after last dash
-	return (pic_ID)?"deviantart_"+pic_ID:"";
+	return (pic_ID)?ID_prefix+pic_ID:"";
 }

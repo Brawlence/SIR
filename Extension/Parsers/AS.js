@@ -1,5 +1,6 @@
 "use strict";
 var tagsOrigin = "AS";
+var ID_prefix  = "artstation_";
 var windowDisplacement = 90;
 
 //For somewhat more robust anchoring instead of pre-calculated 35 one can use 
@@ -28,5 +29,5 @@ function getTags() {
 
 function getPictureID() {
 	let pic_ID = document.URL.substring(AS_ID_DISPLACEMENT).replace(/[\W]/g, ''); //Artstation IDs contain A-z 0-9
-	return (pic_ID)?"artstation_"+pic_ID:"";
+	return (pic_ID)?ID_prefix+pic_ID:"";
 }

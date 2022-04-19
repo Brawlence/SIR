@@ -1,5 +1,6 @@
 "use strict";
 var tagsOrigin = "IG";
+var ID_prefix  = "instagram_";
 var windowDisplacement = 0;
 
 //For somewhat more robust anchoring instead of pre-calculated 28 one can use 
@@ -36,7 +37,7 @@ function getTags() {
 function getPictureID() {
     if (document.URL.indexOf('/p/') === -1) return;
     let pic_ID = document.URL.substring(IG_ID_DISPLACEMENT).replace(/[\W]/g, ''); //Instagram IDs contain A-z 0-9 and underscore
-	return (pic_ID)?"instagram_"+pic_ID:"";
+	return (pic_ID)?ID_prefix+pic_ID:"";
 }
 
 // ! Instagram-specific Image|Video unfvckery
