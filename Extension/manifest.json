@@ -7,7 +7,7 @@
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
-	"version": "1.7.0",
+	"version": "1.8.0",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [
@@ -24,7 +24,7 @@
 		{
 			"matches": ["*://*.pixiv.net/*", "*://*.pximg.net/*"],
 			"run_at": "document_end",
-			"js": ["Parsers/PX.js", "Content.js"]
+			"js": ["Parsers/PX.js", "Enhancers/PX.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.tumblr.com/post/*", "*://*.tumblr.com/image/*"],
@@ -34,7 +34,7 @@
 		{
 			"matches": ["*://*.twitter.com/*", "*://*.twimg.com/*"],
 			"run_at": "document_end",
-			"js": ["Parsers/TW.js", "Content.js"]
+			"js": ["Parsers/TW.js", "Enhancers/TW.js", "Content.js"]
 		},
 		{
 			"matches": ["*://*.hentai-foundry.com/pictures*"],
@@ -52,9 +52,9 @@
 			"js": ["Parsers/VA.js", "Content.js"]
 		},
 		{
-			"matches": ["*://danbooru.donmai.us/posts/*"],
+			"matches": ["*://danbooru.donmai.us/posts/*", "*://cdn.donmai.us/*"],
 			"run_at": "document_end",
-			"js": ["Parsers/DB.js", "Content.js"]
+			"js": ["Parsers/DB.js", "Enhancers/DB.js", "Content.js"]
 		},
 		{
 			"matches": ["*://medicalwhiskey.com/?p=*"],
@@ -64,7 +64,7 @@
 		{
 			"matches": ["*://www.instagram.com/*"],
 			"run_at": "document_end",
-			"js": ["Parsers/IG.js", "Content.js"]
+			"js": ["Parsers/IG.js", "Enhancers/IG.js", "Content.js"]
 		}
 	],
 	"background": {

@@ -32,4 +32,8 @@ function getPictureID() {
 	let URLwithNoName = document.URL.substring(0,document.URL.lastIndexOf('/'));
 	let pic_ID = URLwithNoName.substring(URLwithNoName.lastIndexOf('/')).replace(/[\D]/g, '');
 	return (pic_ID)?ID_prefix+pic_ID:"";
-}
+};
+
+function parseAdditionalLinks() {
+	return [];
+};

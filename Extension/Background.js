@@ -2,14 +2,14 @@
 
 const FILENAME_LENGTH_CUTOFF = 230;		// 230 is an arbitary number, on most systems the full filename shouldn't exceed 255 symbols
 
-const loc_dlWithTags = "Download with tags",
-	  loc_noTagsFetched = "No tags were fetched from this page",
-	  loc_getTagsString = "Get tags string",
+const loc_dlWithTags      = "Download with tags",
+	  loc_noTagsFetched   = "No tags were fetched from this page",
+	  loc_getTagsString   = "Get tags string",
 	  loc_specifyTemplate = "Specify custom filename template...",
-	  loc_highlightTags = "Highlight fetched tags?",
-	  loc_clampUnicode  = "Allow Unicode >05FF in tags?",
-	  loc_supressSaveAs = "Supress 'Save As' dialog?",
-	  loc_pixivOnChrome = "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it."+
+	  loc_highlightTags   = "Highlight fetched tags?",
+	  loc_clampUnicode    = "Allow Unicode >05FF in tags?",
+	  loc_supressSaveAs   = "Supress 'Save As' dialog?",
+	  loc_pixivOnChrome   = "PIXIV refuses to serve pictures without the correct referrer. Currently there is no way around it."+
 	  						"Tags window is invoked.\n Copy the tags and use the default 'Save As...' dialogue.";
 
 const validComboSets = [				// valid combinations of tags origin, image hoster, image user
@@ -22,7 +22,7 @@ const validComboSets = [				// valid combinations of tags origin, image hoster, 
 	["TU", "tumblr", 		"tumblr"],
 	["VA", "img.booru.org",	"vidyart"],
 	["MW", "medicalwhiskey","medicalwhiskey"],
-	["DB", "danbooru",		"danbooru"],
+	["DB", "cdn.donmai.us",	"danbooru"],
 	["IG", "fbcdn",			"instagram"]
 ];
 
@@ -43,7 +43,6 @@ function validateAnswer(tagsOrigin, hosterUrl, requesterUrl) {
 	return false;
 };
 
-//TODO: maybe add DB expanding to maximum resolution availible?
 function processURL( /* object */ image, tabId) { 
 /* Cleans the URL of image object, shifts some information to name if needed */
 	let url = image.url,
@@ -58,27 +57,48 @@ function processURL( /* object */ image, tabId) {
 		ext = filename.substring(filename.lastIndexOf('.') + 1); 		// extract extension
 	};
 	
-	if (image.origin === "TW") {			 							// ! TWITTER - special case: extracting EXT
-		if (filename.indexOf('?') > -1) {
-			ext = url.substr( url.indexOf('format=')+7, 3 );			// as far as I know, Twitter uses only png, jpg or svg - all ext are 3-lettered
-			url = url.replace(/(name=[\w\d]+)/g,'name=orig'); 			// force Twitter to serve us with original image
-		} else {
-			ext = ext.substring(0, (ext.indexOf(':')>0)?ext.indexOf(':'):ext.length);
-			url = url.substring(0, (url.indexOf(':')>0)?url.lastIndexOf(':'):url.length) + ":orig";
-		};
-	}; 
-	
-	if (image.origin === "PX") {										// ! PIXIV — special case: additional tag 'page_' (since pixiv_xxxx can hold many images)
-		let PXpage = filename.substring(filename.indexOf('_p') + 2, filename.indexOf('.'));
-		
-		if (PXpage.indexOf('master') > -1) {							    // if a re-mastered image is selected, try to download the best availible one
-			PXpage = PXpage.replace(/\_master[\d]+/g,'');			    // url ex.: https://i.pximg.net/img-master/img/1970/01/01/11/59/59/12345678_p0_master1200.jpg
-			url = url.replace(/\/img-master\//g,'/img-original/');		// first part of the url
-			url = url.replace(/_master[\d]+\./g,'.');					// the file name
-		};
+	switch (image.origin) {
+		case "TW":			 											// ! TWITTER - special case: extracting EXT
+			if (filename.indexOf('?') > -1) {
+				ext = url.substr( url.indexOf('format=')+7, 3 );		// as far as I know, Twitter uses only png, jpg or svg - all ext are 3-lettered
+				url = url.replace(/(name=[\w\d]+)/g,'name=orig'); 		// force Twitter to serve us the original image
+			} else {
+				ext = ext.substring(0, (ext.indexOf(':')>0)?ext.indexOf(':'):ext.length);
+				url = url.substring(0, (url.indexOf(':')>0)?url.lastIndexOf(':'):url.length) + ":orig";
+			};			
+			break;
 
-		image.tags = image.tags.replace(/(pixiv_[\d]+)/g,'$1 page_'+PXpage);
-	};
+		case "PX":														// ! PIXIV — special case: additional tag 'page_' (since pixiv_xxxx can hold many images)
+			let PXpage = filename.substring(filename.indexOf('_p') + 2, filename.indexOf('.'));
+			
+			if (PXpage.indexOf('master') > -1) {						// if a re-mastered image is selected, try to download the best availible one
+				PXpage = PXpage.replace(/\_master[\d]+/g,'');			// url ex.: https://i.pximg.net/img-master/img/1970/01/01/11/59/59/12345678_p0_master1200.jpg
+				if (image.overrideURLs) {
+					url = image.overrideURLs[PXpage];
+					filename = url.substring(url.lastIndexOf('/') + 1);
+					ext = filename.substring(filename.lastIndexOf('.') + 1);
+				} else {			
+					url = url.replace(/\/img-master\//g,'/img-original/');	// first part of the url
+					url = url.replace(/_master[\d]+\./g,'.');				// the file name part
+				};
+			};
+
+			image.tags = image.tags.replace(/(pixiv_[\d]+)/g,'$1 page_'+PXpage);
+			break;
+
+		case "DB":														// ! DANBOORU - requesting an original
+			if (url.indexOf('/sample/') > -1) {
+				if (image.overrideURLs) {
+					url = image.overrideURLs[0];
+					filename = url.substring(url.lastIndexOf('/') + 1);
+					ext = filename.substring(filename.lastIndexOf('.') + 1);
+				} else {
+					url = url.replace(/\/sample\//g,'/original/');		// first part of the url
+					url = url.replace(/_sample-/g,'_');					// the file name part *
+				};
+			};
+			break;
+	}
 
 	image.url = url;
 	image.ext = ext;
@@ -90,13 +110,14 @@ function generateFilename(image) {
 
 	if (clampUnicode) {														// if the Unicode limiter is set, clean the characters higher than Hebrew
 		let author_protection = "";											// but try to avoid the author tag during the processing
-		let handleEstimate = image.tags.match(/[^\s]*@[A-Za-z]{2}\s/g)[0];	// handle@XX format with trailing space
-		if (handleEstimate) author_protection = handleEstimate;
-		image.tags = image.tags.substring(handleEstimate.length);
+		let handleEstimates = image.tags.match(/[^\s]*@[A-Za-z]{2}\s/g);	// handle@XX format with trailing space
+		if (handleEstimates) author_protection = handleEstimates[0];
+		image.tags = image.tags.substring(author_protection.length);
 		image.tags = author_protection + " " + image.tags.replace(/[^\u0000-\u05ff]+/g,'');			
 	} 
 
 	image.tags = image.tags.replace(/[,\\/:*?"<>|\t\n\v\f\r]/g, '')			// make sure the name in general doesn't contain any illegal characters
+						   .replace(/\s\(\s*\)\s?/g, ' ')					// remove empty brackets
 						   .replace(/\s{2,}/g, ' ') 						// collapse multiple spaces
 	 					   .trim();
 	
@@ -263,43 +284,53 @@ var sir = {
 					//console.warn(chrome.runtime.lastError.message);
 				} else {
 					if ( (typeof response === 'undefined') ||
-					     (!validateAnswer(response.origin, imageObject.srcUrl, imageObject.pageUrl)) ) return;
-					
-					let image = {
-							origin: response.origin, 
-							url: imageObject.srcUrl,
-							tags: response.tagString,
-							ext: "unknown",
-							filename: "tagme.jpg" 
-						};
-					
-					processURL(image, tabId);
-					generateFilename(image);
-					
+						 (!validateAnswer(response.origin, imageObject.srcUrl, imageObject.pageUrl)) ) return;
+
 					if (!firefoxEnviroment && response.origin === "PX") {
 						sir.displayWarning(tabId, loc_pixivOnChrome);
 						sir.invokeTagsField(tabId);
 						return;
 					};
+
+					let imageURL = "", imageReferer = "";
+					if (imageObject === null) { 
+						imageURL = response.linksArray[0];
+						imageReferer = response.pageAt;
+					} else {
+						imageURL = imageObject.srcUrl;
+						imageReferer = imageObject.pageUrl;
+					};
+
+					let image = {
+							origin: response.origin, 
+							url: imageURL,
+							overrideURLs: response.linksArray,
+							tags: response.tagString,
+							ext: "unknown",
+							filename: "tagme" 
+						};
+					
+					processURL(image, tabId);
+					generateFilename(image);
 					
 					//console.log("Attempting to download:\n url: " + image.url + "\n Filename: " + image.filename + "\n (length: " + image.filename.length + ")");
 
-					chrome.downloads.download({
-						url: image.url,
-						filename: image.filename,
-						saveAs: invokeSaveAs,
-						headers: (firefoxEnviroment ? ( [{ name: 'referrer', value: imageObject.pageUrl }, { name: 'referer', value: imageObject.pageUrl }] ) : [])
-					}, function reportOnDownloading() {
-						if (chrome.runtime.lastError) {
-							/*
-							if (chrome.runtime.lastError.message.indexOf('user') > -1) {
-								console.log(chrome.runtime.lastError.message);
-							} else {
-								console.warn(chrome.runtime.lastError.message);
+						chrome.downloads.download({
+							url: image.url,
+							filename: image.filename,
+							saveAs: invokeSaveAs,
+							headers: (firefoxEnviroment ? ( [{ name: 'referrer', value: imageReferer }, { name: 'referer', value: imageReferer }] ) : [])
+						}, function reportOnDownloading() {
+							if (chrome.runtime.lastError) {
+								/*
+								if (chrome.runtime.lastError.message.indexOf('user') > -1) {
+									console.log(chrome.runtime.lastError.message);
+								} else {
+									console.warn(chrome.runtime.lastError.message);
+								};
+								*/
 							};
-							*/
-						};
-					});		
+						});
 				}
 			}
 		)
@@ -323,20 +354,31 @@ chrome.tabs.onUpdated.addListener(
 
 chrome.commands.onCommand.addListener(
 	function hotkey_triggered(command) {
-		if (command === "SIR_it") {
-			chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
-				for (let tab of result) {
-					sir.invokeTagsField(tab.id);
-				}
-			});
-		} else if (command === "Decorate") {
-			chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
-				for (let tab of result) {
-					useDecoration = !useDecoration;
-					sir.setupConnection(tab.id, "Highlight toggled.");
-				}
-			});
-		}
+		switch (command) {
+			case "SIR_it":
+				chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
+					for (let tab of result) {
+						sir.invokeTagsField(tab.id);
+					}
+				});				
+				break;
+			
+			case "Decorate":
+				chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
+					for (let tab of result) {
+						useDecoration = !useDecoration;
+						sir.setupConnection(tab.id, "Highlight toggled.");
+					}
+				});
+				break;
+
+			/*case "Batch_DL":
+				chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (result) {
+					for (let tab of result) sir.dlWithTags(null, tab.id, true);
+				});	
+				break;
+				*/
+		};
 	}
 );
 

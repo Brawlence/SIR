@@ -27,4 +27,8 @@ function getTags() {
 
 function getPictureID() {
 	return "";
-}
+};
+
+function parseAdditionalLinks() {
+	return [];
+};

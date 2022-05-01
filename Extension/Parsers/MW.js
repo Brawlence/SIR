@@ -32,4 +32,8 @@ function getTags() {
 function getPictureID() {
 	let pic_ID = document.URL.substring(MW_ID_DISPLACEMENT).replace(/[\D]/g, '');
 	return (pic_ID)?ID_prefix+pic_ID:"";
-}
+};
+
+function parseAdditionalLinks() {
+	return [];
+};

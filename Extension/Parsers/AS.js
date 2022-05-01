@@ -7,10 +7,10 @@ var windowDisplacement = 90;
 //const AS_ID_DISPLACEMENT = document.URL.lastIndexOf('work/')+5;
 const AS_ID_DISPLACEMENT = 35;
 
-const styleTargets = "div.tags a, aside div.name a, aside div h1.h3";
+const styleTargets = "div.tags a, aside div.name a, li.project-tag a, aside div.project-author-name a, aside div h1.h3";
 
 function getAuthorHandle() {
-	var profilelink = safeQuery('aside div.name a').href;
+	var profilelink = safeQuery('aside div.name a, aside div.project-author-name a').href;
 	return profilelink.substring(profilelink.lastIndexOf('/')+1).replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '-');
 };
 
@@ -24,10 +24,15 @@ function getPictureName() {
 
 /* FINALLY - an Artstation tag is a link (a) inside a div with tags class - it's complete with a hash sign */
 function getTags() {
-	return safeGetByClass("tags")[0].innerText.substring(7).replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '_').replace(/#/g, ' ');
+	return safeGetByClass("project-tags")[0].innerText.replace(/#/g, ' ').replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '_');
 };
 
 function getPictureID() {
 	let pic_ID = document.URL.substring(AS_ID_DISPLACEMENT).replace(/[\W]/g, ''); //Artstation IDs contain A-z 0-9
 	return (pic_ID)?ID_prefix+pic_ID:"";
-}
+};
+
+function parseAdditionalLinks() {
+	// TODO: parse the download button link if it's present
+	return [];
+};

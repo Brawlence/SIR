@@ -29,4 +29,9 @@ function getTags() {
 function getPictureID() {
 	let pic_ID = document.URL.substring(document.URL.lastIndexOf('-')).replace(/[\D]/g, ''); //Deviantart IDs are numbers after last dash
 	return (pic_ID)?ID_prefix+pic_ID:"";
-}
+};
+
+function parseAdditionalLinks() {
+	// TODO: parse the download button link if it's present
+	return [];
+};

@@ -35,4 +35,8 @@ function getPictureID() {
 		return ID_prefix + id_string.substring(4); //add the drawfriends_ ID to the tags array 	
 	}
 	return "";
-}
+};
+
+function parseAdditionalLinks() {
+	return [];
+};

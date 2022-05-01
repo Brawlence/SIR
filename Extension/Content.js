@@ -19,7 +19,7 @@ const sirBoxStyle = String.raw`
 	div#sirArea {
 		left: 20px;
 		position: fixed;
-		z-index: 255;
+		z-index: 16777216;
 		border-width: 3px;
 		border-style: solid;
 		padding: 5px;
@@ -88,12 +88,13 @@ const lowerParagraph_btns = String.raw`
 const loc_templateUpdatePrompt = String.raw`
             SPECIFY YOUR CUSTOM TEMPLATE
 
-{handle} - Author Handle (unique for the platform)
-{ID} - ID of the picture (platform-unique)
-{OR} - Tags Origin (2-symbols long platform ID)
-{name} - Author name
-{caption} - Picture caption
-{tags} - Tags string
+ {handle} - Author Handle (unique for the platform)
+ {ID} - ID of the picture (platform-unique)
+ {OR} - Tags Origin (2-symbols long platform ID)
+ {name} - Author name
+ {caption} - Picture caption
+ {selection} - The text you have selected
+ {tags} - Tags string
 `;
 
 function pick(element) {
@@ -144,7 +145,8 @@ function safeGetByClass(classSelector) {
 // relies on defined get...() functions in XX_tagsParser.js
 function getNameBy(template) {
 	let authorHandle = getAuthorHandle(),
-		pictureID = getPictureID();
+		pictureID = getPictureID(),
+		selectionText = document.getSelection().toString().replace(/\n/g, ' ');
 
 	if ( (!authorHandle) && pictureID) template = template.replace(/@\{OR\}/g, ''); // if there is no authorHandle and we have an ID, ignore '@XX' in the template
 	if (authorHandle.length > AUTHOR_HANDLE_LENGTH_CUTOFF) {						// if authorHandle is too big (multiple artists?), trim it
@@ -157,11 +159,17 @@ function getNameBy(template) {
 	template = template.replace(/\{ID\}/g, pictureID);
 	template = template.replace(/\{name\}/g, getAuthorName());
 	template = template.replace(/\{caption\}/g, getPictureName());
+	template = template.replace(/\{selection\}/g, selectionText);
 	template = template.replace(/\{tags\}/g, getTags());
 
 	template = template.replace(/\s{2,}/g, ' ').trim();
 
 	return template;
+};
+
+function getLinksArr() {
+	let array = parseAdditionalLinks();
+	return array || [];	
 };
 
 // ! Drag-able elderMagicField 
@@ -295,7 +303,7 @@ chrome.runtime.onMessage.addListener(
 				setHighlight(request.useDecor);
 				break;
 			case 'giffTags':
-				sendResponse({tagString: getNameBy(request.template), origin: tagsOrigin});
+				sendResponse({tagString: getNameBy(request.template), origin: tagsOrigin, linksArray: getLinksArr(), pageAt: document.URL});
 				break;
 			case 'getTagsString':
 				createTagsStringField(request.template);

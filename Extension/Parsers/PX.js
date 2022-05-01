@@ -30,24 +30,12 @@ function getTags() {
 function getPictureID() {
 	let pic_ID = document.URL.substring(document.URL.lastIndexOf('/')).replace(/[\D]/g, '');
 	return (pic_ID)?ID_prefix+pic_ID:"";
-}
+};
 
-function promptToNavigate() {
-	let url = document.URL;
-	if ( (url.indexOf('img-master') > -1) &&
-	     (url.indexOf('_master') > -1 ) &&
-		 confirm("Open this image in original quality?") ) {
-		
-		let ID = url.substring(url.lastIndexOf('/') + 1, url.indexOf('_'));
-		if (confirm("This won't work unless you had already requested the image from the original post page:\nhttps://www.pixiv.net/artworks/" + ID + "\nTry anyway? ('No' to open the post link)")) {
-			url = url.replace(/\/img-master\//g,'/img-original/');		// first part of the url
-			url = url.replace(/_master[\d]+\./g,'.');					// the file name
-
-			window.location = url; 										// adds to the History, allowing to roll back
-		} else {
-			window.location = "https://www.pixiv.net/artworks/" + ID; 	// the same as above
-		}
+function parseAdditionalLinks() {
+	let arr = [];
+	for (let imageObject of document.querySelectorAll('body div#root main section div[role~="presentation"] a')) {
+		arr.push(imageObject.href);
 	}
-}
-
-setTimeout(promptToNavigate, 200);
+	return arr;
+};
