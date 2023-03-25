@@ -31,6 +31,8 @@ _{name}_ is author's human-readable name (often it's not the same as handle!),
 _{caption}_ is the image title as specified by the creator,
 _{tags}_ is a string of tags, separated by spaces (in-tag spaces are replaced by underscores).
 
+Additionally, the selected text can be passed on as well with _{selection}_ string.
+
 Supported site | OR ('origin') | ID type
 --------------- | --------------- |  --------------- 
 Artstation | **AS** | case-sensitive alphanumeric
@@ -44,6 +46,8 @@ Twitter | **TW** | none
 MedicalWhiskey | **MW** | numeric
 VidyArt | **VA** | numeric
 Danbooru | **DB** | numeric
+TODO: Kemono-Party | **KP** | ???
+TODO: Gumroad | **GR** | ???
 
 The resulting filename is compatible with https://github.com/0xb8/WiseTagger/issues/1 and can be further tweaked by specifying a *custom template* through the extension context menu.
 
