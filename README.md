@@ -14,7 +14,7 @@
 * Option to bypass 'Save As…' dialog
 * Fetched Tags String preview & copy _(with hotkeys!)_
 * Pixiv thumbnail warning on save request
-* Twitter, Pixiv max quality promoter & navigation prompt on 'View Image…'
+* Pixiv, X (Twitter), Danbooru max quality promoter & navigation prompt on 'View Image…'
 * Automatic handling of long names & multiple artists collaboration
 
 ## Description ##
@@ -42,7 +42,7 @@ Hentai-Foundry | **HF** | numeric
 Instagram | **IG** | case-sensitive alphanumeric with underscore
 Pixiv | **PX** | numeric
 Tumblr | **TU** | none
-Twitter | **TW** | none
+X (Twitter) | **TW** | none
 MedicalWhiskey | **MW** | numeric
 VidyArt | **VA** | numeric
 Danbooru | **DB** | numeric
@@ -53,7 +53,7 @@ The resulting filename is compatible with https://github.com/0xb8/WiseTagger/iss
 
 *Please note:*
 - *On some sites many or all identifiers could be missing (and thus cannot be fetched).*
-- *No Unique IDs are known for Twitter and Tumblr. If you do happen to know how to decipher ids for these platforms, please contact me.*
+- *No Unique IDs are known for X (Twitter) and Tumblr. If you do happen to know how to decipher ids for these platforms, please contact me.*
 
 ## Technical details ##
 Every time a new page from the listed domains is loaded, **SIR** adds to it a content script, which responds for pings from the extension.
