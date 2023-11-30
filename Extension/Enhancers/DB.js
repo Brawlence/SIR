@@ -2,8 +2,8 @@
 
 function promptToNavigate() {
 	let url = document.URL;
-	if ( (url.indexOf('/sample/') > -1) && 
-	     (url.indexOf('sample-') > -1 ) &&
+	if ( (url.indexOf('/sample/') > -1) &&
+		 (url.indexOf('sample-') > -1 ) &&
 		 confirm("Open this image in original quality?") ) {
 			
 			url = url.replace(/\/sample\//g,'/original/');			// first part of the url
@@ -13,7 +13,7 @@ function promptToNavigate() {
 
 			setTimeout(promptToNavigate, 200);			
 	} else {
-		if (document.body.innerText.indexOf('404 Not Found') === 0 || document.body.innerText.indexOf('403 Forbidden') === 0) {
+		if (document.body.innerText.indexOf('404 Not Found') === 0 || document.body.innerText.indexOf('403 Forbidden') === 0) { // sometimes the originals for Danbooru are PNGs
 			let ext = url.substring(url.lastIndexOf('.'));
 			if ((ext.indexOf('jpg') > -1 ) ||
 			    (ext.indexOf('jpeg') > -1)) {

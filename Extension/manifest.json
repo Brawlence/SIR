@@ -65,6 +65,11 @@
 			"matches": ["*://www.instagram.com/*"],
 			"run_at": "document_end",
 			"js": ["Parsers/IG.js", "Enhancers/IG.js", "Content.js"]
+		},
+		{
+			"matches": ["*://*.kemono.su/*", "*://*.kemono.party/*"],
+			"run_at": "document_end",
+			"js": ["Enhancers/KP.js"]
 		}
 	],
 	"background": {
