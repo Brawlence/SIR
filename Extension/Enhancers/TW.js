@@ -1,11 +1,16 @@
 "use strict";
 
 function promptToNavigate() {
-	if ( (document.URL.indexOf('twimg') > -1) && (document.URL.indexOf('orig') < 1 ) && (document.URL.indexOf('4096x4096') < 1) && confirm("Open this image in original quality?") ) {
-		if (document.URL.indexOf('?') > -1) {
-			window.location.replace(document.URL.replace(/(&?name=[\w\d]+&?)/g,'') + "&name=orig"); // won't add the changed location to the browser history as the new object
+	let url = document.URL;
+	if ( (url.indexOf('twimg') > -1) &&
+		 (url.indexOf('orig') < 1 ) &&
+		 (url.indexOf('4096x4096') < 1) &&
+		 confirm("Open this image in original quality?") ) {
+
+		if (url.indexOf('?') > -1) {
+			window.location.replace(url.replace(/(&?name=[\w\d]+&?)/g,'') + "&name=orig"); // won't add the changed location to the browser history as the new object
 		} else {
-			window.location.replace(document.URL.substring(0, (document.URL.lastIndexOf(':')>10)?document.URL.lastIndexOf(':'):document.URL.length) + ":orig"); // 10 because there is always : in http://
+			window.location.replace(url.substring(0, (url.lastIndexOf(':')>10)?url.lastIndexOf(':'):url.length) + ":orig"); // 10 because there is always : in http://
 		};	
 	}
 };
