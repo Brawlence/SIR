@@ -2,11 +2,16 @@
 
 function promptToNavigate() {
 	let url = document.URL;
-	if ( (url.indexOf('/sample/') > -1) &&
-		 (url.indexOf('sample-') > -1 ) &&
-		 confirm("Open this image in original quality?") ) {
+	if ( ((url.indexOf('/sample/') > -1) && (url.indexOf('sample-') > -1 )) ||
+		 (url.indexOf('/180x180/') > -1) ||
+		 (url.indexOf('/360x360/') > -1) ||
+		 (url.indexOf('/720x720/') > -1 ) ) {
+
+		if (!confirm("Open this image in original quality?")) {
+			return;
+		};
 			
-			url = url.replace(/\/sample\//g,'/original/');			// first part of the url
+			url = url.replace(/\/sample\/|\/180x180\/|\/360x360\/|\/720x720\//g,'/original/');			// first part of the url
 			url = url.replace(/_sample-/g,'_');						// the file name part
 
 			window.location = url; 									// adds to the History, allowing to roll back
