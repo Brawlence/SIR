@@ -20,7 +20,12 @@ function getPictureName() {
 function getTags() {
 	var	tempString = safeQuery('textarea[id="post_tag_string"]').innerHTML;
 	tempString = tempString.replace(/\n/g,'');
-	let failover_noLogin = safeQuery('section[id="tag-list"]').innerText.replace(/(Copyrights|Characters|Artists|Tags|General|Meta)\n/g, '').replace(/\? ([\w\:\_\~\^\-\(\) ]+) [\d\.]+(k|M|G)?$/gmi,'$1').replace(/ /g, '_').replace(/[,\\/:?<>\t\n\v\f\r]/g, ' ');
+	let failover_noLogin = safeQuery('section[id*="tag-"]').innerText
+							.replace(/(Copyright[s]?|Character[s]?|Artist[s]?|Tags|General|Meta)\n/g, '')
+							.replace(/\?[\t\n\r\ ]/g,'')
+							.replace(/\s[\d\.]+(k|M|G)?\n?/g,'\n')
+							.replace(/ /g, '_')
+							.replace(/[,\\/:?<>\t\n\v\f\r]/g, ' ');
 	return tempString.replace(/\s?(\w+?)_\((art|color)ist\)/g, '').replace(/[,\\/:?<>\t\n\v\f\r]/g, '_') || failover_noLogin;
 };
 

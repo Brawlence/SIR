@@ -384,26 +384,26 @@ chrome.commands.onCommand.addListener(
 
 chrome.contextMenus.onClicked.addListener(function (info, tab) { // ! info is an object which spawned the menu, tab is literally a tab object where the action happened
 	switch (info.menuItemId) {
-	case 'saveSilently':
-		invokeSaveAs = !invokeSaveAs;
-		break;
-	case 'useDecoration':
-		useDecoration = !useDecoration;
-		sir.setupConnection(tab.id, "Highlight toggled.");
-		break;
-	case 'clampUnicode':
-		clampUnicode = !clampUnicode;
-		break;
-	case 'tmpl':
-		sir.promptTemplate(tab.id, fileNameTemplate);
-		break;
-	case 'gts':
-		sir.invokeTagsField(tab.id); 							// ! so tab.id will be passed
-		break;
-	case 'dl':
-		sir.dlWithTags(info, tab.id);
-		break;
-	default:
-		//console.error("Strange thing happened in Menu handling. Info state: " + info + "\nTab state: " + tab);
+		case 'saveSilently':
+			invokeSaveAs = !invokeSaveAs;
+			break;
+		case 'useDecoration':
+			useDecoration = !useDecoration;
+			sir.setupConnection(tab.id, "Highlight toggled.");
+			break;
+		case 'clampUnicode':
+			clampUnicode = !clampUnicode;
+			break;
+		case 'tmpl':
+			sir.promptTemplate(tab.id, fileNameTemplate);
+			break;
+		case 'gts':
+			sir.invokeTagsField(tab.id); 							// ! so tab.id will be passed
+			break;
+		case 'dl':
+			sir.dlWithTags(info, tab.id);
+			break;
+		default:
+			//console.error("Strange thing happened in Menu handling. Info state: " + info + "\nTab state: " + tab);
 	}
 });
