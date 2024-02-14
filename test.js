@@ -1,7 +1,7 @@
 // TODO: Implement proper testing suite
 let Links_to_test = [
     "https://www.artstation.com/artwork/zARRXD",                                                // ID is alphanumeric
-    "https://deviantart.com/view/787225844",                                                    // Original was "https://www.deviantart.com/chrissiezullo/art/Nejire-Hadou-787225844"
+    "https://deviantart.com/view/773367018",                                                    // Special case: parsing download link; "https://www.deviantart.com/warrenlouw/art/Ochaco-Uraraka-773367018"
     "https://danbooru.donmai.us/posts/3887268",                                                 // Special case: tags string > 230 characters limit
     "https://drawfriends.booru.org/index.php?page=post&s=view&id=99115",                        //
     "https://www.hentai-foundry.com/pictures/774805",                                           // Original was "https://www.hentai-foundry.com/pictures/user/BBC-Chan/774805/Elyzabeth-1"

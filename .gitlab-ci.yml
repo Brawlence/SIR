@@ -3,10 +3,29 @@ image: node:latest
 before_script:
   - npm install --global web-ext
 
+stages:
+  - build
+  - verify
+
 submit_amo:
   stage: build
   only:
-   - master
+    - master
   allow_failure: true
   script:
-    - web-ext sign --source-dir=./Extension/ --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=listed --id="{3846b265-95c4-4371-9853-86df1b8cbaaa}"
+    - web-ext sign --source-dir=./Extension/ --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=listed --id="{3846b265-95c4-4371-9853-86df1b8cbaaa}" 1> webext-sign.log 2> webext-error.log
+  artifacts:
+    when: always
+    paths:
+      - webext-sign.log
+      - webext-error.log
+
+submission_check:
+  stage: verify
+  script:
+    - ls -a
+    - cat webext-sign.log
+    - cat webext-error.log
+    - grep -q 'add-on has been submitted for review' webext-sign.log && echo "Submission successful!"
+  dependencies:
+    - submit_amo
