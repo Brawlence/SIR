@@ -18,15 +18,26 @@ function getPictureName() {
 };
 
 function getTags() {
-	var	tempString = safeQuery('textarea[id="post_tag_string"]').innerHTML;
-	tempString = tempString.replace(/\n/g,'');
+	/* A pretty stupid way to do things, I realize
 	let failover_noLogin = safeQuery('section[id*="tag-"]').innerText
 							.replace(/(Copyright[s]?|Character[s]?|Artist[s]?|Tags|General|Meta)\n/g, '')
 							.replace(/\?[\t\n\r\ ]/g,'')
 							.replace(/\s[\d\.]+(k|M|G)?\n?/g,'\n')
 							.replace(/ /g, '_')
 							.replace(/[,\\/:?<>\t\n\v\f\r]/g, ' ');
-	return tempString.replace(/\s?(\w+?)_\((art|color)ist\)/g, '').replace(/[,\\/:?<>\t\n\v\f\r]/g, '_') || failover_noLogin;
+	*/
+	let tagsArray = document.querySelectorAll('aside section ul:not(.artist-tag-list) a.search-tag');
+	let tagsString = "";
+	for (let tagObj of tagsArray) tagsString += " " + tagObj.innerText.replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '_');
+
+	// a back-up if case the main detection fails and the user is logged in
+	// try extracting from the 'tag edit' textfield
+	let	failover_Login = safeQuery('textarea[id="post_tag_string"]').innerHTML;
+	failover_Login = failover_Login.replace(/\n/g,'')
+								   .replace(/\s?(\w+?)_\((art|color)ist\)/g, '')
+								   .replace(/[,\\/:?<>\t\n\v\f\r]/g, '_');
+
+	return tagsString || failover_Login;
 };
 
 function getPictureID() {
