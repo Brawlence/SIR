@@ -74,13 +74,16 @@ function processURL( /* object */ image, tabId) {
 			
 			if (PXpage.indexOf('master') > -1) {						// if a re-mastered image is selected, try to download the best availible one
 				PXpage = PXpage.replace(/\_master[\d]+/g,'');			// url ex.: https://i.pximg.net/img-master/img/1970/01/01/11/59/59/12345678_p0_master1200.jpg
-				if (image.overrideURLs) {
+				if (false && image.overrideURLs) {						// TODO 2024-07: currently overrideURLs won't fetch the images on the page, problem with the new viewer?		
+					if (PXpage >= image.overrideURLs.length) PXpage = 0;
 					url = image.overrideURLs[PXpage];
 					filename = url.substring(url.lastIndexOf('/') + 1);
 					ext = filename.substring(filename.lastIndexOf('.') + 1);
 				} else {			
 					url = url.replace(/\/img-master\//g,'/img-original/');	// first part of the url
 					url = url.replace(/_master[\d]+\./g,'.');				// the file name part
+					url = url.replace(/jpg/g,'png');						// the extension (hope this breaks nothing!)
+					ext = "png";
 				};
 			};
 

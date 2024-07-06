@@ -22,3 +22,6 @@ for (let link of Links_to_test) { window.open(link,"_blank"); };
 //3. Download With Tags actually downloading the file
 //4. File length trimming to below 200 symbols
 //5. Multiple authors are trimmed to below 100 symols
+
+// TODO: INVESTIGATE FAILURE to start DL on previews here: https://www.pixiv.net/en/artworks/74735407#1
+// Possibly has to do with jpg → png difference in preview and DL
