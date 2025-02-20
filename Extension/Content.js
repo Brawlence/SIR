@@ -93,7 +93,7 @@ const loc_templateUpdatePrompt = String.raw`
  {OR} - Tags Origin (2-symbols long platform ID)
  {name} - Author name
  {caption} - Picture caption
- {selection} - The text you have selected
+ {selection} - The text you have selected (trimmed to 128 symbols)
  {tags} - Tags string
 `;
 
@@ -146,7 +146,7 @@ function safeGetByClass(classSelector) {
 function getNameBy(template) {
 	let authorHandle = getAuthorHandle(),
 		pictureID = getPictureID(),
-		selectionText = document.getSelection().toString().replace(/\n/g, ' ');
+		selectionText = document.getSelection().toString().replace(/\n/g, ' ').trim().slice(0,128); // text selection on the page is trimmed and shortened to 128 symbols just in case
 
 	if ( (!authorHandle) && pictureID) template = template.replace(/@\{OR\}/g, ''); // if there is no authorHandle and we have an ID, ignore '@XX' in the template
 	if (authorHandle.length > AUTHOR_HANDLE_LENGTH_CUTOFF) {						// if authorHandle is too big (multiple artists?), trim it

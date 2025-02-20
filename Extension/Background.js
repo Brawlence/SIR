@@ -32,7 +32,7 @@ var invokeSaveAs = true,
 	clampUnicode = false;
 var firefoxEnviroment = false,
 	useIcons = false;
-var fileNameTemplate = "{handle}@{OR} {ID} {name} {caption} {tags}";
+var fileNameTemplate = "{handle}@{OR} {ID} {name} {caption} {selection} {tags}";
 
 function validateAnswer(tagsOrigin, hosterUrl, requesterUrl) {
 	for (let comboSet of validComboSets) {
