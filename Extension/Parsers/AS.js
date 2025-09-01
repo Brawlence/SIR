@@ -24,7 +24,7 @@ function getPictureName() {
 
 /* FINALLY - an Artstation tag is a link (a) inside a div with tags class - it's complete with a hash sign */
 function getTags() {
-	return safeGetByClass("project-tags")[0].innerText.replace(/#/g, ' ').replace(/[ ,\\/:?<>\t\n\v\f\r]/g, '_');
+	return safeGetByClass("project-tags")[0].innerText.replace(/\n\v\f\r/g,'').replace(/[ ,\\/:?<>\t]/g, '_').replace(/#/g, ' ');
 };
 
 function getPictureID() {

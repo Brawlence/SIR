@@ -7,7 +7,7 @@
 		"48": "SIR_48x48.png",
 		"16": "SIR_16x16.png"
 	},
-	"version": "1.8.2",
+	"version": "1.8.3",
 	"manifest_version": 2,
 	"permissions": ["downloads", "contextMenus"],
 	"content_scripts": [

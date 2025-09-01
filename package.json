@@ -1,6 +1,6 @@
 {
     "name": "sir_image_renamer",
-    "version": "1.8.2",
+    "version": "1.8.3",
     "description": "SIR is an Image Renamer.\nProvides meaningful image names when saving on Pixiv, Deviantart, Artstation, etc.",
     "scripts": {
         "test": "web-ext lint --source-dir=./Extension/",
