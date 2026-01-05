@@ -3,6 +3,7 @@
 "use strict";
 
 const AUTHOR_HANDLE_LENGTH_CUTOFF = 100;
+const randLength = 10;
 
 const sirHighlightStyle = String.raw`
 	{
