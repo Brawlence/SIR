@@ -4,6 +4,8 @@
 
 const AUTHOR_HANDLE_LENGTH_CUTOFF = 100;
 
+const randLength = 10;
+
 const sirHighlightStyle = String.raw`
 	{
 		border-width: 2px;
@@ -95,6 +97,7 @@ const loc_templateUpdatePrompt = String.raw`
  {caption} - Picture caption
  {selection} - The text you have selected (trimmed to 128 symbols)
  {tags} - Tags string
+ {rand} - random string
 `;
 
 function pick(element) {
@@ -161,6 +164,7 @@ function getNameBy(template) {
 	template = template.replace(/\{caption\}/g, getPictureName());
 	template = template.replace(/\{selection\}/g, selectionText);
 	template = template.replace(/\{tags\}/g, getTags());
+	template = template.replace(/\{rand\}/g, getRand(randLength));
 
 	template = template.replace(/\s{2,}/g, ' ').trim();
 
@@ -170,6 +174,17 @@ function getNameBy(template) {
 function getLinksArr() {
 	let array = parseAdditionalLinks();
 	return array || [];	
+};
+
+function getRand(randLength) {
+	const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+	let randString = "";
+
+	for (let i = 0; i < randLength; i++) {
+		randString += chars.charAt(Math.floor(Math.random() * chars.length));
+	}
+
+	return randString;
 };
 
 // ! Drag-able elderMagicField 
